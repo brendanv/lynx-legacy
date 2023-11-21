@@ -1,0 +1,5 @@
+.pythonlibs/
+.replit
+replit.nix
+db.sqlite3
+__pycache__
