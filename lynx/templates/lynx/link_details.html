@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lynx</title>
+    <title>Lynx - {{ link.title }}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
     <header>
-        <h1>Welcome to Lynx</h1>
+        <h1>{{ link.title }}</h1>
     </header>
-    <p>This is the readable view for link {{ link_id }}</p>
+    <p>This is the details view for my link with ID {{ link.id }}</p>
+    <a href="{% url 'lynx:link_viewer' link.id %}">Link details</a>
 </body>
 </html>

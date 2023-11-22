@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lynx - {{ link.title }}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>{{ link.title }}</h1>
+    </header>
+    <p>This is the readable view for my link with ID {{ link.id }}</p>
+    <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
+</body>
+</html>
