@@ -3,6 +3,7 @@ from django.db import models
 class Link(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    last_viewed_at = models.DateTimeField(null=True)
 
     url = models.URLField(max_length=1000)
     hostname = models.CharField(max_length=200, blank=True)

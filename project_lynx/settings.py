@@ -125,4 +125,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS = ['https://lynx--replit868.repl.co']
+CSRF_TRUSTED_ORIGINS = ['https://lynx--replit868.repl.co', 'https://lynx.replit868.repl.co']
