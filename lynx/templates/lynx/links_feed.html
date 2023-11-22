@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lynx - All Links</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>All Links</h1>
+    </header>
+  {% if links_list %}
+      <ul>
+      {% for link in links_list %}
+          <li><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></li>
+      {% endfor %}
+      </ul>
+  {% else %}
+      <p>No links are saved</p>
+  {% endif %}
+</body>
+</html>
