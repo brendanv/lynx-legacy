@@ -4,13 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lynx - {{ link.title }}</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link href="{% static 'lynx/viewer.css' %}" rel="stylesheet">
 </head>
 <body>
+  <article>
     <header>
-        <h1>{{ link.title }}</h1>
+      <h1>{{ link.title }}</h1>
+      <section class="metadata">
+        <span>{{ link.author }}</span>
+        <span>{{ link.article_date }}</span>
+        <span>{{ link.read_time_display }}</span>
+      </section>
     </header>
-    <p>This is the readable view for my link with ID {{ link.id }}</p>
-    <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
+    <section class="content">
+      {{ link.article_html | safe }}
+    </section>
+    <footer>
+      <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
+    </footer>
+  </article>
 </body>
 </html>

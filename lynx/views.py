@@ -15,12 +15,15 @@ def add_link(request):
 
 @require_http_methods(["POST"])
 def create_link(request):
+  request.user.is_authenticated
+  if not request.user.is_authenticated:
+    return render(request, "lynx/add_link.html",
+                  {"error_message": "You must be signed in"})
+    
   url = request.POST.get("url")
-  print(url)
   if url:
-    parsed_url = url_parser.parse_url(url)
+    parsed_url = url_parser.parse_url(url, request.user)
     parsed_url.save()
-    print(parsed_url)
     return HttpResponseRedirect(
         reverse("lynx:link_viewer", args=(parsed_url.id, )))
   else:
@@ -45,7 +48,8 @@ class DetailsView(generic.DetailView):
 
 
 class FeedView(generic.ListView):
-  model = Link
   template_name = "lynx/links_feed.html"
   context_object_name = "links_list"
-  paginate_by = 40
+  paginate_by = 25
+  def get_queryset(self):
+    return Link.objects.filter(creator=self.request.user).order_by('-created_at')

@@ -13,4 +13,6 @@ python = "^3.8"
 Django = "^4.2.7"
 trafilatura = "1.6.1"
 readtime = "3.0.0"
+readability-lxml = "0.8.1"
+requests = "2.31.0"
 [tool.poetry.dev-dependencies]

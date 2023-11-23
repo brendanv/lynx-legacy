@@ -75,6 +75,17 @@ files = [
 ]
 
 [[package]]
+name = "chardet"
+version = "5.2.0"
+description = "Universal encoding detector for Python 3"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "chardet-5.2.0-py3-none-any.whl", hash = "sha256:e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"},
+    {file = "chardet-5.2.0.tar.gz", hash = "sha256:1b3b6ff479a8c414bc3fa2c0852995695c4a026dcd6d0633b2dd092ca39c1cf7"},
+]
+
+[[package]]
 name = "charset-normalizer"
 version = "3.3.2"
 description = "The Real First Universal Charset Detector. Open, modern and actively maintained alternative to Chardet."
@@ -288,6 +299,17 @@ all = ["backports-datetime-fromisoformat", "cchardet (>=2.1.7)", "faust-cchardet
 speed = ["backports-datetime-fromisoformat", "cchardet (>=2.1.7)", "faust-cchardet (>=2.1.19)", "urllib3[brotli]"]
 
 [[package]]
+name = "idna"
+version = "3.4"
+description = "Internationalized Domain Names in Applications (IDNA)"
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
+    {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
+]
+
+[[package]]
 name = "justext"
 version = "3.0.0"
 description = "Heuristic based boilerplate removal tool"
@@ -482,6 +504,25 @@ files = [
 ]
 
 [[package]]
+name = "readability-lxml"
+version = "0.8.1"
+description = "fast html to text parser (article readability tool) with python 3 support"
+optional = false
+python-versions = "*"
+files = [
+    {file = "readability-lxml-0.8.1.tar.gz", hash = "sha256:e51fea56b5909aaf886d307d48e79e096293255afa567b7d08bca94d25b1a4e1"},
+    {file = "readability_lxml-0.8.1-py3-none-any.whl", hash = "sha256:e0d366a21b1bd6cca17de71a4e6ea16fcfaa8b0a5b4004e39e2c7eff884e6305"},
+]
+
+[package.dependencies]
+chardet = "*"
+cssselect = "*"
+lxml = "*"
+
+[package.extras]
+test = ["timeout-decorator"]
+
+[[package]]
 name = "readtime"
 version = "3.0.0"
 description = "Calculates the time some text takes the average human to read, based on Medium's read time forumula"
@@ -592,6 +633,27 @@ files = [
     {file = "regex-2023.10.3-cp39-cp39-win_amd64.whl", hash = "sha256:adbccd17dcaff65704c856bd29951c58a1bd4b2b0f8ad6b826dbd543fe740988"},
     {file = "regex-2023.10.3.tar.gz", hash = "sha256:3fef4f844d2290ee0ba57addcec17eec9e3df73f10a2748485dfd6a3a188cc0f"},
 ]
+
+[[package]]
+name = "requests"
+version = "2.31.0"
+description = "Python HTTP for Humans."
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
+    {file = "requests-2.31.0.tar.gz", hash = "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"},
+]
+
+[package.dependencies]
+certifi = ">=2017.4.17"
+charset-normalizer = ">=2,<4"
+idna = ">=2.5,<4"
+urllib3 = ">=1.21.1,<3"
+
+[package.extras]
+socks = ["PySocks (>=1.5.6,!=1.5.7)"]
+use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
 
 [[package]]
 name = "six"
@@ -725,4 +787,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "7a043e8a52707e2d05f1729b659b3cb45327a723c905b05edfdb684154ce7db0"
+content-hash = "1d506676d0a4f2d471886933c45e708e23e62b9484cb1c23f5d324857c09d4a5"
