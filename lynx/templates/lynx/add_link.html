@@ -6,13 +6,10 @@
     <title>Lynx - Add Link</title>
 </head>
 <body>
-    <form action="{% url 'lynx:create_link' %}" method="post">
-    {% csrf_token %}
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-    <fieldset>
-      <input type="url" name="url" placeholder="URL" required>
-    </fieldset>
-    <input type="submit" value="Vote">
+    <form action="{% url 'lynx:add_link' %}" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input type="submit" value="Add">
     </form>
 </body>
 </html>
