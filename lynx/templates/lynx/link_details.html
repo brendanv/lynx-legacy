@@ -12,5 +12,10 @@
     </header>
     <p>This is the details view for my link with ID {{ link.id }}</p>
     <a href="{% url 'lynx:link_viewer' link.id %}">Link details</a>
+    <p>Current summary: {{ link.summary }}</p>
+    <form action="{% url 'lynx:summarize_link' link.id %}" method="post">
+      {% csrf_token %}
+      <input type="submit" value="Summarize">
+    </form>
 </body>
 </html>

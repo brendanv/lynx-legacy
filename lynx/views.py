@@ -1,11 +1,13 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import reverse, render, redirect
-from django.views import generic
+from asgiref.sync import async_to_sync
+from django.db.models.fields.related_descriptors import sync_to_async
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, reverse, render, redirect
+from django.views import generic, View
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
-from lynx import url_parser
+from lynx import url_parser, url_summarizer
 from lynx.models import Link
 
 
@@ -29,6 +31,21 @@ class AddLinkView(LoginRequiredMixin, generic.FormView):
   def form_valid(self, form):
     link = form.create_link(self.request.user)
     return HttpResponseRedirect(reverse("lynx:link_viewer", args=(link.id, )))
+
+
+class SummarizeLinkView(View):
+  async def post(self, request, pk):
+    try:
+      if not await (sync_to_async(lambda: request.user.is_authenticated)()):
+        return JsonResponse({"error": "You must be logged in to summarize a link."})
+      link = await Link.objects.aget(pk=pk, creator=request.user)
+      summary = await url_summarizer.generate_summary(link)
+      link.summary = summary
+      await link.asave()
+
+      return HttpResponseRedirect(reverse("lynx:link_details", args=(link.id, )))
+    except Link.DoesNotExist:
+      return JsonResponse({"error": "Link does not exist."})
 
 
 class ReadableView(LoginRequiredMixin, generic.DetailView):

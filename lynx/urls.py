@@ -18,4 +18,7 @@ urlpatterns = [
     path("links/add",
          views.AddLinkView.as_view(),
          name="add_link"),
+    path("link/<int:pk>/summarize",
+         views.SummarizeLinkView.as_view(),
+         name="summarize_link"),
 ]
