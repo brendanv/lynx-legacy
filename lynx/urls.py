@@ -1,24 +1,22 @@
 from django.urls import path
-from django.contrib.auth.decorators import login_required
 
 from . import views
 
 app_name = 'lynx'
 urlpatterns = [
-    path("", views.index, name="index"),
-    path("links/all",
+    path("",
          views.FeedView.as_view(),
          name="links_feed"),
-    path("link/<int:pk>/details/",
+    path("<int:pk>/details/",
          views.DetailsView.as_view(),
          name="link_details"),
-    path("link/<int:pk>/view",
+    path("<int:pk>/view",
          views.ReadableView.as_view(),
          name="link_viewer"),
-    path("links/add",
+    path("add/",
          views.AddLinkView.as_view(),
          name="add_link"),
-    path("link/<int:pk>/summarize",
+    path("<int:pk>/summarize/",
          views.SummarizeLinkView.as_view(),
          name="summarize_link"),
 ]
