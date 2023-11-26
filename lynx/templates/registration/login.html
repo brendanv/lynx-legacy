@@ -5,10 +5,26 @@
     <title>Lynx - Login</title>
     {% load static %}
     <link href="{% static 'lynx/pico.css' %}" rel="stylesheet">
+    <style>
+      article div:nth-of-type(2) {
+        background-color: #374956;
+        background-image: url("{% static 'lynx/zdenek-machacek-k8z65TBa9dY-unsplash.jpg' %}");
+        background-position: center;
+        background-size: cover;
+      }
+      article {
+        padding: 0;
+        overflow: hidden;
+      }
+
+      article div {
+        padding: 2rem;
+      }
+    </style>
 </head>
 <body>
-  <main>
-    <article>
+  <main class="container">
+    <article class="grid">
       <div>
         <hgroup>
           <h1>Lynx</h1>
@@ -41,6 +57,7 @@
           <button type="submit">Login</button>
         </form>
       </div>
+      <div></div>
     </article>
   </main>
 </body>
