@@ -33,3 +33,11 @@ class Link(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class UserSetting(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    openai_api_key = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"UserSetting({self.user.username})"

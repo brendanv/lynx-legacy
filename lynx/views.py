@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from lynx import url_parser, url_summarizer
-from lynx.models import Link
+from lynx.models import Link, UserSetting
 
 
 class AddLinkForm(forms.Form):
@@ -73,3 +73,26 @@ class FeedView(LoginRequiredMixin, generic.ListView):
   def get_queryset(self):
     return Link.objects.filter(
         creator=self.request.user).order_by('-created_at')
+
+class UpdateSettingsForm(forms.Form):
+  openai_api_key = forms.CharField(label="OpenAI API Key", max_length=255, widget=forms.PasswordInput(render_value=True), required=False)
+
+  def update_setting(self, user):
+    setting, _ = UserSetting.objects.get_or_create(user=user)
+    setting.openai_api_key = self.cleaned_data['openai_api_key']
+    setting.save()
+
+
+class UpdateSettingsView(LoginRequiredMixin, generic.FormView):
+  template_name = 'lynx/usersetting_form.html'
+  form_class = UpdateSettingsForm
+
+  def form_valid(self, form):
+    form.update_setting(self.request.user)
+    return HttpResponseRedirect(reverse("lynx:user_settings"))
+
+  def get_initial(self):
+    setting, _ = UserSetting.objects.get_or_create(user=self.request.user)
+    initial = super().get_initial()
+    initial['openai_api_key'] = setting.openai_api_key
+    return initial

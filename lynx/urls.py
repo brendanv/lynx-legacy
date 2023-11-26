@@ -19,4 +19,7 @@ urlpatterns = [
     path("<int:pk>/summarize/",
          views.SummarizeLinkView.as_view(),
          name="summarize_link"),
+    path('settings/',
+         views.UpdateSettingsView.as_view(),
+         name='user_settings'),
 ]

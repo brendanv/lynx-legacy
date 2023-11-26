@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link href="{% static 'lynx/pico.css' %}" rel="stylesheet">
+    <title>Lynx - Update Settings</title>
+</head>
+<body>
+  <main class="container">
+    <hgroup>
+      <h1>Update settings</h1>
+    </hgroup>
+    <form action="{% url 'lynx:user_settings' %}" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input type="submit" value="Update">
+    </form>
+  </main>
+</body>
+</html>
