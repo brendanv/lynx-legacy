@@ -5,24 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lynx - {{ link.title }}</title>
     {% load static %}
-    <link href="{% static 'lynx/viewer.css' %}" rel="stylesheet">
+    <link href="{% static 'lynx/pico.css' %}" rel="stylesheet">
 </head>
 <body>
-  <article>
+  <main>
     <header>
-      <h1>{{ link.title }}</h1>
-      <section class="metadata">
-        <span>{{ link.author }}</span>
-        <span>{{ link.article_date }}</span>
-        <span>{{ link.read_time_display }}</span>
-      </section>
+      <hgroup>
+        <h1>{{ link.title }}</h1>
+        <h3>
+          <span>{{ link.author }}</span>
+          <span>{{ link.article_date }}</span>
+          <span>{{ link.read_time_display }}</span>
+        </h3>
+      </hgroup>
     </header>
-    <section class="content">
+    <section>
       {{ link.article_html | safe }}
     </section>
     <footer>
       <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
     </footer>
-  </article>
+  </main>
 </body>
 </html>

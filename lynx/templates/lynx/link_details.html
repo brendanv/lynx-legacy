@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lynx - {{ link.title }}</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link href="{% static 'lynx/pico.css' %}" rel="stylesheet">
 </head>
 <body>
+  <main>
     <header>
         <h1>{{ link.title }}</h1>
     </header>
@@ -17,5 +19,6 @@
       {% csrf_token %}
       <input type="submit" value="Summarize">
     </form>
+  </main>
 </body>
 </html>

@@ -3,13 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link href="{% static 'lynx/pico.css' %}" rel="stylesheet">
     <title>Lynx - Add Link</title>
 </head>
 <body>
+  <main>
+    <hgroup>
+      <h1>Add Link</h1>
+      <h3>Content will be parsed automatically</h3>
+    </hgroup>
     <form action="{% url 'lynx:add_link' %}" method="post">
       {% csrf_token %}
       {{ form }}
       <input type="submit" value="Add">
     </form>
+  </main>
 </body>
 </html>
