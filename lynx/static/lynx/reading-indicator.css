@@ -1,0 +1,46 @@
+/* https://alvaromontoro.com/blog/68014/css-only-reading-progress-indicator */
+
+.reading-indicator {
+   position: absolute;
+   top: 0;
+   left: 0;
+   width: 100%;
+   height: calc(100% - 100vh);
+   z-index: -1;
+   overflow: hidden;
+}
+
+.reading-indicator::before {
+   content: "";
+   position: fixed;
+   top: 0;
+   left: -0.5%;
+   width: 101%;
+   height: 10px;
+   background: linear-gradient(90deg, hsl(195, 85%, 41%), hsl(195, 85%, 41%));
+}
+
+.reading-indicator::after {
+   content: "";
+   position: absolute;
+   top: 0;
+   left: -0.5%;
+   width: 101%;
+   height: 100%;
+   background: linear-gradient(to bottom left, #fff 50%, #fff0 50%);
+}
+@media (prefers-color-scheme: dark) {
+  .reading-indicator::after {
+   background: linear-gradient(to bottom left, #11191f 50%, #11191f00 50%);
+  }
+}
+
+html {
+   position: relative;
+}
+
+
+
+
+
+
