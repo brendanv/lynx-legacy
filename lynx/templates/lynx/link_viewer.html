@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lynx - {{ link.title }}</title>
     {% load static %}
-    <link href="{% static 'lynx/pico.css' %}" rel="stylesheet">
+    <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
     <link href="{% static 'lynx/reading-indicator.css' %}" rel="stylesheet">
 </head>
 <body>
   <div class="reading-indicator"></div>
-  <main class="container">
+  <main>
     <header>
       <hgroup>
         <h1>{{ link.title }}</h1>
