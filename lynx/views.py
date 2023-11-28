@@ -28,17 +28,20 @@ class AddLinkView(LoginRequiredMixin, generic.FormView):
 
 
 class SummarizeLinkView(View):
+
   async def post(self, request, pk):
     try:
       if not await (sync_to_async(lambda: request.user.is_authenticated)()):
-        return JsonResponse({"error": "You must be logged in to summarize a link."})
+        return JsonResponse(
+            {"error": "You must be logged in to summarize a link."})
       link = await Link.objects.aget(pk=pk, creator=request.user)
       summary = await url_summarizer.generate_summary(link)
       if summary is not None:
         link.summary = summary
         await link.asave()
 
-      return HttpResponseRedirect(reverse("lynx:link_details", args=(link.pk, )))
+      return HttpResponseRedirect(
+          reverse("lynx:link_details", args=(link.pk, )))
     except Link.DoesNotExist:
       return JsonResponse({"error": "Link does not exist."})
 
@@ -74,8 +77,13 @@ class FeedView(LoginRequiredMixin, generic.ListView):
     return Link.objects.filter(
         creator=self.request.user).order_by('-created_at')
 
+
 class UpdateSettingsForm(forms.Form):
-  openai_api_key = forms.CharField(label="OpenAI API Key", max_length=255, widget=forms.PasswordInput(render_value=True), required=False)
+  openai_api_key = forms.CharField(
+      label="OpenAI API Key",
+      max_length=255,
+      widget=forms.PasswordInput(render_value=True),
+      required=False)
 
   def update_setting(self, user):
     setting, _ = UserSetting.objects.get_or_create(user=user)
