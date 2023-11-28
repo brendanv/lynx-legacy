@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from lynx import url_parser, url_summarizer
 from lynx.models import Link, UserSetting
+from lynx.errors import NoAPIKeyInSettings
 
 
 class AddLinkForm(forms.Form):
@@ -35,15 +36,15 @@ class SummarizeLinkView(View):
         return JsonResponse(
             {"error": "You must be logged in to summarize a link."})
       link = await Link.objects.aget(pk=pk, creator=request.user)
-      summary = await url_summarizer.generate_summary(link)
-      if summary is not None:
-        link.summary = summary
-        await link.asave()
+      link = await url_summarizer.generate_and_persist_summary(link)
 
       return HttpResponseRedirect(
           reverse("lynx:link_details", args=(link.pk, )))
     except Link.DoesNotExist:
       return JsonResponse({"error": "Link does not exist."})
+    except NoAPIKeyInSettings:
+      return JsonResponse(
+          {"error": "You must have an OpenAI API key in your settings."})
 
 
 class ReadableView(LoginRequiredMixin, generic.DetailView):
