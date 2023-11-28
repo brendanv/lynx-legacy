@@ -312,6 +312,20 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-types"
+version = "0.19.1"
+description = "Type stubs for Django"
+optional = false
+python-versions = ">=3.7,<4.0"
+files = [
+    {file = "django_types-0.19.1-py3-none-any.whl", hash = "sha256:b3f529de17f6374d41ca67232aa01330c531bbbaa3ac4097896f31ac33c96c30"},
+    {file = "django_types-0.19.1.tar.gz", hash = "sha256:5ae7988612cf6fbc357b018bbc3b3a878b65e04275cc46e0d35d66a708daff12"},
+]
+
+[package.dependencies]
+types-psycopg2 = ">=2.9.21.13"
+
+[[package]]
 name = "exceptiongroup"
 version = "1.2.0"
 description = "Backport of PEP 654 (exception groups)"
@@ -1045,6 +1059,17 @@ all = ["brotli", "cchardet (>=2.1.7)", "faust-cchardet (>=2.1.18)", "htmldate[sp
 gui = ["Gooey (>=1.0.1)"]
 
 [[package]]
+name = "types-psycopg2"
+version = "2.9.21.17"
+description = "Typing stubs for psycopg2"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "types-psycopg2-2.9.21.17.tar.gz", hash = "sha256:dc84bef202eae39e59961c1174f4d3845f06f62d2704733b1be710c3be0c3b29"},
+    {file = "types_psycopg2-2.9.21.17-py3-none-any.whl", hash = "sha256:635a5ee8fd11ec6a056494ca6533ab66475d967df9a4f8d4f8209887ba61ad2c"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.8.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1103,4 +1128,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "670127e2b9e2c4b8cea625104fbdb7ecefd8d0d7ab105733fdd2ae5576222774"
+content-hash = "54c0fe95031531111cd8e885d70f9018106a668de869cb8c50ec505e28334cc8"

@@ -1,6 +1,6 @@
-from django.db.models.fields.related_descriptors import sync_to_async
+from asgiref.sync import sync_to_async
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import reverse
+from django.urls import reverse
 from django.views import generic, View
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -34,10 +34,11 @@ class SummarizeLinkView(View):
         return JsonResponse({"error": "You must be logged in to summarize a link."})
       link = await Link.objects.aget(pk=pk, creator=request.user)
       summary = await url_summarizer.generate_summary(link)
-      link.summary = summary
-      await link.asave()
+      if summary is not None:
+        link.summary = summary
+        await link.asave()
 
-      return HttpResponseRedirect(reverse("lynx:link_details", args=(link.id, )))
+      return HttpResponseRedirect(reverse("lynx:link_details", args=(link.pk, )))
     except Link.DoesNotExist:
       return JsonResponse({"error": "Link does not exist."})
 
