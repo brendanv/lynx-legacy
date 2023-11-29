@@ -1,60 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lynx - All Links</title>
-    {% load static %}
-    <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
-    <style>
-      img {
-        object-fit: cover;
-        width: 100px;
-        height: 100px;
-      }
-      h5 {
-        margin-bottom: 0;
-      }
-      .preview-img {
-        width: 100px;
-        height: 100px;
-        padding: 0;
-      }
-      /* Want list view to be more dense than default styles */
-      article {
-        padding: 0 1rem;
-        margin: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <main>
-      <h1>All Links</h1>
-      {% if links_list %}
-      {% for link in links_list %}
-      <article>
-        <table>
-          <tr>
-            <td class="preview-img">
-              <img src="{{ link.header_image_url }}" alt="{{ link.title }}" />
-            </td>
-            <td>
-              <div>
-                <h5><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h5>
-                <small>
-                {{ link.article_date }} · {{ link.hostname }}
-                </small>
-                <br /><br />
-                {{ link.excerpt }}
-              </div>
-            </td>
-          </tr>
-        </table>
-      </article>
-      {% endfor %}
-      {% else %}
-      <p>No links are saved</p>
-      {% endif %}
-    </main>
-  </body>
-</html>
+{% extends 'lynx/base.html' %}
+
+{% block title %}All Links{% endblock %}
+
+{% block head %}
+<style>
+  img {
+    object-fit: cover;
+    width: 100px;
+    height: 100px;
+  }
+  h5 {
+    margin-bottom: 0;
+  }
+  .preview-img {
+    width: 100px;
+    height: 100px;
+    padding: 0;
+  }
+  /* Want list view to be more dense than default styles */
+  article {
+    padding: 0 1rem;
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+  <h1>All Links</h1>
+  {% if links_list %}
+  {% for link in links_list %}
+  <article>
+    <table>
+      <tr>
+        <td class="preview-img">
+          <img src="{{ link.header_image_url }}" alt="{{ link.title }}" />
+        </td>
+        <td>
+          <div>
+            <h5><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h5>
+            <small>
+            {{ link.article_date }} · {{ link.hostname }}
+            </small>
+            <br /><br />
+            {{ link.excerpt }}
+          </div>
+        </td>
+      </tr>
+    </table>
+  </article>
+  {% endfor %}
+  {% else %}
+  <p>No links are saved</p>
+  {% endif %}
+{% endblock %}

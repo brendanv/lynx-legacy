@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lynx - {{ link.title }}</title>
-    {% load static %}
-    <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
-</head>
-<body>
-  <main>
+{% extends 'lynx/base.html' %}
+
+{% block title %}{{ link.title }}{% endblock %}
+{% block content %}
     <header>
         <h1>{{ link.title }}</h1>
     </header>
@@ -19,6 +12,4 @@
       {% csrf_token %}
       <input type="submit" value="Summarize">
     </form>
-  </main>
-</body>
-</html>
+{% endblock %}

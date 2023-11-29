@@ -1,22 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
-    <title>Lynx - Update Settings</title>
-</head>
-<body>
-  <main>
-    <hgroup>
-      <h1>Update settings</h1>
-    </hgroup>
+{% extends 'lynx/base.html' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block content %}
+    <h1>Update settings</h1>
     <form action="{% url 'lynx:user_settings' %}" method="post">
       {% csrf_token %}
       {{ form }}
       <input type="submit" value="Update">
     </form>
-  </main>
-</body>
-</html>
+{% endblock %}

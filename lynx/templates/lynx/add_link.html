@@ -1,14 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
-    <title>Lynx - Add Link</title>
-</head>
-<body>
-  <main>
+{% extends 'lynx/base.html' %}
+
+{% block title %}Add Link{% endblock %}
+{% block content %}
     <hgroup>
       <h1>Add Link</h1>
       <h3>Content will be parsed automatically</h3>
@@ -18,6 +11,4 @@
       {{ form }}
       <input type="submit" value="Add">
     </form>
-  </main>
-</body>
-</html>
+{% endblock %}
