@@ -7,6 +7,15 @@
     {% load static %}
     <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
     <link href="{% static 'lynx/reading-indicator.css' %}" rel="stylesheet">
+    <style>
+      .subtitle-items {
+        display: flex;
+        gap: 0.3rem;
+      }
+      .subtitle-items span:last-child {
+        margin-left: auto;
+      }
+    </style>
 </head>
 <body>
   <div class="reading-indicator"></div>
@@ -14,13 +23,15 @@
     <header>
       <hgroup>
         <h1>{{ link.title }}</h1>
-        <h3>
-          <span>{{ link.author }}</span>
-          <span>{{ link.article_date }}</span>
+        <h3 class="subtitle-items">
+          <span><a href="{{ link.cleaned_url }}" data-tooltip="View Original" data-placement="left">{{ link.hostname }}</a></span>
+          •
           <span>{{ link.read_time_display }}</span>
+          <span>{{ link.article_date }}</span>
         </h3>
       </hgroup>
     </header>
+    <hr />
     <section>
       {{ link.article_html | safe }}
     </section>
