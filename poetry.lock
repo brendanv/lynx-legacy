@@ -280,6 +280,26 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-ninja"
+version = "1.0.1"
+description = "Django Ninja - Fast Django REST framework"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "django_ninja-1.0.1-py3-none-any.whl", hash = "sha256:5aabd453323ffa59695cc5acce452e93c08d8fb6f6f3cac457a7118a64aba329"},
+    {file = "django_ninja-1.0.1.tar.gz", hash = "sha256:88d85f7807042dcef712bc058d56b031445ea906dd804f86457f6bdd7873b0cd"},
+]
+
+[package.dependencies]
+Django = ">=2.2"
+pydantic = ">=2.0,<3.0.0"
+
+[package.extras]
+dev = ["pre-commit"]
+doc = ["markdown-include", "mkdocs", "mkdocs-material", "mkdocstrings"]
+test = ["black", "django-stubs", "mypy (==0.931)", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django", "ruff (==0.0.275)"]
+
+[[package]]
 name = "django-types"
 version = "0.19.1"
 description = "Type stubs for Django"
@@ -1095,4 +1115,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "58082be3fd27c93c4b80f8c66663d5f25dd27b3de471206c1d628444754549c3"
+content-hash = "6f4a1e1e4f806d21aa9bc6148a81e21a71f9ead81e3bf4bb369c7486b79b6f67"
