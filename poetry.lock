@@ -11,9 +11,6 @@ files = [
     {file = "annotated_types-0.6.0.tar.gz", hash = "sha256:563339e807e53ffd9c267e99fc6d9ea23eb8443c08f112651963e24e22f84a5d"},
 ]
 
-[package.dependencies]
-typing-extensions = {version = ">=4.0.0", markers = "python_version < \"3.9\""}
-
 [[package]]
 name = "anyio"
 version = "3.7.1"
@@ -51,34 +48,6 @@ typing-extensions = {version = ">=4", markers = "python_version < \"3.11\""}
 
 [package.extras]
 tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
-
-[[package]]
-name = "backports-zoneinfo"
-version = "0.2.1"
-description = "Backport of the standard library zoneinfo module"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "backports.zoneinfo-0.2.1-cp36-cp36m-macosx_10_14_x86_64.whl", hash = "sha256:da6013fd84a690242c310d77ddb8441a559e9cb3d3d59ebac9aca1a57b2e18bc"},
-    {file = "backports.zoneinfo-0.2.1-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:89a48c0d158a3cc3f654da4c2de1ceba85263fafb861b98b59040a5086259722"},
-    {file = "backports.zoneinfo-0.2.1-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:1c5742112073a563c81f786e77514969acb58649bcdf6cdf0b4ed31a348d4546"},
-    {file = "backports.zoneinfo-0.2.1-cp36-cp36m-win32.whl", hash = "sha256:e8236383a20872c0cdf5a62b554b27538db7fa1bbec52429d8d106effbaeca08"},
-    {file = "backports.zoneinfo-0.2.1-cp36-cp36m-win_amd64.whl", hash = "sha256:8439c030a11780786a2002261569bdf362264f605dfa4d65090b64b05c9f79a7"},
-    {file = "backports.zoneinfo-0.2.1-cp37-cp37m-macosx_10_14_x86_64.whl", hash = "sha256:f04e857b59d9d1ccc39ce2da1021d196e47234873820cbeaad210724b1ee28ac"},
-    {file = "backports.zoneinfo-0.2.1-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:17746bd546106fa389c51dbea67c8b7c8f0d14b5526a579ca6ccf5ed72c526cf"},
-    {file = "backports.zoneinfo-0.2.1-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:5c144945a7752ca544b4b78c8c41544cdfaf9786f25fe5ffb10e838e19a27570"},
-    {file = "backports.zoneinfo-0.2.1-cp37-cp37m-win32.whl", hash = "sha256:e55b384612d93be96506932a786bbcde5a2db7a9e6a4bb4bffe8b733f5b9036b"},
-    {file = "backports.zoneinfo-0.2.1-cp37-cp37m-win_amd64.whl", hash = "sha256:a76b38c52400b762e48131494ba26be363491ac4f9a04c1b7e92483d169f6582"},
-    {file = "backports.zoneinfo-0.2.1-cp38-cp38-macosx_10_14_x86_64.whl", hash = "sha256:8961c0f32cd0336fb8e8ead11a1f8cd99ec07145ec2931122faaac1c8f7fd987"},
-    {file = "backports.zoneinfo-0.2.1-cp38-cp38-manylinux1_i686.whl", hash = "sha256:e81b76cace8eda1fca50e345242ba977f9be6ae3945af8d46326d776b4cf78d1"},
-    {file = "backports.zoneinfo-0.2.1-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:7b0a64cda4145548fed9efc10322770f929b944ce5cee6c0dfe0c87bf4c0c8c9"},
-    {file = "backports.zoneinfo-0.2.1-cp38-cp38-win32.whl", hash = "sha256:1b13e654a55cd45672cb54ed12148cd33628f672548f373963b0bff67b217328"},
-    {file = "backports.zoneinfo-0.2.1-cp38-cp38-win_amd64.whl", hash = "sha256:4a0f800587060bf8880f954dbef70de6c11bbe59c673c3d818921f042f9954a6"},
-    {file = "backports.zoneinfo-0.2.1.tar.gz", hash = "sha256:fadbfe37f74051d024037f223b8e001611eac868b5c5b06144ef4d8b799862f2"},
-]
-
-[package.extras]
-tzdata = ["tzdata"]
 
 [[package]]
 name = "beautifulsoup4"
@@ -232,13 +201,13 @@ files = [
 
 [[package]]
 name = "courlan"
-version = "0.9.4"
+version = "0.9.5"
 description = "Clean, filter and sample URLs to optimize data collection – includes spam, content type and language filters."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "courlan-0.9.4-py3-none-any.whl", hash = "sha256:72f03e307f3dfe91e0c790ab0766bab2aa319fdb09597daec920e4a394cfc14e"},
-    {file = "courlan-0.9.4.tar.gz", hash = "sha256:6906aa9a15ae9d442821e06ae153c60f385cff41a8d44b9597c00b349f7043c5"},
+    {file = "courlan-0.9.5-py3-none-any.whl", hash = "sha256:3c10fb06a26422b5c5e6f5f6d2c16e5d4308026f9dcea783ca6a88dae5922ee5"},
+    {file = "courlan-0.9.5.tar.gz", hash = "sha256:38dc35b2e3bf1f5d516d00d51ac12ebde543e3417c6be6f6a2273c0fc5b5b353"},
 ]
 
 [package.dependencies]
@@ -292,18 +261,17 @@ files = [
 
 [[package]]
 name = "django"
-version = "4.2.7"
+version = "5.0"
 description = "A high-level Python web framework that encourages rapid development and clean, pragmatic design."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 files = [
-    {file = "Django-4.2.7-py3-none-any.whl", hash = "sha256:e1d37c51ad26186de355cbcec16613ebdabfa9689bbade9c538835205a8abbe9"},
-    {file = "Django-4.2.7.tar.gz", hash = "sha256:8e0f1c2c2786b5c0e39fe1afce24c926040fad47c8ea8ad30aaf1188df29fc41"},
+    {file = "Django-5.0-py3-none-any.whl", hash = "sha256:3a9fd52b8dbeae335ddf4a9dfa6c6a0853a1122f1fb071a8d5eca979f73a05c8"},
+    {file = "Django-5.0.tar.gz", hash = "sha256:7d29e14dfbc19cb6a95a4bd669edbde11f5d4c6a71fdaa42c2d40b6846e807f7"},
 ]
 
 [package.dependencies]
-asgiref = ">=3.6.0,<4"
-"backports.zoneinfo" = {version = "*", markers = "python_version < \"3.9\""}
+asgiref = ">=3.7.0"
 sqlparse = ">=0.3.1"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
@@ -374,25 +342,25 @@ speed = ["cchardet (>=2.1.7)", "faust-cchardet (>=2.1.18)", "urllib3[brotli]"]
 
 [[package]]
 name = "htmldate"
-version = "1.5.2"
+version = "1.6.0"
 description = "Fast and robust extraction of original and updated publication dates from URLs and web pages."
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "htmldate-1.5.2-py3-none-any.whl", hash = "sha256:5b31c901f4a1b7df5a770b471c7390b0e73ea77aaf7373797ff47a4be35871e2"},
-    {file = "htmldate-1.5.2.tar.gz", hash = "sha256:cc8b41c412b21d8a9236981755cfba7dfe25ebaf925a46417058d4902ad77e9b"},
+    {file = "htmldate-1.6.0-py3-none-any.whl", hash = "sha256:6ee374849fe7491b3e6c0b26066e8f6940367b0215e7c4fec88774af065a4dbc"},
+    {file = "htmldate-1.6.0.tar.gz", hash = "sha256:5827c8f626a16800a29e57e8188a3d32d0b08ca4c7bd662537b73bbbf22c45a6"},
 ]
 
 [package.dependencies]
-charset-normalizer = {version = ">=3.3.0", markers = "python_version >= \"3.7\""}
+charset-normalizer = {version = ">=3.3.2", markers = "python_version >= \"3.7\""}
 dateparser = ">=1.1.2"
 lxml = {version = ">=4.9.3", markers = "platform_system != \"Darwin\""}
 python-dateutil = ">=2.8.2"
 urllib3 = {version = ">=1.26,<3", markers = "python_version >= \"3.7\""}
 
 [package.extras]
-all = ["backports-datetime-fromisoformat", "cchardet (>=2.1.7)", "faust-cchardet (>=2.1.19)", "urllib3[brotli]"]
-speed = ["backports-datetime-fromisoformat", "cchardet (>=2.1.7)", "faust-cchardet (>=2.1.19)", "urllib3[brotli]"]
+all = ["backports-datetime-fromisoformat", "faust-cchardet (>=2.1.19)", "urllib3[brotli]"]
+speed = ["backports-datetime-fromisoformat", "faust-cchardet (>=2.1.19)", "urllib3[brotli]"]
 
 [[package]]
 name = "httpcore"
@@ -441,13 +409,13 @@ socks = ["socksio (==1.*)"]
 
 [[package]]
 name = "idna"
-version = "3.4"
+version = "3.6"
 description = "Internationalized Domain Names in Applications (IDNA)"
 optional = false
 python-versions = ">=3.5"
 files = [
-    {file = "idna-3.4-py3-none-any.whl", hash = "sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2"},
-    {file = "idna-3.4.tar.gz", hash = "sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4"},
+    {file = "idna-3.6-py3-none-any.whl", hash = "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"},
+    {file = "idna-3.6.tar.gz", hash = "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca"},
 ]
 
 [[package]]
@@ -587,13 +555,13 @@ source = ["Cython (>=0.29.35)"]
 
 [[package]]
 name = "markdown2"
-version = "2.4.10"
+version = "2.4.11"
 description = "A fast and complete Python implementation of Markdown"
 optional = false
 python-versions = ">=3.5, <4"
 files = [
-    {file = "markdown2-2.4.10-py2.py3-none-any.whl", hash = "sha256:e6105800483783831f5dc54f827aa5b44eb137ecef5a70293d8ecfbb4109ecc6"},
-    {file = "markdown2-2.4.10.tar.gz", hash = "sha256:cdba126d90dc3aef6f4070ac342f974d63f415678959329cc7909f96cc235d72"},
+    {file = "markdown2-2.4.11-py2.py3-none-any.whl", hash = "sha256:2fff5d8e9283218797c5db0e9caad14c4307839919297c5be6ae507d4eeaddbc"},
+    {file = "markdown2-2.4.11.tar.gz", hash = "sha256:c04841d0f9df37457396b9d73c54846ddb097a73e7eb7c81d1589e0bba566cda"},
 ]
 
 [package.extras]
@@ -1060,13 +1028,13 @@ gui = ["Gooey (>=1.0.1)"]
 
 [[package]]
 name = "types-psycopg2"
-version = "2.9.21.17"
+version = "2.9.21.19"
 description = "Typing stubs for psycopg2"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "types-psycopg2-2.9.21.17.tar.gz", hash = "sha256:dc84bef202eae39e59961c1174f4d3845f06f62d2704733b1be710c3be0c3b29"},
-    {file = "types_psycopg2-2.9.21.17-py3-none-any.whl", hash = "sha256:635a5ee8fd11ec6a056494ca6533ab66475d967df9a4f8d4f8209887ba61ad2c"},
+    {file = "types-psycopg2-2.9.21.19.tar.gz", hash = "sha256:ec3aae522dde9c41141597bc41123b4c955fb4093b1fc7ec6ee607795a0a088f"},
+    {file = "types_psycopg2-2.9.21.19-py3-none-any.whl", hash = "sha256:8a4871df20c29e516622be8d66b91814c3262ff94112ff9e2f72a043d8fdf03c"},
 ]
 
 [[package]]
@@ -1103,7 +1071,6 @@ files = [
 ]
 
 [package.dependencies]
-"backports.zoneinfo" = {version = "*", markers = "python_version < \"3.9\""}
 tzdata = {version = "*", markers = "platform_system == \"Windows\""}
 
 [package.extras]
@@ -1127,5 +1094,5 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.8"
-content-hash = "54c0fe95031531111cd8e885d70f9018106a668de869cb8c50ec505e28334cc8"
+python-versions = "^3.10"
+content-hash = "58082be3fd27c93c4b80f8c66663d5f25dd27b3de471206c1d628444754549c3"
