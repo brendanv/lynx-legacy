@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from lynx import views as lynxviews
+from lynx import api as lynxapi
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('links/', include('lynx.urls')),
     path('', lynxviews.FeedView.as_view()),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('api/', lynxapi.api.urls),
 ]
