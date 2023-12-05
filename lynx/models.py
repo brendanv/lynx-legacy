@@ -42,5 +42,7 @@ class UserSetting(models.Model):
                               on_delete=models.CASCADE)
   openai_api_key = models.CharField(max_length=255, blank=True)
 
+  lynx_api_key = models.CharField(max_length=255, blank=True)
+
   def __str__(self):
     return f"UserSetting({self.user.username})"
