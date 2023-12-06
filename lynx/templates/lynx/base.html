@@ -6,9 +6,9 @@
     <title>{% block title %}Lynx{% endblock %}</title>
     {% load static %}
     {% if use_class_based_css %}
-      <link href="{% static 'lynx/pico.min.css' %}" rel="stylesheet">
+      <link href="{% static 'lynx/css/pico.min.css' %}" rel="stylesheet">
     {% else %}
-      <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
+      <link href="{% static 'lynx/css/pico.classless.min.css' %}" rel="stylesheet">
     {% endif %}
     {% block head %}{% endblock %}
     <style>
