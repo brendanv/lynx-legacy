@@ -1,3 +1,4 @@
+from typing import Any
 from asgiref.sync import sync_to_async
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
@@ -5,9 +6,11 @@ from django.views import generic, View
 from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
+from django.forms.widgets import TextInput
 from lynx import url_parser, url_summarizer
 from lynx.models import Link, UserSetting
 from lynx.errors import NoAPIKeyInSettings
+import secrets
 
 
 class AddLinkForm(forms.Form):
@@ -79,6 +82,9 @@ class FeedView(LoginRequiredMixin, generic.ListView):
         creator=self.request.user).order_by('-created_at')
 
 
+class APIKeyWidget(TextInput):
+  template_name = "widgets/api_key_widget.html"
+  
 class UpdateSettingsForm(forms.Form):
   openai_api_key = forms.CharField(
       label="OpenAI API Key",
@@ -86,15 +92,25 @@ class UpdateSettingsForm(forms.Form):
       widget=forms.PasswordInput(render_value=True),
       required=False)
 
+  lynx_api_key = forms.CharField(label="Lynx API Key",
+                                 max_length=255,
+                                 required=False,
+                                 widget=APIKeyWidget(),
+                                )
+
   def update_setting(self, user):
     setting, _ = UserSetting.objects.get_or_create(user=user)
-    setting.openai_api_key = self.cleaned_data['openai_api_key']
+    if 'reset_api_key' in self.data:
+      setting.lynx_api_key = secrets.token_hex(16)
+    elif 'clear_api_key' in self.data:
+      setting.lynx_api_key = ""
     setting.save()
 
 
 class UpdateSettingsView(LoginRequiredMixin, generic.FormView):
   template_name = 'lynx/usersetting_form.html'
   form_class = UpdateSettingsForm
+  extra_context = {'use_class_based_css': True}
 
   def form_valid(self, form):
     form.update_setting(self.request.user)
@@ -104,4 +120,5 @@ class UpdateSettingsView(LoginRequiredMixin, generic.FormView):
     setting, _ = UserSetting.objects.get_or_create(user=self.request.user)
     initial = super().get_initial()
     initial['openai_api_key'] = setting.openai_api_key
+    initial['lynx_api_key'] = setting.lynx_api_key
     return initial

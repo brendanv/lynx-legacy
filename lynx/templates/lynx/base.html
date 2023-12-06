@@ -5,7 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Lynx{% endblock %}</title>
     {% load static %}
-    <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
+    {% if use_class_based_css %}
+      <link href="{% static 'lynx/pico.min.css' %}" rel="stylesheet">
+    {% else %}
+      <link href="{% static 'lynx/pico.classless.min.css' %}" rel="stylesheet">
+    {% endif %}
     {% block head %}{% endblock %}
     <style>
       nav {

@@ -1,0 +1,10 @@
+{% with css_classes=widget.attrs.class|default:'' %}
+  <div class="grid">
+    <div>
+      <input type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}{% include "django/forms/widgets/attrs.html" %} readonly>
+    </div>
+    <input type="submit" name="reset_api_key" value="Reset API Key">
+    <input type="submit" name="clear_api_key" value="Clear API Key">
+  </div>
+  <small>Caution - apps with this key will be able to act on your behalf!</small>
+{% endwith %}
