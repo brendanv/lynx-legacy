@@ -1,6 +1,6 @@
 {% extends 'lynx/base.html' %}
 
-{% block title %}All Links{% endblock %}
+{% block title %}{{ title }} | Lynx{% endblock %}
 
 {% block head %}
 <style>
@@ -26,7 +26,15 @@
 {% endblock %}
 
 {% block content %}
-  <h1>All Links</h1>
+  <h1>{{ title }}</h1>
+  <details>
+    <summary>Filters</summary>
+    <div class="grid">
+      <a href="{% url 'lynx:links_feed_read' %}" role="button" class="secondary {% if selected_filter != 'read'%}outline{% endif %}">Read</a>
+      <a href="{% url 'lynx:links_feed_unread' %}" role="button" class="secondary {% if selected_filter != 'unread'%}outline{% endif %}">Unread</a>
+      <a href="{% url 'lynx:links_feed_all' %}" role="button" class="secondary {% if selected_filter != 'all'%}outline{% endif %}">All</a>
+    </div>
+  </details>
   {% if links_list %}
   {% for link in links_list %}
   <article>

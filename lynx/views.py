@@ -76,10 +76,30 @@ class FeedView(LoginRequiredMixin, generic.ListView):
   template_name = "lynx/links_feed.html"
   context_object_name = "links_list"
   paginate_by = 25
+  filter = None
 
   def get_queryset(self):
-    return Link.objects.filter(
-        creator=self.request.user).order_by('-created_at')
+    queryset = Link.objects.filter(creator=self.request.user)
+    if self.filter == "read":
+      queryset = queryset.filter(last_viewed_at__isnull=False)
+    elif self.filter == "unread":
+      queryset = queryset.filter(last_viewed_at__isnull=True)
+
+    return queryset.order_by('-created_at')
+
+  def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    data = super().get_context_data(**kwargs)
+    data['use_class_based_css'] = True
+    data['selected_filter'] = self.filter
+    
+    if self.filter == "read":
+      data['title'] = "Read Links"
+    elif self.filter == "unread":
+      data['title'] = "Unread Links"
+    else:
+      data['title'] = "All Links"
+      
+    return data
 
 
 class APIKeyWidget(TextInput):
