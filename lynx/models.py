@@ -46,3 +46,13 @@ class UserSetting(models.Model):
 
   def __str__(self):
     return f"UserSetting({self.user.username})"
+
+
+class UserCookie(models.Model):
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  cookie_name = models.CharField(max_length=1000)
+  cookie_value = models.CharField(max_length=2000)
+  cookie_domain = models.CharField(max_length=1000)
+
+  def __str__(self) -> str:
+    return f"UserCookie({self.user.username}, {self.cookie_name})"

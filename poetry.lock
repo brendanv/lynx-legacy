@@ -280,6 +280,19 @@ argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
 
 [[package]]
+name = "django-extra-views"
+version = "0.14.0"
+description = "Extra class-based views for Django"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-extra-views-0.14.0.tar.gz", hash = "sha256:2b9daf99c79e91035aa3f269232afcb3ccf837f0f49f2dc6da6916fe34bc1e0a"},
+]
+
+[package.dependencies]
+Django = ">=2.1"
+
+[[package]]
 name = "django-ninja"
 version = "1.0.1"
 description = "Django Ninja - Fast Django REST framework"
@@ -1115,4 +1128,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "6f4a1e1e4f806d21aa9bc6148a81e21a71f9ead81e3bf4bb369c7486b79b6f67"
+content-hash = "ede781ae8c11b77cd3083fc385b94793a8fa20abafbf07e4cff492e74e5673a8"

@@ -7,12 +7,19 @@ from django.utils import timezone
 from readability import Document
 import trafilatura
 from trafilatura.settings import use_config
+from urllib.parse import urlparse
 
-from .models import Link
+from .models import Link, UserCookie
 
 
 def parse_url(url, user):
-  response = requests.get(url)
+  domain = urlparse(url).netloc
+  print(domain)
+  cookies = UserCookie.objects.filter(user=user, cookie_domain=domain)
+  print(cookies)
+  cookie_data = {cookie.cookie_name: cookie.cookie_value for cookie in cookies}
+  print(cookie_data)
+  response = requests.get(url, cookies=cookie_data)
 
   readable_doc = Document(response.content)
   summary_html = readable_doc.summary()

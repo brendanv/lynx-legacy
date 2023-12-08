@@ -1,5 +1,6 @@
 from typing import Any
 from asgiref.sync import sync_to_async
+from django.forms.formsets import DELETION_FIELD_NAME, BaseFormSet
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views import generic, View
@@ -7,8 +8,9 @@ from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.forms.widgets import TextInput
+from extra_views import ModelFormSetView
 from lynx import url_parser, url_summarizer
-from lynx.models import Link, UserSetting
+from lynx.models import Link, UserSetting, UserCookie
 from lynx.errors import NoAPIKeyInSettings
 import secrets
 
@@ -162,3 +164,32 @@ class UpdateSettingsView(LoginRequiredMixin, generic.FormView):
     initial['openai_api_key'] = setting.openai_api_key
     initial['lynx_api_key'] = setting.lynx_api_key
     return initial
+
+
+class UpdateCookiesView(LoginRequiredMixin, ModelFormSetView):
+  model = UserCookie
+  fields = ["user", "cookie_name", "cookie_value", "cookie_domain"]
+  template_name = 'lynx/usercookie_form.html'
+
+  def get_factory_kwargs(self):
+    args = super().get_factory_kwargs()
+    args['can_delete'] = True
+    args['can_delete_extra'] = False
+    args['widgets'] = {
+        'user': forms.HiddenInput(),
+        'cookie_value': forms.PasswordInput(render_value=True),
+    }
+    return args
+
+  def get_formset(self):
+    formset = super().get_formset()
+    formset.deletion_widget = forms.CheckboxInput(attrs={'role': 'switch'})
+    return formset
+
+  def get_initial(self):
+    return [{
+        'user': self.request.user,
+    }]
+
+  def get_queryset(self):
+    return UserCookie.objects.filter(user=self.request.user)

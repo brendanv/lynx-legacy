@@ -1,0 +1,31 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Cookies{% endblock %}
+
+{% block head%}
+<style>
+  form .grid div {
+    display: inline-block;
+    padding: 0 1rem;
+    max-width: 25%;
+  }  
+</style>
+{% endblock %}
+
+{% block content %}
+    <hgroup>
+      <h1>Manage cookies</h1>
+      <h3>These cookies will be sent along with requests for articles at the matching domain, allowing you to import articles that require login. Don't share these with anyone, treat them the same as your login info!</h3>
+    </hgroup>
+    <form action="{% url 'lynx:user_cookies' %}" method="post" autocomplete="off">
+      {{ formset.management_form }}
+      {% csrf_token %}
+      {% for form in formset %}
+        <div class="grid">
+          {{ form }}
+        </div>
+        <hr />
+      {% endfor %}
+      <input type="submit" value="Save cookies">
+    </form>
+{% endblock %}
