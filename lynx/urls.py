@@ -13,6 +13,9 @@ urlpatterns = [
     path("read/",
          views.FeedView.as_view(filter="read"),
          name="links_feed_read"),
+    path("search/",
+         views.FeedView.as_view(filter="search"),
+         name="links_feed_search"),
 
     # Link views + actions
     path("<int:pk>/details/", views.DetailsView.as_view(),

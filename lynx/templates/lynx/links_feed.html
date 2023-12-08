@@ -27,12 +27,20 @@
 
 {% block content %}
   <h1>{{ title }}</h1>
-  <details>
-    <summary>Filters</summary>
+  <details {% if selected_filter != 'all' %}open{% endif %}>
+    <summary>Search & Filters</summary>
     <div class="grid">
-      <a href="{% url 'lynx:links_feed_read' %}" role="button" class="secondary {% if selected_filter != 'read'%}outline{% endif %}">Read</a>
-      <a href="{% url 'lynx:links_feed_unread' %}" role="button" class="secondary {% if selected_filter != 'unread'%}outline{% endif %}">Unread</a>
-      <a href="{% url 'lynx:links_feed_all' %}" role="button" class="secondary {% if selected_filter != 'all'%}outline{% endif %}">All</a>
+      <div>
+        <a href="{% url 'lynx:links_feed_read' %}" role="button" class="secondary {% if selected_filter != 'read'%}outline{% endif %}">Read</a>
+        <a href="{% url 'lynx:links_feed_unread' %}" role="button" class="secondary {% if selected_filter != 'unread'%}outline{% endif %}">Unread</a>
+        <a href="{% url 'lynx:links_feed_all' %}" role="button" class="secondary {% if selected_filter != 'all'%}outline{% endif %}">All</a>
+      </div>
+      <div>
+        <form class="grid" action="{% url 'lynx:links_feed_search' %}" method="get">
+          <input type="text" name="q" placeholder="Search" value="{{ query }}" autocomplete="off"/>
+          <button type="submit">Search</button>
+        </form>
+      </div>
     </div>
   </details>
   {% if links_list %}

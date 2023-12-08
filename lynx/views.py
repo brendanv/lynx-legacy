@@ -79,32 +79,51 @@ class FeedView(LoginRequiredMixin, generic.ListView):
   filter = None
 
   def get_queryset(self):
-    queryset = Link.objects.filter(creator=self.request.user)
-    if self.filter == "read":
-      queryset = queryset.filter(last_viewed_at__isnull=False)
-    elif self.filter == "unread":
-      queryset = queryset.filter(last_viewed_at__isnull=True)
+    query_string = self.request.GET.get('q', '')
+    if query_string:
+      sql = '''
+        SELECT lynx_link.*, rank 
+        FROM lynx_link 
+        INNER JOIN (
+          SELECT rowid, rank 
+          FROM lynx_link_fts 
+          WHERE lynx_link_fts MATCH %s
+        ) 
+        ON lynx_link.id = rowid 
+        ORDER BY rank;
+      '''
+      return Link.objects.raw(sql, [query_string])
+    else:
+      queryset = Link.objects.filter(creator=self.request.user)
+      if self.filter == "read":
+        queryset = queryset.filter(last_viewed_at__isnull=False)
+      elif self.filter == "unread":
+        queryset = queryset.filter(last_viewed_at__isnull=True)
 
-    return queryset.order_by('-created_at')
+      return queryset.order_by('-created_at')
 
   def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
     data = super().get_context_data(**kwargs)
     data['use_class_based_css'] = True
     data['selected_filter'] = self.filter
-    
+    data['query'] = self.request.GET.get('q', '')
+
     if self.filter == "read":
       data['title'] = "Read Links"
     elif self.filter == "unread":
       data['title'] = "Unread Links"
+    elif self.filter == "search":
+      data['title'] = "Search Results"
     else:
       data['title'] = "All Links"
-      
+
     return data
 
 
 class APIKeyWidget(TextInput):
   template_name = "widgets/api_key_widget.html"
-  
+
+
 class UpdateSettingsForm(forms.Form):
   openai_api_key = forms.CharField(
       label="OpenAI API Key",
@@ -112,11 +131,12 @@ class UpdateSettingsForm(forms.Form):
       widget=forms.PasswordInput(render_value=True),
       required=False)
 
-  lynx_api_key = forms.CharField(label="Lynx API Key",
-                                 max_length=255,
-                                 required=False,
-                                 widget=APIKeyWidget(),
-                                )
+  lynx_api_key = forms.CharField(
+      label="Lynx API Key",
+      max_length=255,
+      required=False,
+      widget=APIKeyWidget(),
+  )
 
   def update_setting(self, user):
     setting, _ = UserSetting.objects.get_or_create(user=user)
