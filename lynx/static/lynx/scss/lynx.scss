@@ -80,7 +80,15 @@ body > header .container {
   width: 24px;
   height: 24px;
 }
+.nav-page-title {
+  min-width: 0;
+}
+.nav-page-title > li {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 
-footer {
+footer.page-footer {
   background: var(--lynx-background-gradient);
 }
