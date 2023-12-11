@@ -106,7 +106,6 @@ class FeedView(LoginRequiredMixin, generic.ListView):
 
   def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
     data = super().get_context_data(**kwargs)
-    data['use_class_based_css'] = True
     data['selected_filter'] = self.filter
     data['query'] = self.request.GET.get('q', '')
 
@@ -152,7 +151,6 @@ class UpdateSettingsForm(forms.Form):
 class UpdateSettingsView(LoginRequiredMixin, generic.FormView):
   template_name = 'lynx/usersetting_form.html'
   form_class = UpdateSettingsForm
-  extra_context = {'use_class_based_css': True}
 
   def form_valid(self, form):
     form.update_setting(self.request.user)

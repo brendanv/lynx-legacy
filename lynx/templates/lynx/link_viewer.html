@@ -1,43 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lynx - {{ link.title }}</title>
-    {% load static %}
-    <link href="{% static 'lynx/css/pico.classless.min.css' %}" rel="stylesheet">
-    <link href="{% static 'lynx/css/reading-indicator.css' %}" rel="stylesheet">
-    <style>
-      .subtitle-items {
-        display: flex;
-        gap: 0.3rem;
-      }
-      .subtitle-items span:last-child {
-        margin-left: auto;
-      }
-    </style>
-</head>
-<body>
-  <div class="reading-indicator"></div>
-  <main>
-    <header>
-      <hgroup>
-        <h1>{{ link.title }}</h1>
-        <h3 class="subtitle-items">
-          <span><a href="{{ link.cleaned_url }}" data-tooltip="View Original" data-placement="left">{{ link.hostname }}</a></span>
-          •
-          <span>{{ link.read_time_display }}</span>
-          <span>{{ link.article_date }}</span>
-        </h3>
-      </hgroup>
-    </header>
-    <hr />
-    <section>
-      {{ link.article_html | safe }}
-    </section>
-    <footer>
-      <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
-    </footer>
-  </main>
-</body>
-</html>
+{% extends 'lynx/base_without_nav.html' %}
+
+{% block title %}{{ link.title }} | Lynx{% endblock %}
+
+{% load static %}
+{% block head_css %}
+  <link href="{% static 'lynx/css/reading-indicator.css' %}" rel="stylesheet">
+  <style>
+    .subtitle-items {
+      display: flex;
+      gap: 0.3rem;
+    }
+    .subtitle-items span:last-child {
+      margin-left: auto;
+    }
+  </style>
+{% endblock %}
+
+{% block prebody %}
+<div class="reading-indicator"></div>
+{% endblock %}
+
+{% block content %}
+  <hgroup>
+    <h1>{{ link.title }}</h1>
+    <h3 class="subtitle-items">
+      <span><a href="{{ link.cleaned_url }}" data-tooltip="View Original" data-placement="left">{{ link.hostname }}</a></span>
+      •
+      <span>{{ link.read_time_display }}</span>
+      <span>{{ link.article_date }}</span>
+    </h3>
+  </hgroup>
+  <hr />
+  <section>
+    {{ link.article_html | safe }}
+  </section>
+  <footer>
+    <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
+  </footer>
+{% endblock %}

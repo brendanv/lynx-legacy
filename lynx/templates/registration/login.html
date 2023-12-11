@@ -1,10 +1,9 @@
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lynx - Login</title>
-    {% load static %}
-    <link href="{% static 'lynx/css/pico.min.css' %}" rel="stylesheet">
+  {% extends 'lynx/base_without_nav.html' %}
+
+  {% block title %}Login | Lynx{% endblock %}
+
+  {% load static %}
+  {% block head_css %}
     <style>
       /* Grid */
       body>main {
@@ -84,9 +83,9 @@
         padding: 1rem 0;
       }
     </style>
-</head>
-<body>
-  <main class="container">
+  {% endblock %}
+
+{% block content %}
     <article class="grid">
       <div>
         <hgroup>
@@ -122,6 +121,4 @@
       </div>
       <div></div>
     </article>
-  </main>
-</body>
-</html>
+  {% endblock %}

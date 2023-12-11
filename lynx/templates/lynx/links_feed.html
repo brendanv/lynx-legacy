@@ -2,41 +2,51 @@
 
 {% block title %}{{ title }} | Lynx{% endblock %}
 
-{% block head %}
+{% block head_css %}
 <style>
-  img {
+  .article-flex {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-top: 1rem;
+  }
+  .article-flex > div:nth-child(2) {
+    /* subtract the image and padding */
+    width: calc(100% - 6rem);
+  }
+  img.preview-img {
+    width: 5rem;
+    height: 5rem;
+    max-width: unset;
+    margin-right: 1rem;
     object-fit: cover;
-    width: 100px;
-    height: 100px;
-  }
-  h5 {
-    margin-bottom: 0;
-  }
-  .preview-img {
-    width: 100px;
-    height: 100px;
-    padding: 0;
   }
   /* Want list view to be more dense than default styles */
   article {
     padding: 0 1rem;
-    margin: 0;
+    margin: 1rem auto;
+  }
+  .truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>
 {% endblock %}
 
+{% block nav_title %}{{ title }}{% endblock %}
+
 {% block content %}
-  <h1>{{ title }}</h1>
   <details {% if selected_filter != 'all' %}open{% endif %}>
     <summary>Search & Filters</summary>
     <div class="grid">
-      <div>
+      <div role="group">
         <a href="{% url 'lynx:links_feed_read' %}" role="button" class="secondary {% if selected_filter != 'read'%}outline{% endif %}">Read</a>
         <a href="{% url 'lynx:links_feed_unread' %}" role="button" class="secondary {% if selected_filter != 'unread'%}outline{% endif %}">Unread</a>
         <a href="{% url 'lynx:links_feed_all' %}" role="button" class="secondary {% if selected_filter != 'all'%}outline{% endif %}">All</a>
       </div>
       <div>
-        <form class="grid" action="{% url 'lynx:links_feed_search' %}" method="get">
+        <form role="search" action="{% url 'lynx:links_feed_search' %}" method="get">
           <input type="text" name="q" placeholder="Search" value="{{ query }}" autocomplete="off"/>
           <button type="submit">Search</button>
         </form>
@@ -46,23 +56,18 @@
   {% if links_list %}
   {% for link in links_list %}
   <article>
-    <table>
-      <tr>
-        <td class="preview-img">
-          <img src="{{ link.header_image_url }}" alt="{{ link.title }}" />
-        </td>
-        <td>
-          <div>
-            <h5><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h5>
-            <small>
-            {{ link.article_date }} · {{ link.hostname }}
-            </small>
-            <br /><br />
-            {{ link.excerpt }}
-          </div>
-        </td>
-      </tr>
-    </table>
+    <div class="article-flex">
+      <img class="preview-img" src="{{ link.header_image_url }}" alt="{{ link.title }}" />
+      <div>
+        <hgroup>
+          <h4><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h4>
+          <h5>{{ link.article_date }} · {{ link.hostname }}</h5>
+        </hgroup>
+        <p class="truncate">
+          {{ link.excerpt }}
+        </p>
+      </div>
+    </div>
   </article>
   {% endfor %}
   {% else %}

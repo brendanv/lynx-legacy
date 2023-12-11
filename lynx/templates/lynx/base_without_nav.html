@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <title>{% block title %}Lynx{% endblock %}</title>
+    {% load static %}
+    {% load compress %}
+
+    {% compress css %}
+      <link rel="stylesheet" type="text/x-scss" href="{% static 'lynx/scss/lynx.scss' %}" />
+      {% block head_css %}{% endblock %}
+    {% endcompress %}
+    
+    {% block head %}{% endblock %}
+  </head>
+  {% block prebody %}{% endblock %}
+  <body>
+    {% block header %}{% endblock %}
+    <main class="container">
+      {% block content %}{% endblock %}
+    </main>
+    <footer>
+      <div class="container">
+        Lynx © {% now "Y" %}
+      </div>
+    </footer>
+  </body>
+</html>

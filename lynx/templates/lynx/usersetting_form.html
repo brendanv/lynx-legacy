@@ -1,9 +1,9 @@
 {% extends 'lynx/base.html' %}
 
 {% block title %}Settings{% endblock %}
+{% block nav_title %}Settings{% endblock %}
 
 {% block content %}
-    <h1>Update settings</h1>
     <form action="{% url 'lynx:user_settings' %}" method="post">
       {% csrf_token %}
       {{ form }}

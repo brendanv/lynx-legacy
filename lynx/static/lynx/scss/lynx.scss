@@ -1,0 +1,86 @@
+@use "pico" with (
+  $modules: (
+    "layout/scroller": false,
+    "forms/input-color": false,
+    "forms/input-date": false,
+    "forms/input-range": false,
+    "components/progress": false,
+    "components/loading": false,
+    "components/modal": false,
+  )
+);
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@700&display=swap');
+
+/* Light color scheme (Default) */
+/* Can be forced with data-theme="light" */
+[data-theme=light],
+:root:not([data-theme=dark]) {
+  --lynx-header-background: rgba(255,255,255,.8);
+  --lynx-header-border-color: transparent;
+  --lynx-background-gradient: linear-gradient(0deg, #d8e4f3, transparent);
+}
+
+/* Dark color scheme (Auto) */
+/* Automatically enabled if user has Dark mode enabled */
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --lynx-header-background: rgba(19,23,31,0.85);
+    --lynx-header-border-color: rgba(32,38,50,0.9);
+    --lynx-background-gradient: linear-gradient(0deg, #0f1d2a, transparent);
+  }
+}
+
+/* Dark color scheme (Forced) */
+/* Enabled if forced with data-theme="dark" */
+[data-theme=dark] {
+  --lynx-header-background: rgba(19,23,31,0.85)
+  --lynx-header-border-color: rgba(32,38,50,0.9);
+  --lynx-background-gradient: linear-gradient(0deg, #0f1d2a, transparent);
+}
+
+h1 {
+  font-family: Figtree,var(--pico-font-family);
+}
+
+main > hgroup h1 {
+  margin-bottom: calc(var(--pico-spacing) * .5);
+  font-size: 3rem;
+  line-height: 1;
+}
+
+body > header {
+  z-index: 4;
+  position: sticky;
+  top: 0;
+  padding: .5rem 0;
+  border-bottom: var(--pico-border-width) solid var(--lynx-header-border-color);
+  -webkit-backdrop-filter: blur(1rem);
+  backdrop-filter: blur(1rem);
+  background-color: var(--lynx-header-background);
+  box-shadow: var(--pico-card-box-shadow);
+  font-family: Figtree,var(--pico-font-family);
+}
+
+header .lynx_logo {
+  font-size: 1.75rem;
+  padding: 0;
+}
+
+body > header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.lynx-nav {
+  width: 100%;
+}
+.nav-icon {
+  width: 24px;
+  height: 24px;
+}
+
+footer {
+  background: var(--lynx-background-gradient);
+}
