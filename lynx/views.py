@@ -9,7 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.forms.widgets import TextInput
 from extra_views import ModelFormSetView
-from lynx import url_parser, url_summarizer
+from lynx import url_parser, url_summarizer, html_cleaner
 from lynx.models import Link, UserSetting, UserCookie
 from lynx.errors import NoAPIKeyInSettings
 import secrets
@@ -64,6 +64,14 @@ class ReadableView(LoginRequiredMixin, generic.DetailView):
     obj.last_viewed_at = timezone.now()
     obj.save()
     return obj
+
+  def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    data = super().get_context_data(**kwargs)
+    cleaner = html_cleaner.HTMLCleaner(data['link'].article_html)
+    cleaner.generate_headings().replace_image_links_with_images()
+    data['html_with_sections'] = cleaner.prettify()
+    data['table_of_contents'] = [h.to_dict() for h in cleaner.get_headings()]
+    return data
 
 
 class DetailsView(LoginRequiredMixin, generic.DetailView):

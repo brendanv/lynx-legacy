@@ -10,8 +10,37 @@
       display: flex;
       gap: 0.3rem;
     }
+
     .subtitle-items span:last-child {
       margin-left: auto;
+    }
+
+    @media (min-width: 1280px) {
+      body > main.container {
+        grid-template-columns: 4fr 1fr;
+        grid-template-areas:
+          "header header"
+          "body table-of-contents";
+        display: grid;
+        column-gap: 1.5em;
+      }
+    }
+
+    #table-of-contents {
+      grid-area: table-of-contents;
+    }
+
+    #table-of-contents > nav {
+      position: sticky;
+      top: 3rem;
+    }
+
+    .article-header {
+      grid-area: header;
+    }
+
+    .article-content {
+      grid-area: body;
     }
   </style>
 {% endblock %}
@@ -21,20 +50,39 @@
 {% endblock %}
 
 {% block content %}
-  <hgroup>
-    <h1>{{ link.title }}</h1>
-    <h3 class="subtitle-items">
-      <span><a href="{{ link.cleaned_url }}" data-tooltip="View Original" data-placement="left">{{ link.hostname }}</a></span>
-      •
-      <span>{{ link.read_time_display }}</span>
-      <span>{{ link.article_date }}</span>
-    </h3>
-  </hgroup>
-  <hr />
+  <div class="article-header">
+    <hgroup>
+      <h1>{{ link.title }}</h1>
+      <h3 class="subtitle-items">
+        <span><a href="{{ link.cleaned_url }}" data-tooltip="View Original" data-placement="left">{{ link.hostname }}</a></span>
+        •
+        <span>{{ link.read_time_display }}</span>
+        <span>{{ link.article_date }}</span>
+      </h3>
+    </hgroup>
+    <hr />
+  </div>
+  {% if table_of_contents %}
+    <aside id="table-of-contents">
+      <nav>
+        <details open="">
+          <summary>Contents</summary>
+          <ul>
+            {% for heading in table_of_contents %}
+            <li>
+              <a class="secondary" href="#{{ heading.id }}">{{ heading.display }}</a></li>
+            {% endfor %}
+          </ul>
+        </details>
+      </nav>
+    </aside>
+  {% endif %}
+  <div class="article-content">
   <section>
-    {{ link.article_html | safe }}
+    {{ html_with_sections | safe}}
   </section>
   <footer>
     <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
   </footer>
+  </div>
 {% endblock %}

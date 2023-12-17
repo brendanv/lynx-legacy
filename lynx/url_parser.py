@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from typing import List, Tuple
 
 import requests
 import readtime
@@ -8,17 +9,15 @@ from readability import Document
 import trafilatura
 from trafilatura.settings import use_config
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
 
 from .models import Link, UserCookie
-
 
 def parse_url(url, user):
   domain = urlparse(url).netloc
   print(domain)
   cookies = UserCookie.objects.filter(user=user, cookie_domain=domain)
-  print(cookies)
   cookie_data = {cookie.cookie_name: cookie.cookie_value for cookie in cookies}
-  print(cookie_data)
   response = requests.get(url, cookies=cookie_data)
 
   readable_doc = Document(response.content)
