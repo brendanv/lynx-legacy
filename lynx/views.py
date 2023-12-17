@@ -1,6 +1,5 @@
 from typing import Any
 from asgiref.sync import sync_to_async
-from django.forms.formsets import DELETION_FIELD_NAME, BaseFormSet
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views import generic, View
@@ -8,6 +7,7 @@ from django.utils import timezone
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.forms.widgets import TextInput
+from django.contrib import messages
 from extra_views import ModelFormSetView
 from lynx import url_parser, url_summarizer, html_cleaner
 from lynx.models import Link, UserSetting, UserCookie
@@ -162,6 +162,7 @@ class UpdateSettingsView(LoginRequiredMixin, generic.FormView):
 
   def form_valid(self, form):
     form.update_setting(self.request.user)
+    messages.success(self.request, "Settings updated.")
     return HttpResponseRedirect(reverse("lynx:user_settings"))
 
   def get_initial(self):

@@ -9,6 +9,7 @@
     "components/modal": false,
   )
 );
+@use "colors" as *;
 @import url('https://fonts.googleapis.com/css2?family=Figtree:wght@700&display=swap');
 
 /* Light color scheme (Default) */
@@ -91,4 +92,32 @@ body > header .container {
 
 footer.page-footer {
   background: var(--lynx-background-gradient);
+}
+
+ul.messages {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul.messages > li {
+  border-style: solid;
+  list-style: none;
+  padding: 10px;
+  border-width: 1px 1px 1px thick;
+}
+li.success {
+  background: $jade-50;
+  border-color: $jade-400;
+}
+li.warning {
+  background: $amber-50;
+  border-color: $amber-400;
+}
+li.error {
+  background: $red-50;
+  border-color: $red-400;
+}
+li.info {
+  background: $slate-50;
+  border-color: $slate-400;
 }
