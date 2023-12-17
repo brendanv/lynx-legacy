@@ -16,7 +16,7 @@
     }
 
     @media (min-width: 1280px) {
-      body > main.container {
+      body > main.with_table_of_contents {
         grid-template-columns: 4fr 1fr;
         grid-template-areas:
           "header header"
@@ -47,6 +47,10 @@
 
 {% block prebody %}
 <div class="reading-indicator"></div>
+{% endblock %}
+
+{% block container_class %}
+  {% if table_of_contents %}with_table_of_contents{% endif %}
 {% endblock %}
 
 {% block content %}
