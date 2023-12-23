@@ -2,38 +2,6 @@
 
 {% block title %}{{ title }} | Lynx{% endblock %}
 
-{% block head_css %}
-<style>
-  .article-flex {
-    display: flex;
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    padding-top: 1rem;
-  }
-  .article-flex > div:nth-child(2) {
-    /* subtract the image and padding */
-    width: calc(100% - 6rem);
-  }
-  img.preview-img {
-    width: 5rem;
-    height: 5rem;
-    max-width: unset;
-    margin-right: 1rem;
-    object-fit: cover;
-  }
-  /* Want list view to be more dense than default styles */
-  article {
-    padding: 0 1rem;
-    margin: 1rem auto;
-  }
-  .truncate {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-</style>
-{% endblock %}
-
 {% block nav_title %}{{ title }}{% endblock %}
 
 {% block content %}
@@ -55,8 +23,8 @@
   </details>
   {% if links_list %}
   {% for link in links_list %}
-  <article>
-    <div class="article-flex">
+  <article class="list-item">
+    <div>
       <img class="preview-img" src="{{ link.header_image_url }}" alt="{{ link.title }}" />
       <div>
         <hgroup>

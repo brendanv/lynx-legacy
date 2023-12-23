@@ -121,3 +121,40 @@ li.info {
   background: $slate-50;
   border-color: $slate-400;
 }
+
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Used for all lists on the site. We want the article to
+be more compact than the default, and the content will be flexed
+to allow for images on the side */
+article.list-item {
+  padding: 1rem;
+  margin: 1rem auto;
+}
+
+article.list-item > div {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+}
+
+article.list-item > div > div:nth-child(2) {
+  /* subtract the image and padding */
+  width: calc(100% - 6rem);
+}
+
+article.list-item p {
+  margin-bottom: 0;
+}
+
+img.preview-img {
+  width: 5rem;
+  height: 5rem;
+  max-width: unset;
+  margin-right: 1rem;
+  object-fit: cover;
+}

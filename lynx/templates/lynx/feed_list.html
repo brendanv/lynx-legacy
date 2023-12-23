@@ -1,0 +1,26 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Feeds | Lynx{% endblock %}
+{% block nav_title %}Manage Feeds{% endblock %}
+{% block content %}
+  <div class="grid">
+    <a role="button" href="{% url 'lynx:add_feed' %}">Add Feed</a>
+    <form action="{% url 'lynx:refresh_all_feeds' %}" method="post">
+      {% csrf_token %}
+      <button type="submit" href="{% url 'lynx:add_feed' %}" style="margin: 0; width: 100%">Refresh Feeds</button>  
+    </form>
+  </div>
+  {% for feed in feeds_list %}
+  <article class="list-item">
+    <div>
+      <img class="preview-img" src="{{ feed.feed_image_url }}" alt="{{ feed.feed_name }}" />
+      <div>
+        <h4>
+          <a href="{% url 'lynx:feed_items' feed.id %}">{{ feed.feed_name }}</a>
+        </h4>
+        <p class="truncate">{{ feed.feed_description }}</p>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+{% endblock %}

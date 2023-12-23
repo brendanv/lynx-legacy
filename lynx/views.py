@@ -1,5 +1,6 @@
 from typing import Any
 from asgiref.sync import sync_to_async
+from django.db.models import QuerySet
 from django.http import HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from django.views import generic, View
@@ -9,8 +10,8 @@ from django import forms
 from django.forms.widgets import TextInput
 from django.contrib import messages
 from extra_views import ModelFormSetView
-from lynx import url_parser, url_summarizer, html_cleaner
-from lynx.models import Link, UserSetting, UserCookie
+from lynx import feed_utils, url_parser, url_summarizer, html_cleaner
+from lynx.models import FeedItem, Link, UserSetting, UserCookie, Feed
 from lynx.errors import NoAPIKeyInSettings
 import secrets
 
@@ -82,7 +83,7 @@ class DetailsView(LoginRequiredMixin, generic.DetailView):
     return Link.objects.filter(creator=self.request.user)
 
 
-class FeedView(LoginRequiredMixin, generic.ListView):
+class LinkFeedView(LoginRequiredMixin, generic.ListView):
   template_name = "lynx/links_feed.html"
   context_object_name = "links_list"
   paginate_by = 25
@@ -200,3 +201,108 @@ class UpdateCookiesView(LoginRequiredMixin, ModelFormSetView):
 
   def get_queryset(self):
     return UserCookie.objects.filter(user=self.request.user)
+
+
+class FeedListView(LoginRequiredMixin, generic.ListView):
+  template_name = "lynx/feed_list.html"
+  model = Feed
+  context_object_name = "feeds_list"
+
+  def get_queryset(self) -> QuerySet[Feed]:
+    return Feed.objects.filter(user=self.request.user, is_deleted=False)
+
+
+class AddFeedForm(forms.Form):
+  url = forms.URLField(label="URL", max_length=2000)
+
+  def create_feed(self, request, user) -> Feed:
+    loader = feed_utils.RemoteFeedLoader(
+        user, request, feed_url=self.cleaned_data['url']).load_remote_feed(
+        ).persist_new_feed_items().persist_feed()
+    messages.success(
+        request,
+        f"Feed (ID {loader.get_feed().pk}) created and {len(loader.get_new_entries())} entries added."
+    )
+    return loader.get_feed()
+
+
+class AddFeedView(LoginRequiredMixin, generic.FormView):
+  template_name = 'lynx/add_feed.html'
+  form_class = AddFeedForm
+
+  def form_valid(self, form):
+    form.create_feed(self.request, self.request.user)
+    return HttpResponseRedirect(reverse("lynx:feeds", args=()))
+
+
+class FeedItemListView(LoginRequiredMixin, generic.ListView):
+  template_name = "lynx/feed_item_list.html"
+  model = FeedItem
+  context_object_name = "feed_items_list"
+
+  def get_context_data(self, **kwargs: Any) -> dict[str, Any]:
+    context = super().get_context_data(**kwargs)
+    context['feed'] = Feed.objects.get(pk=self.kwargs['feed_id'])
+    return context
+
+  def get_queryset(self) -> QuerySet[FeedItem]:
+    return FeedItem.objects.filter(feed=self.kwargs['feed_id'])
+
+
+class AddFeedItemToLibraryView(LoginRequiredMixin, View):
+
+  def post(self, request, pk):
+    try:
+      feed_item = FeedItem.objects.get(pk=pk)
+      feed = feed_item.feed
+
+      if feed.user != request.user:
+        raise FeedItem.DoesNotExist()
+
+      url = feed_item.saved_as_link
+      if url is None:
+        url = url_parser.parse_url(feed_item.url, request.user)
+        url.created_from_feed = feed
+        url.save()
+
+        feed_item.saved_as_link = url
+        feed_item.save()
+
+      return HttpResponseRedirect(reverse("lynx:feed_items", args=(feed.pk, )))
+    except FeedItem.DoesNotExist:
+      return JsonResponse({"error": "FeedItem does not exist."})
+
+
+class RefreshFeedFromRemoteView(LoginRequiredMixin, View):
+
+  def post(self, request, pk):
+    try:
+      feed = Feed.objects.get(pk=pk)
+      if feed.user != request.user:
+        raise Feed.DoesNotExist()
+      loader = feed_utils.RemoteFeedLoader(
+          request.user, request, feed=feed).load_remote_feed(
+          ).persist_new_feed_items().persist_feed()
+      if len(loader.get_new_entries()) > 0:
+        messages.success(
+            request,
+            f"Feed (ID {loader.get_feed().pk}) refreshed and {len(loader.get_new_entries())} entries added."
+        )
+      return HttpResponseRedirect(reverse("lynx:feed_items", args=(feed.pk, )))
+    except Feed.DoesNotExist:
+      return JsonResponse({"error": "Feed does not exist."})
+
+class RefreshAllFeedsView(LoginRequiredMixin, View):
+
+  def post(self, request):
+    feeds = Feed.objects.filter(user=request.user).all()
+    for feed in feeds:
+      loader = feed_utils.RemoteFeedLoader(
+          request.user, request, feed=feed).load_remote_feed(
+          ).persist_new_feed_items().persist_feed()
+      if len(loader.get_new_entries()) > 0:
+        messages.success(
+            request,
+            f"Feed (ID {loader.get_feed().pk}) refreshed and {len(loader.get_new_entries())} entries added."
+        )
+    return HttpResponseRedirect(reverse("lynx:feeds", args=()))

@@ -1,0 +1,11 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Update Feed | Lynx{% endblock %}
+{% block nav_title %}Update Feed{% endblock %}
+{% block content %}
+    <form action="{% url 'lynx:add_feed' %}" method="post">
+      {% csrf_token %}
+      {{ form }}
+      <input type="submit" value="Add">
+    </form>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}{{ feed.feed_name }} | Lynx{% endblock %}
+{% block nav_title %}{{ feed.feed_name }} {% endblock %}
+{% block content %}
+  <form action="{% url 'lynx:refresh_feed' feed.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Refresh</button>
+  </form>
+  {% for item in feed_items_list %}
+  <article class="list-item">
+    <div>
+      <div style="width:50px; height:50;">
+        {% if item.saved_as_link %}
+          <a class="contrast" data-tooltip="View in library" href="{% url 'lynx:link_viewer' item.saved_as_link.id %}">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            </svg>
+          </a>
+        {% else %}
+          <form action="{% url 'lynx:add_feed_item_to_library' item.id %}" method="post">
+            {% csrf_token %}
+            <a href="javascript:;" class="contrast" data-tooltip="Add link to library" onclick="parentNode.submit();">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+              </svg>
+            </a>
+            <!-- <button type="submit">Add to library</button> -->
+          </form>
+        {% endif %}
+      </div>
+      <div>
+        <hgroup>
+          <h4><a href="#">{{ item.title }}</a></h4>
+          <h5>{{ item.pub_date }}</h5>
+          {% if item.saved_as_link %}
+          <h5><a href="{% url 'lynx:link_viewer' item.saved_as_link.id %}">View in library</a></h5>
+          {% else %}
+          <form action="{% url 'lynx:add_feed_item_to_library' item.id %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Add to library</button>
+          </form>
+          {% endif %}
+        </hgroup>
+        <p class="truncate">
+          {{ item.description }}
+        </p>
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+{% endblock %}

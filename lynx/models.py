@@ -30,6 +30,11 @@ class Link(models.Model):
   read_time_seconds = models.IntegerField(blank=True)
   read_time_display = models.CharField(max_length=100, blank=True)
 
+  # Other metadata
+  created_from_feed = models.ForeignKey('Feed',
+                                        on_delete=models.SET_NULL,
+                                        null=True)
+
   def __str__(self):
     return self.title
 
@@ -56,3 +61,46 @@ class UserCookie(models.Model):
 
   def __str__(self) -> str:
     return f"UserCookie({self.user.username}, {self.cookie_name})"
+
+
+class Feed(models.Model):
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+  last_fetched_at = models.DateTimeField(null=True)
+
+  # Server-side params to prevent re-downloads
+  etag = models.CharField(max_length=1000, blank=True)
+  modified = models.CharField(max_length=1000, blank=True)
+
+  # Lynx-specific info
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  feed_url = models.URLField(max_length=2000)
+  feed_name = models.CharField(max_length=1000)
+  feed_description = models.TextField(blank=True)
+  feed_image_url = models.URLField(max_length=2000, blank=True)
+  is_deleted = models.BooleanField(default=False)
+
+  def __str__(self):
+    return f"Feed({self.feed_name})"
+
+
+class FeedItem(models.Model):
+  created_at = models.DateTimeField(auto_now_add=True)
+  updated_at = models.DateTimeField(auto_now=True)
+  feed = models.ForeignKey(Feed, on_delete=models.CASCADE)
+  title = models.CharField(max_length=1000)
+  pub_date = models.DateTimeField(null=True)
+  guid = models.CharField(max_length=1000, null=True)
+  description = models.TextField(null=True)
+  url = models.URLField(max_length=2000)
+
+  saved_as_link = models.ForeignKey(Link,
+                                    on_delete=models.SET_NULL,
+                                    null=True)
+
+  def __str__(self):
+    return f"FeedItem({self.title})"
+
+  class Meta:
+    ordering = ['-created_at']
+    unique_together = ['feed', 'guid']

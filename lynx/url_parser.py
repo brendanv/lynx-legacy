@@ -15,7 +15,6 @@ from .models import Link, UserCookie
 
 def parse_url(url, user):
   domain = urlparse(url).netloc
-  print(domain)
   cookies = UserCookie.objects.filter(user=user, cookie_domain=domain)
   cookie_data = {cookie.cookie_name: cookie.cookie_value for cookie in cookies}
   response = requests.get(url, cookies=cookie_data)
@@ -41,15 +40,15 @@ def parse_url(url, user):
 
   return Link(original_url=url,
               creator=user,
-              cleaned_url=json_meta['source'],
-              hostname=json_meta['hostname'],
+              cleaned_url=json_meta.get('source') or url,
+              hostname=json_meta.get('hostname') or domain,
               article_date=article_date,
-              author=json_meta['author'],
+              author=json_meta.get('author') or 'Unknown Author',
               title=json_meta['title'],
-              excerpt=json_meta['excerpt'],
+              excerpt=json_meta.get('excerpt') or '',
               article_html=summary_html,
               raw_text_content=json_meta['raw_text'],
               full_page_html=readable_doc.content(),
-              header_image_url=json_meta['image'],
+              header_image_url=json_meta.get('image') or '',
               read_time_seconds=read_time.seconds,
               read_time_display=read_time.text)
