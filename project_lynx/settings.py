@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'extra_views',
-    'compressor',
 ]
 
 MIDDLEWARE = [
@@ -125,15 +124,7 @@ STATIC_ROOT = 'deploy/static/'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'compressor.finders.CompressorFinder',
 )
-
-COMPRESS_PRECOMPILERS = (
-    ('text/x-scss', 'sass --load-path=node_modules/@picocss/pico/scss/ {infile} {outfile}'),
-)
-COMPRESS_OFFLINE = True
-COMPRESS_ENABLED = True
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
