@@ -22,7 +22,7 @@ from lynx import api as lynxapi
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('links/', include('lynx.urls')),
-    path('', lynxviews.LinkFeedView.as_view()),
+    path('', lynxviews.link_feed_view),
     path('accounts/', include('django.contrib.auth.urls')),
     path('api/', lynxapi.api.urls),
 ]
