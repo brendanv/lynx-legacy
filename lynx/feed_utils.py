@@ -64,7 +64,8 @@ class RemoteFeedLoader:
     else:
       sorted_entries = sorted(
           self.remote.entries,
-          key=lambda entry: datetime(*entry.published_parsed[:6]))
+          key=lambda entry: datetime(*entry.published_parsed[:6])
+          if 'published_parsed' in entry else datetime.min)
       latest_entries = sorted_entries[-3:]
 
     for entry in latest_entries:
@@ -74,7 +75,8 @@ class RemoteFeedLoader:
             title=entry.title,
             url=entry.link,
             description=BeautifulSoup(entry.summary).get_text(),
-            pub_date=datetime(*entry.published_parsed[:6]),
+            pub_date=datetime(*entry.published_parsed[:6])
+            if 'published_parsed' in entry else None,
             guid=entry.id)
         self.created_feed_items.append(feed_item)
       except IntegrityError:
