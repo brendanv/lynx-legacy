@@ -5,11 +5,10 @@
 {% block nav_title %}{{ title }}{% endblock %}
 
 {% block content %}
-  <div class="collapse bg-base-200 collapse-arrow">
-    <input type="checkbox"  {% if selected_filter != 'all' %}checked{% endif %} />
-    <div class="collapse-title text-xl font-medium">
+  <details class="collapse bg-base-200 collapse-arrow border border-base-300" {% if selected_filter != 'all' %}open{% endif %}>
+    <summary class="collapse-title text-xl font-medium">
       Search & Filters
-    </div>
+    </summary>
     <div class="collapse-content"> 
       <div class="grid grid-cols-2 gap-4">
         <div>
@@ -31,7 +30,7 @@
         </form>
       </div>
     </div>
-  </div>
+  </details>
   {% if links_list %}
   {% for link in links_list %}
   <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
