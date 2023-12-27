@@ -1,124 +1,46 @@
-  {% extends 'lynx/base_without_nav.html' %}
+{% extends 'lynx/base_without_nav.html' %}
 
-  {% block title %}Login | Lynx{% endblock %}
+{% block title %}Login | Lynx{% endblock %}
 
-  {% load static %}
-  {% block head_css %}
-    <style>
-      /* Grid */
-      body>main {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        min-height: calc(100vh - 7rem);
-        padding: 1rem 0;
-      }
-
-      article {
-        padding: 0;
-        overflow: hidden;
-      }
-
-      article div {
-        padding: 1rem;
-      }
-
-      @media (min-width: 576px) {
-        body>main {
-          padding: 1.25rem 0;
-        }
-
-        article div {
-          padding: 1.25rem;
-        }
-      }
-
-      @media (min-width: 768px) {
-        body>main {
-          padding: 1.5rem 0;
-        }
-
-        article div {
-          padding: 1.5rem;
-        }
-      }
-
-      @media (min-width: 992px) {
-        body>main {
-          padding: 1.75rem 0;
-        }
-
-        article div {
-          padding: 1.75rem;
-        }
-      }
-
-      @media (min-width: 1200px) {
-        body>main {
-          padding: 2rem 0;
-        }
-
-        article div {
-          padding: 2rem;
-        }
-      }
-
-      /* Hero Image */
-      article div:nth-of-type(2) {
-        display: none;
-        background-color: #374956;
-        background-image: url("{% static 'lynx/img/lynx.png' %}");
-        background-position: center;
-        background-size: cover;
-      }
-
-      @media (min-width: 992px) {
-        .grid>div:nth-of-type(2) {
-          display: block;
-        }
-      }
-
-      /* Footer */
-      body>footer {
-        padding: 1rem 0;
-      }
-    </style>
-  {% endblock %}
-
-{% block content %}
-    <article class="grid">
-      <div>
-        <hgroup>
-          <h1>Lynx</h1>
-          <h2>
-            {% if next %}
-                {% if user.is_authenticated %}
-                  Your account doesn't have access to this page. To proceed, please login with an account that has access.
-                {% else %}
-                  Please login to see this page.
-                {% endif %}
-            {% else %}
-              Login to start saving links!
-            {% endif %}
-          </h2>
-        </hgroup>
-        <form method="post" action="{% url 'login' %}">
-          {% if form.errors %}
-          <p><mark>Your username and password didn't match. Please try again.</mark></p>
+{% load static %}
+{% block content_base %}
+<section class="bg-base-100">
+  <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+      <a href="#" class="flex items-center py-4">
+        <div class="w-[10rem]">
+          {% include 'lynx/logo_full.html' %}
+        </div>
+      </a>
+      <div class="w-full max-w-md card shadow-xl bg-base-300">
+        <div class="card-body">
+          <h1 class="text-xl font-bold leading-tight tracking-tight md:text-2xl">
+            Sign in
+          </h1>
+          {% if next %}
+            <h4>You must login to see this page.</h4>
           {% endif %}
-          {% csrf_token %}
-          <label for="username">
-            Username
-            {{ form.username }}
-          </label>
-          <label for="password">
-            Password
-            {{ form.password}}
-          </label>  
-          <input type="hidden" name="next" value="{{ next }}">
-          <button type="submit">Login</button>
-        </form>
+          <form class="space-y-4 md:space-y-6"  method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <label class="form-control" for="username">
+              <div class="label">
+                <span class="label-text">Username</span>
+              </div>
+              <input type="text" name="username" id="username" class="input input-bordered w-full rounded-lg focus:ring-primary focus:border-primary p-2.5" placeholder="lynx" autocapitalize="false" autocomplete="username" required="">
+            </label>
+            <label class="form-control" for="password">
+              <div class="label">
+                <span class="label-text">Password</span>
+              </div>
+              <input type="password" name="password" id="password" class="input input-bordered w-full rounded-lg focus:ring-primary focus:border-primary p-2.5" placeholder="••••••••" autocomplete="current-password" required="">
+            </label>
+            <input type="hidden" name="next" value="{{ next }}">
+            <button type="submit" class="w-full text-white btn btn-primary ">Sign in</button>
+          </form>
+        </div>
       </div>
-      <div></div>
-    </article>
-  {% endblock %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block footer %}{% endblock %}

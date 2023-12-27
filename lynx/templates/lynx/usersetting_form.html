@@ -4,9 +4,10 @@
 {% block nav_title %}Settings{% endblock %}
 
 {% block content %}
-    <form action="{% url 'lynx:user_settings' %}" method="post">
+    <form action="{% url 'lynx:user_settings' %}" method="post" class="form-control">
       {% csrf_token %}
       {{ form }}
-      <input type="submit" value="Update">
+      <div class="divider"></div>
+      <input class="btn btn-primary" type="submit" value="Update">
     </form>
 {% endblock %}

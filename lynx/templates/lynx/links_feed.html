@@ -5,38 +5,44 @@
 {% block nav_title %}{{ title }}{% endblock %}
 
 {% block content %}
-  <details {% if selected_filter != 'all' %}open{% endif %}>
-    <summary>Search & Filters</summary>
-    <div class="grid">
-      <div role="group">
-        <a href="{% url 'lynx:links_feed_read' %}" role="button" class="secondary {% if selected_filter != 'read'%}outline{% endif %}">Read</a>
-        <a href="{% url 'lynx:links_feed_unread' %}" role="button" class="secondary {% if selected_filter != 'unread'%}outline{% endif %}">Unread</a>
-        <a href="{% url 'lynx:links_feed_all' %}" role="button" class="secondary {% if selected_filter != 'all'%}outline{% endif %}">All</a>
-      </div>
-      <div>
-        <form role="search" action="{% url 'lynx:links_feed_search' %}" method="get">
-          <input type="text" name="q" placeholder="Search" value="{{ query }}" autocomplete="off"/>
-          <button type="submit">Search</button>
+  <div class="collapse bg-base-200 collapse-arrow">
+    <input type="checkbox"  {% if selected_filter != 'all' %}checked{% endif %} />
+    <div class="collapse-title text-xl font-medium">
+      Search & Filters
+    </div>
+    <div class="collapse-content"> 
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <div class="join w-full">
+            <a href="{% url 'lynx:links_feed_read' %}" class="w-1/3 join-item btn btn-primary {% if selected_filter != 'read'%}btn-outline{% endif %}">Read</a>
+            <a href="{% url 'lynx:links_feed_unread' %}" class="w-1/3 join-item btn btn-primary {% if selected_filter != 'unread'%}btn-outline{% endif %}">Unread</a>
+            <a href="{% url 'lynx:links_feed_all' %}" class="w-1/3 btn join-item btn-primary {% if selected_filter != 'all'%}btn-outline{% endif %}">All</a>
+          </div>
+        </div>
+        <form role="search" action="{% url 'lynx:links_feed_search' %}" method="get" class="w-full">
+          <div class="join w-full">
+            <input type="text" name="q" class="join-item input input-bordered w-full" placeholder="Search" value="{{ query }}" autocomplete="off"/>
+            <button class="btn btn-primary join-item">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+            </button>
+          </div>
         </form>
       </div>
     </div>
-  </details>
+  </div>
   {% if links_list %}
   {% for link in links_list %}
-  <article class="list-item">
-    <div>
-      <img class="preview-img" src="{{ link.header_image_url }}" alt="{{ link.title }}" />
-      <div>
-        <hgroup>
-          <h4><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h4>
-          <h5>{{ link.article_date }} · {{ link.hostname }}</h5>
-        </hgroup>
-        <p class="truncate">
-          {{ link.excerpt }}
-        </p>
-      </div>
+  <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
+    <figure class="w-28 h-28">
+      <img class="w-28 h-28" src="{{ link.header_image_url }}" alt="{{ link.title }}"/>
+    </figure>
+    <div class="card-body w-5/6">
+      <h2 class="card-title"><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h2>
+      <p class="truncate">{{ link.excerpt }}</p>
     </div>
-  </article>
+  </div>
   {% endfor %}
   {% else %}
   <p>No links are saved</p>

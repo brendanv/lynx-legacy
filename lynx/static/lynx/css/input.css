@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@700&display=swap');
+
+.figtree {
+  font-family: Figtree;
+}
+
+img.preview-img {
+  width: 5rem;
+  height: 5rem;
+  max-width: unset;
+  object-fit: cover;
+}
+
+/* 4 column grid, second row starts on item 5 and repeats ever 8 */
+.cookie-grid > div:nth-child(8n+5),
+.cookie-grid > div:nth-child(8n+6),
+.cookie-grid > div:nth-child(8n+7),
+.cookie-grid > div:nth-child(8n+8) {
+  background: green;
+}
+  

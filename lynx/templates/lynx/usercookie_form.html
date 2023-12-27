@@ -4,19 +4,18 @@
 {% block nav_title %}Cookies{% endblock %}
 
 {% block content %}
-    <hgroup>
-      <h1>Manage cookies</h1>
-      <h3>These cookies will be sent along with requests for articles at the matching domain, allowing you to import articles that require login. Don't share these with anyone, treat them the same as your login info!</h3>
-    </hgroup>
-    <form action="{% url 'lynx:user_cookies' %}" method="post" autocomplete="off">
-      {{ formset.management_form }}
-      {% csrf_token %}
-      {% for form in formset %}
-        <div class="grid">
-          {{ form }}
-        </div>
-        <hr />
-      {% endfor %}
-      <input type="submit" value="Save cookies">
-    </form>
+  <hgroup class="prose mb-8">
+    <h1>Manage cookies</h1>
+    <h4>These cookies will be sent along with requests for articles at the matching domain, allowing you to import articles that require login. Don't share these with anyone, treat them the same as your login info!</h4>
+  </hgroup>
+  <form action="{% url 'lynx:user_cookies' %}" method="post" autocomplete="off">
+    {{ formset.management_form }}
+    {% csrf_token %}
+    {% for form in formset %}
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 {% if forloop.counter|divisibleby:2 %}bg-base-300{% endif %}">
+        {{ form }}
+      </div>
+    {% endfor %}
+    <input class="btn btn-primary" type="submit" value="Save cookies">
+  </form>
 {% endblock %}

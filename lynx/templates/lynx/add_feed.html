@@ -3,13 +3,15 @@
 {% block title %}Add Feed | Lynx{% endblock %}
 {% block nav_title %}Add Feed{% endblock %}
 {% block content %}
-    <hgroup>
+  <div>
+    <hgroup class="prose">
       <h1>Add Feed</h1>
-      <h3>Content will be parsed automatically</h3>
+      <h4>Feed will be parsed automatically</h4>
     </hgroup>
     <form action="{% url 'lynx:add_feed' %}" method="post">
       {% csrf_token %}
       {{ form }}
-      <input type="submit" value="Add">
+      <button type="submit" class="btn btn-primary join-item">Add Feed</button>
     </form>
+  </div>
 {% endblock %}

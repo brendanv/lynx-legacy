@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -5,34 +6,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@700&display=swap" rel="stylesheet"> 
+    <link rel="icon" href="{% static 'lynx/img/favicon.ico' %}">
     <title>{% block title %}Lynx{% endblock %}</title>
-    {% load static %}
-    {% load compress %}
-
-    {% compress css %}
-      <link rel="stylesheet" type="text/x-scss" href="{% static 'lynx/scss/lynx.scss' %}" />
-      {% block head_css %}{% endblock %}
-    {% endcompress %}
-    
+    <link rel="preload" href="{% static 'lynx/css/output.css' %}" as="style" />
+    <link rel="stylesheet" type="text/css" href="{% static 'lynx/css/output.css' %}" />
     {% block head %}{% endblock %}
   </head>
   {% block prebody %}{% endblock %}
   <body>
     {% block header %}{% endblock %}
-    <main class="container {% block container_class %}{% endblock %}">
-      {% if messages %}
-      <ul class="messages">
-          {% for message in messages %}
-          <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-          {% endfor %}
-      </ul>
-      {% endif %}
-      {% block content %}{% endblock %}
+    {% if messages %}
+    <div class="toast z-50">
+      {% for message in messages %}
+        <div role="alert" class="alert alert-{{message.tags}}">
+          <span>{{ message }}</span>
+        </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <main>
+      {% block content_base %}{% endblock %}
     </main>
-    <footer class="page-footer">
-      <div class="container">
-        Lynx © {% now "Y" %}
-      </div>
+    {% block footer %}
+    <footer class="footer footer-center p-10 bg-gradient-to-b from-transparent to-base-300 text-base-content">
+      <aside>
+        {% include 'lynx/logo_full.html' %}
+        <p>© {% now "Y" %}</p>
+      </aside> 
     </footer>
+    {% endblock %}
   </body>
 </html>

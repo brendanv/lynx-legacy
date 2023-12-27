@@ -2,49 +2,6 @@
 
 {% block title %}{{ link.title }} | Lynx{% endblock %}
 
-{% load static %}
-{% block head_css %}
-  <link href="{% static 'lynx/css/reading-indicator.css' %}" rel="stylesheet">
-  <style>
-    .subtitle-items {
-      display: flex;
-      gap: 0.3rem;
-    }
-
-    .subtitle-items span:last-child {
-      margin-left: auto;
-    }
-
-    @media (min-width: 1280px) {
-      body > main.with_table_of_contents {
-        grid-template-columns: 4fr 1fr;
-        grid-template-areas:
-          "header header"
-          "body table-of-contents";
-        display: grid;
-        column-gap: 1.5em;
-      }
-    }
-
-    #table-of-contents {
-      grid-area: table-of-contents;
-    }
-
-    #table-of-contents > nav {
-      position: sticky;
-      top: 3rem;
-    }
-
-    .article-header {
-      grid-area: header;
-    }
-
-    .article-content {
-      grid-area: body;
-    }
-  </style>
-{% endblock %}
-
 {% block prebody %}
 <div class="reading-indicator"></div>
 {% endblock %}
@@ -53,40 +10,62 @@
   {% if table_of_contents %}with_table_of_contents{% endif %}
 {% endblock %}
 
-{% block content %}
-  <div class="article-header">
-    <hgroup>
-      <h1>{{ link.title }}</h1>
-      <h3 class="subtitle-items">
-        <span><a href="{{ link.cleaned_url }}" data-tooltip="View Original" data-placement="left">{{ link.hostname }}</a></span>
-        •
-        <span>{{ link.read_time_display }}</span>
-        <span>{{ link.article_date }}</span>
-      </h3>
-    </hgroup>
-    <hr />
-  </div>
+{% block content_base %}
+<div class="drawer lg:drawer-open">
+  <input id="table-of-contents-drawer" type="checkbox" class="drawer-toggle" />
+  <div class="drawer-content flex flex-col items-center justify-center p-8">
+    <div class="toast p-8">
+      <div class="join">
+        {% if table_of_contents %}
+          <label for="table-of-contents-drawer" class="btn btn-square join-item drawer-button tooltip" data-tip="Table of Contents">
+        {% else %}
+          <label for="table-of-contents-drawer" class="btn btn-square btn-disabled join-item drawer-button tooltip" data-tip="Table of Contents">
+        {% endif %}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 m-2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+          </svg>
+        </label>
+        <a href="#" data-tip="Back to top" class="tooltip">
+          <button class="btn btn-square join-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
+            </svg>
+          </button>
+        </a>
+      </div>
+    </div>
+    <article class="prose prose-lg">
+      <hgroup>
+        <h1 class="font-figtree">{{ link.title }}</h1>
+        <h4>
+          <div class="flex justify-between font-figtree">
+            <div>
+              <span class="tooltip" data-tip="View Original"><a href="{{ link.cleaned_url }}">{{ link.hostname }}</a></span>
+              •
+              <span>{{ link.read_time_display }}</span>
+            </div>
+            <span>{{ link.article_date }}</span>
+          </div>
+        </h4>
+      </hgroup>
+      <div class="divider"></div>
+      <div>
+        {{ html_with_sections | safe}}
+      </div>
+    </article>
+  </div> 
   {% if table_of_contents %}
-    <aside id="table-of-contents">
-      <nav>
-        <details open="">
-          <summary>Contents</summary>
-          <ul>
-            {% for heading in table_of_contents %}
-            <li>
-              <a class="secondary" href="#{{ heading.id }}">{{ heading.display }}</a></li>
-            {% endfor %}
-          </ul>
-        </details>
-      </nav>
-    </aside>
+    <div class="drawer-side">
+      <label for="table-of-contents-drawer" aria-label="close sidebar" class="drawer-overlay"></label> 
+      <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+        {% for heading in table_of_contents %}
+        <li>
+          <a href="#{{ heading.id }}">{{ heading.display }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
   {% endif %}
-  <div class="article-content">
-  <section>
-    {{ html_with_sections | safe}}
-  </section>
-  <footer>
-    <a href="{% url 'lynx:link_details' link.id %}">Link details</a>
-  </footer>
-  </div>
+</div>
 {% endblock %}

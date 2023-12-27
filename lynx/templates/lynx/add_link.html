@@ -3,13 +3,15 @@
 {% block title %}Add Link{% endblock %}
 {% block nav_title %}Add Link{% endblock %}
 {% block content %}
-    <hgroup>
+  <div>
+    <hgroup class="prose">
       <h1>Add Link</h1>
-      <h3>Content will be parsed automatically</h3>
+      <h4>Content will be parsed automatically</h4>
     </hgroup>
     <form action="{% url 'lynx:add_link' %}" method="post">
       {% csrf_token %}
       {{ form }}
-      <input type="submit" value="Add">
+      <button class="btn btn-primary join-item">Add Link</button>
     </form>
+  </div>
 {% endblock %}

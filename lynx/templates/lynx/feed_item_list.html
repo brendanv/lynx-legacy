@@ -3,50 +3,41 @@
 {% block title %}{{ feed.feed_name }} | Lynx{% endblock %}
 {% block nav_title %}{{ feed.feed_name }} {% endblock %}
 {% block content %}
-  <form action="{% url 'lynx:refresh_feed' feed.id %}" method="post">
+<div class="grid grid-cols-2">
+  <a href="#" class="btn btn-ghost h-20">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+      <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+    </svg>
+    Edit Feed
+  </a>
+  <form action="{% url 'lynx:refresh_feed' feed.id %}" method="post" class="w-full">
     {% csrf_token %}
-    <button type="submit">Refresh</button>
+    <button type="submit" href="{% url 'lynx:add_feed' %}" class="btn btn-ghost w-full h-20">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      Refresh Feed
+    </button>
   </form>
-  {% for item in feed_items_list %}
-  <article class="list-item">
-    <div>
-      <div style="width:50px; height:50;">
+</div>
+{% for item in feed_items_list %}
+  <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
+    <div class="card-body w-full">
+      <h2 class="card-title">{{ item.title }}</h2>
+      <p class="truncate">{{ item.description }}</p>
+      <div class="card-actions justify-end">
         {% if item.saved_as_link %}
-          <a class="contrast" data-tooltip="View in library" href="{% url 'lynx:link_viewer' item.saved_as_link.id %}">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-            </svg>
+          <a href="{% url 'lynx:link_viewer' item.saved_as_link.id %}">
+            <button class="btn btn-primary">View in Library</button>
           </a>
         {% else %}
           <form action="{% url 'lynx:add_feed_item_to_library' item.id %}" method="post">
             {% csrf_token %}
-            <a href="javascript:;" class="contrast" data-tooltip="Add link to library" onclick="parentNode.submit();">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
-              </svg>
-            </a>
-            <!-- <button type="submit">Add to library</button> -->
+            <input type="submit" class="btn btn-primary" value="Add to Library">
           </form>
         {% endif %}
       </div>
-      <div>
-        <hgroup>
-          <h4><a href="#">{{ item.title }}</a></h4>
-          <h5>{{ item.pub_date }}</h5>
-          {% if item.saved_as_link %}
-          <h5><a href="{% url 'lynx:link_viewer' item.saved_as_link.id %}">View in library</a></h5>
-          {% else %}
-          <form action="{% url 'lynx:add_feed_item_to_library' item.id %}" method="post">
-            {% csrf_token %}
-            <button type="submit">Add to library</button>
-          </form>
-          {% endif %}
-        </hgroup>
-        <p class="truncate">
-          {{ item.description }}
-        </p>
-      </div>
     </div>
-  </article>
-  {% endfor %}
+  </div>
+{% endfor %}
 {% endblock %}

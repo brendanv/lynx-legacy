@@ -16,8 +16,35 @@ from lynx.errors import NoAPIKeyInSettings
 import secrets
 
 
+class APIKeyWidget(TextInput):
+  template_name = "widgets/api_key_widget.html"
+  
+  def __init__(self, **kwargs):
+    super().__init__(**kwargs)
+    self.attrs['readonly'] = ''
+
+
+class FancyTextWidget(TextInput):
+  template_name = "widgets/fancy_text_widget.html"
+
+  def __init__(self, display_name, **kwargs):
+    super().__init__(**kwargs)
+    self.attrs['display_name'] = display_name
+
+
+class FancyPasswordWidget(forms.PasswordInput):
+  template_name = "widgets/fancy_password_widget.html"
+
+  def __init__(self, display_name, **kwargs):
+    super().__init__(**kwargs)
+    self.attrs['display_name'] = display_name
+    self.attrs['autocomplete'] = 'off'
+
+
 class AddLinkForm(forms.Form):
-  url = forms.URLField(label="URL", max_length=2000)
+  url = forms.URLField(label="",
+                       max_length=2000,
+                       widget=FancyTextWidget('Article URL'))
 
   def create_link(self, user):
     url = url_parser.parse_url(self.cleaned_data['url'], user)
@@ -130,19 +157,15 @@ class LinkFeedView(LoginRequiredMixin, generic.ListView):
     return data
 
 
-class APIKeyWidget(TextInput):
-  template_name = "widgets/api_key_widget.html"
-
-
 class UpdateSettingsForm(forms.Form):
-  openai_api_key = forms.CharField(
-      label="OpenAI API Key",
-      max_length=255,
-      widget=forms.PasswordInput(render_value=True),
-      required=False)
+  openai_api_key = forms.CharField(label="",
+                                   max_length=255,
+                                   widget=FancyPasswordWidget(
+                                       'OpenAI API Key', render_value=True),
+                                   required=False)
 
   lynx_api_key = forms.CharField(
-      label="Lynx API Key",
+      label="",
       max_length=255,
       required=False,
       widget=APIKeyWidget(),
@@ -183,15 +206,27 @@ class UpdateCookiesView(LoginRequiredMixin, ModelFormSetView):
     args = super().get_factory_kwargs()
     args['can_delete'] = True
     args['can_delete_extra'] = False
+    args['labels'] = {
+        'cookie_name': '',
+        'cookie_value': '',
+        'cookie_domain': ''
+    }
     args['widgets'] = {
-        'user': forms.HiddenInput(),
-        'cookie_value': forms.PasswordInput(render_value=True),
+        'user':
+        forms.HiddenInput(),
+        'cookie_value':
+        FancyPasswordWidget('Cookie Value', render_value=True),
+        'cookie_name':
+        FancyTextWidget('Cookie Name', attrs={'autocomplete': 'off'}),
+        'cookie_domain':
+        FancyTextWidget('Cookie Domain', attrs={'autocomplete': 'off'}),
     }
     return args
 
   def get_formset(self):
     formset = super().get_formset()
-    formset.deletion_widget = forms.CheckboxInput(attrs={'role': 'switch'})
+    formset.deletion_widget = forms.CheckboxInput(
+        attrs={'class': 'checkbox checkbox-primary'})
     return formset
 
   def get_initial(self):
@@ -213,7 +248,9 @@ class FeedListView(LoginRequiredMixin, generic.ListView):
 
 
 class AddFeedForm(forms.Form):
-  url = forms.URLField(label="URL", max_length=2000)
+  url = forms.URLField(label="",
+                       max_length=2000,
+                       widget=FancyTextWidget('Feed URL'))
 
   def create_feed(self, request, user) -> Feed:
     loader = feed_utils.RemoteFeedLoader(
@@ -291,6 +328,7 @@ class RefreshFeedFromRemoteView(LoginRequiredMixin, View):
       return HttpResponseRedirect(reverse("lynx:feed_items", args=(feed.pk, )))
     except Feed.DoesNotExist:
       return JsonResponse({"error": "Feed does not exist."})
+
 
 class RefreshAllFeedsView(LoginRequiredMixin, View):
 
