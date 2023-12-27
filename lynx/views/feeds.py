@@ -77,8 +77,9 @@ async def add_feed_item_to_library_view(request: HttpRequest, pk):
 
   url = feed_item.saved_as_link
   if url is None:
-    url = await (sync_to_async(
-        lambda: url_parser.parse_url(feed_item.url, request.user))())
+    stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
+    url = await (sync_to_async(lambda: url_parser.parse_url(
+        feed_item.url, request.user, stripped_headers))())
     url.created_from_feed = feed
     await url.asave()
 

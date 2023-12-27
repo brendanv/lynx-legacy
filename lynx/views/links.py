@@ -2,12 +2,13 @@ from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget
 from asgiref.sync import sync_to_async
 from django import forms
+from django.contrib import messages
 from django.http import JsonResponse, HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner
 from lynx.models import Link
-from lynx.errors import NoAPIKeyInSettings
+from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from django.shortcuts import aget_object_or_404, redirect
 
 
@@ -16,8 +17,8 @@ class AddLinkForm(forms.Form):
                        max_length=2000,
                        widget=FancyTextWidget('Article URL'))
 
-  def create_link(self, user) -> Link:
-    url = url_parser.parse_url(self.cleaned_data['url'], user)
+  def create_link(self, user, headers={}) -> Link:
+    url = url_parser.parse_url(self.cleaned_data['url'], user, headers)
     url.save()
     return url
 
@@ -27,8 +28,15 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
   if request.method == 'POST':
     form = AddLinkForm(request.POST)
     if form.is_valid():
-      link = await (sync_to_async(lambda: form.create_link(request.user))())
-      return redirect('lynx:link_viewer', pk=link.pk)
+      try:
+        stripped_headers = url_parser.extract_headers_to_pass_for_parse(
+            request)
+        link = await (sync_to_async(
+            lambda: form.create_link(request.user, stripped_headers))())
+        return redirect('lynx:link_viewer', pk=link.pk)
+      except UrlParseError as e:
+        messages.error(request,
+                       f'Unable to parse link. The error was: {e.http_error}')
   else:
     form = AddLinkForm()
 
@@ -72,7 +80,8 @@ async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
 
 
 @async_login_required
-async def link_feed_view(request: HttpRequest, filter: str = "all") -> HttpResponse:
+async def link_feed_view(request: HttpRequest,
+                         filter: str = "all") -> HttpResponse:
   query_string = request.GET.get('q', '')
   if query_string:
     sql = '''
@@ -112,4 +121,3 @@ async def link_feed_view(request: HttpRequest, filter: str = "all") -> HttpRespo
 
   data['links_list'] = await (sync_to_async(list)(queryset))
   return TemplateResponse(request, "lynx/links_feed.html", context=data)
-

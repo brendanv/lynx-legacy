@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import List, Tuple
+from django.http.request import HttpRequest
 
 import requests
 import readtime
@@ -9,15 +9,34 @@ from readability import Document
 import trafilatura
 from trafilatura.settings import use_config
 from urllib.parse import urlparse
-from bs4 import BeautifulSoup
+from lynx.errors import UrlParseError
 
 from .models import Link, UserCookie
 
-def parse_url(url, user):
+
+def extract_headers_to_pass_for_parse(request: HttpRequest) -> dict[str, str]:
+  # Headers to make the request look less like scraping but while also
+  # not really changing the behavior at all.
+  supported_headers = [
+      'accept', 'accept-language', 'user-agent', 'dnt',
+      'sec-fetch-dest', 'sec-fetch-mode'
+  ]
+  return {
+      k.lower(): v
+      for k, v in request.headers.items() if k.lower() in supported_headers
+  }
+
+
+def parse_url(url: str, user, headers: dict[str, str] = {}) -> Link:
   domain = urlparse(url).netloc
   cookies = UserCookie.objects.filter(user=user, cookie_domain=domain)
   cookie_data = {cookie.cookie_name: cookie.cookie_value for cookie in cookies}
-  response = requests.get(url, cookies=cookie_data)
+  response = requests.get(url, cookies=cookie_data, headers=headers)
+
+  try:
+    response.raise_for_status()
+  except requests.exceptions.HTTPError as e:
+    raise UrlParseError(str(e))
 
   readable_doc = Document(response.content)
   summary_html = readable_doc.summary()
@@ -38,17 +57,23 @@ def parse_url(url, user):
 
   read_time = readtime.of_html(summary_html)
 
+  full_page_content = response.content
+  try:
+    full_page_content = readable_doc.content()
+  except IndexError:
+    pass
+
   return Link(original_url=url,
               creator=user,
               cleaned_url=json_meta.get('source') or url,
               hostname=json_meta.get('hostname') or domain,
               article_date=article_date,
               author=json_meta.get('author') or 'Unknown Author',
-              title=json_meta['title'],
+              title=json_meta['title'] or readable_doc.title(),
               excerpt=json_meta.get('excerpt') or '',
               article_html=summary_html,
               raw_text_content=json_meta['raw_text'],
-              full_page_html=readable_doc.content(),
+              full_page_html=full_page_content,
               header_image_url=json_meta.get('image') or '',
               read_time_seconds=read_time.seconds,
               read_time_display=read_time.text)
