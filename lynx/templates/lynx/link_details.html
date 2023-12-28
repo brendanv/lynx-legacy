@@ -9,8 +9,9 @@
     <p>This is the details view for my link with ID {{ link.id }}</p>
     <a href="{% url 'lynx:link_viewer' link.id %}">Link details</a>
     <p>Current summary: {{ link.summary }}</p>
-    <form action="{% url 'lynx:summarize_link' link.id %}" method="post">
+    <form action="{% url 'lynx:link_action' link.id %}" method="post">
       {% csrf_token %}
-      <input type="submit" value="Summarize">
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <input class="btn btn-primary" type="submit" name="action_summarize" value="Summarize">
     </form>
 {% endblock %}

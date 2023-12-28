@@ -32,8 +32,8 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
         stripped_headers = url_parser.extract_headers_to_pass_for_parse(
             request)
         user = await request.auser()
-        link = await (sync_to_async(
-            lambda: form.create_link(user, stripped_headers))())
+        link = await (
+            sync_to_async(lambda: form.create_link(user, stripped_headers))())
         return redirect('lynx:link_viewer', pk=link.pk)
       except UrlParseError as e:
         messages.error(request,
@@ -46,16 +46,33 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
 
 @async_login_required
 @lynx_post_only
-async def summarize_link_view(request: HttpRequest, pk: int) -> HttpResponse:
-  try:
-    user = await request.auser()
-    link = await aget_object_or_404(Link, pk=pk, creator=user)
-    link = await url_summarizer.generate_and_persist_summary(link)
+async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
+  user = await request.auser()
+  link = await aget_object_or_404(Link, pk=pk, creator=user)
+  if 'action_delete' in request.POST:
+    title = link.title
+    await link.adelete()
+    messages.info(request, f'Link "{title}" deleted.')
+  elif 'action_toggle_unread' in request.POST:
+    if link.last_viewed_at is None:
+      link.last_viewed_at = timezone.now()
+    else:
+      link.last_viewed_at = None
+    await link.asave()
+  elif 'action_summarize' in request.POST:
+    try:
+      await url_summarizer.generate_and_persist_summary(link)
+    except NoAPIKeyInSettings:
+      messages.error(
+          request,
+          'You must have an OpenAI API key in your settings to summarize links.'
+      )
+  else:
+    messages.warning(request, 'Unable to perform unknown action')
 
-    return redirect('lynx:link_details', pk=link.pk)
-  except NoAPIKeyInSettings:
-    return JsonResponse(
-        {"error": "You must have an OpenAI API key in your settings."})
+  if 'next' in request.POST:
+    return redirect(request.POST['next'])
+  return redirect('lynx:links_feed')
 
 
 @async_login_required

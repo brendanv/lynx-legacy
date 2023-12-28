@@ -33,13 +33,51 @@
   </details>
   {% if links_list %}
   {% for link in links_list %}
-  <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
-    <figure class="w-28 h-28">
-      <img class="w-28 h-28" src="{{ link.header_image_url }}" alt="{{ link.title }}"/>
-    </figure>
-    <div class="card-body w-5/6">
-      <h2 class="card-title"><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h2>
-      <p class="truncate">{{ link.excerpt }}</p>
+  <div class="indicator my-4 block w-full">
+    {% if not link.last_viewed_at %}
+    <span class="indicator-item indicator-start badge badge-primary badge-sm"></span>
+    {% endif %}
+    <div class="card card-side card-compact bg-base-100 shadow-xl">
+      <figure class="w-28 h-28">
+        <img class="w-28 h-28" src="{{ link.header_image_url }}" alt="{{ link.title }}"/>
+      </figure>
+      <div class="card-body w-[calc(100%-7rem)]">
+        <div class="flex">
+          <div class="flex-1 min-w-0">
+            <h2 class="card-title"><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h2>
+            <p class="truncate">{{ link.excerpt }}</p>
+          </div>
+          <div class="flex-none">
+            <div class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm m-x-1">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                </svg>
+
+              </div>
+              <form method="post" action="{% url 'lynx:link_action' link.id %}" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <ul tabindex="0">
+                  <li>
+                    <input type="submit" name="action_toggle_unread" value="{% if not link.last_viewed_at %}Mark read{% else %}Mark unread{% endif %}">
+                  </li>
+                  <li>
+                    <a href="{% url 'lynx:link_details' link.id %}">Edit details</a>
+                  </li>
+                  <li>
+                    <input type="submit" name="action_summarize" value="Summarize">
+                  </li>
+                  <div class="divider"></div>
+                  <li>
+                    <input class="hover:bg-error hover:text-error-content" type="submit" name="action_delete" value="Delete">
+                  </li>
+                </ul>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   {% endfor %}

@@ -5,9 +5,7 @@ from . import views
 app_name = 'lynx'
 urlpatterns = [
     # Feed
-    path("", 
-         views.link_feed_view, {'filter': 'all'},
-         name="links_feed"),
+    path("", views.link_feed_view, {'filter': 'all'}, name="links_feed"),
     path("all/",
          views.link_feed_view, {'filter': 'all'},
          name="links_feed_all"),
@@ -22,13 +20,12 @@ urlpatterns = [
          name="links_feed_search"),
 
     # Link views + actions
-    path("<int:pk>/details/", views.details_view,
-         name="link_details"),
+    path("<int:pk>/details/", views.details_view, name="link_details"),
     path("<int:pk>/view", views.readable_view, name="link_viewer"),
     path("add/", views.add_link_view, name="add_link"),
-    path("<int:pk>/summarize/",
-         views.summarize_link_view,
-         name="summarize_link"),
+    path("<int:pk>/action/",
+         views.link_actions_view,
+         name="link_action"),
 
     # Feed views
     path("feeds/", views.feeds_list_view, name="feeds"),
