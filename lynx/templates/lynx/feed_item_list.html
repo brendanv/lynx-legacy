@@ -20,7 +20,7 @@
     </button>
   </form>
 </div>
-{% for item in feed_items_list %}
+{% for item in paginator_page.object_list %}
   <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
     <div class="card-body w-full">
       <h2 class="card-title">{{ item.title }}</h2>
@@ -40,4 +40,5 @@
     </div>
   </div>
 {% endfor %}
+{% include 'lynx/paginator.html' %}
 {% endblock %}

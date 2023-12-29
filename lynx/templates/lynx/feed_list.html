@@ -20,7 +20,7 @@
     </button>
   </form>
 </div>
-{% for feed in feeds_list %}
+{% for feed in paginator_page.object_list %}
   <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
     <figure class="w-28 h-28">
       <img class="w-28 h-28" src="{{ feed.feed_image_url }}" alt="{{ feed.feed_name }}"/>
@@ -31,4 +31,5 @@
     </div>
   </div>
 {% endfor %}
+{% include 'lynx/paginator.html' %}
 {% endblock %}

@@ -1,6 +1,7 @@
 from asgiref.sync import sync_to_async
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget
+from . import paginator
 from django import forms
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
@@ -13,11 +14,12 @@ from lynx import feed_utils, url_parser
 @async_login_required
 async def feeds_list_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
-  feeds = await (sync_to_async(list)(Feed.objects.filter(user=user,
-                                                         is_deleted=False)))
-  return TemplateResponse(request, 'lynx/feed_list.html', {
-      'feeds_list': feeds,
-  })
+  queryset = Feed.objects.filter(user=user, is_deleted=False)
+  paginator_data = await paginator.generate_paginator_context_data(
+      request, queryset)
+  return TemplateResponse(request,
+                          'lynx/feed_list.html',
+                          context=paginator_data)
 
 
 @async_login_required
@@ -28,12 +30,12 @@ async def feed_items_list_view(request: HttpRequest,
                                   pk=feed_id,
                                   is_deleted=False,
                                   user=user)
-  feed_items = await (sync_to_async(list)(
-      FeedItem.objects.filter(feed=feed).order_by('-pub_date')))
-  return TemplateResponse(request, 'lynx/feed_item_list.html', {
-      'feed_items_list': feed_items,
-      'feed': feed
-  })
+  queryset = FeedItem.objects.filter(feed=feed).order_by('-pub_date')
+  paginator_data = await paginator.generate_paginator_context_data(
+      request, queryset)
+  return TemplateResponse(request,
+                          'lynx/feed_item_list.html',
+                          context={'feed': feed} | paginator_data)
 
 
 @async_login_required
@@ -75,16 +77,14 @@ async def refresh_feed_from_remote_view(request: HttpRequest,
 async def add_feed_item_to_library_view(request: HttpRequest, pk):
   user = await request.auser()
   feed_item = await aget_object_or_404(
-      FeedItem.objects.select_related('feed__user'),
-      pk=pk,
-      feed__user=user)
+      FeedItem.objects.select_related('feed__user'), pk=pk, feed__user=user)
   feed = feed_item.feed
 
   url = feed_item.saved_as_link
   if url is None:
     stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
-    url = await (sync_to_async(lambda: url_parser.parse_url(
-        feed_item.url, user, stripped_headers))())
+    url = await (sync_to_async(
+        lambda: url_parser.parse_url(feed_item.url, user, stripped_headers))())
     url.created_from_feed = feed
     await url.asave()
 

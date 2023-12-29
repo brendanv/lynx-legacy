@@ -1,9 +1,10 @@
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget
+from . import paginator
 from asgiref.sync import sync_to_async
 from django import forms
 from django.contrib import messages
-from django.http import JsonResponse, HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner
@@ -141,5 +142,7 @@ async def link_feed_view(request: HttpRequest,
   else:
     data['title'] = "All Links"
 
-  data['links_list'] = await (sync_to_async(list)(queryset))
+  paginator_data = await paginator.generate_paginator_context_data(
+      request, queryset)
+  data = data | paginator_data
   return TemplateResponse(request, "lynx/links_feed.html", context=data)
