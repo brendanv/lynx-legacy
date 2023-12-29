@@ -36,11 +36,12 @@ class UpdateSettingsForm(forms.Form):
 
 @async_login_required
 async def update_settings_view(request: HttpRequest) -> HttpResponse:
-  setting, _ = await UserSetting.objects.aget_or_create(user=request.user)
+  user = await request.auser()
+  setting, _ = await UserSetting.objects.aget_or_create(user=user)
   if request.method == 'POST':
     form = UpdateSettingsForm(request.POST)
     if form.is_valid():
-      await (sync_to_async(lambda: form.update_setting(request.user))())
+      await (sync_to_async(lambda: form.update_setting(user))())
       messages.success(request, "Settings updated.")
       return redirect('lynx:user_settings')
   else:

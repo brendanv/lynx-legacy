@@ -7,7 +7,8 @@ def async_login_required(view_func):
 
   @functools.wraps(view_func)
   async def wrapper(request: HttpRequest, *args, **kwargs):
-    if not await (sync_to_async(lambda: request.user.is_authenticated)()):
+    user = await request.auser()
+    if not await (sync_to_async(lambda: user.is_authenticated)()):
       return redirect_to_login(request.get_full_path())
     return await view_func(request, *args, **kwargs)
 

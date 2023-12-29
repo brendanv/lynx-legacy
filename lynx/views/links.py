@@ -31,8 +31,9 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
       try:
         stripped_headers = url_parser.extract_headers_to_pass_for_parse(
             request)
+        user = await request.auser()
         link = await (sync_to_async(
-            lambda: form.create_link(request.user, stripped_headers))())
+            lambda: form.create_link(user, stripped_headers))())
         return redirect('lynx:link_viewer', pk=link.pk)
       except UrlParseError as e:
         messages.error(request,
@@ -47,7 +48,8 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
 @lynx_post_only
 async def summarize_link_view(request: HttpRequest, pk: int) -> HttpResponse:
   try:
-    link = await aget_object_or_404(Link, pk=pk, creator=request.user)
+    user = await request.auser()
+    link = await aget_object_or_404(Link, pk=pk, creator=user)
     link = await url_summarizer.generate_and_persist_summary(link)
 
     return redirect('lynx:link_details', pk=link.pk)
@@ -58,7 +60,8 @@ async def summarize_link_view(request: HttpRequest, pk: int) -> HttpResponse:
 
 @async_login_required
 async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
-  link = await Link.objects.aget(pk=pk, creator=request.user)
+  user = await request.auser()
+  link = await aget_object_or_404(Link, pk=pk, creator=user)
   context_data = {'link': link}
   cleaner = html_cleaner.HTMLCleaner(link.article_html)
   cleaner.generate_headings().replace_image_links_with_images()
@@ -75,13 +78,15 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
 
 @async_login_required
 async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
-  link = await aget_object_or_404(Link, pk=pk, creator=request.user)
+  user = await request.auser()
+  link = await aget_object_or_404(Link, pk=pk, creator=user)
   return TemplateResponse(request, "lynx/link_details.html", {'link': link})
 
 
 @async_login_required
 async def link_feed_view(request: HttpRequest,
                          filter: str = "all") -> HttpResponse:
+  user = await request.auser()
   query_string = request.GET.get('q', '')
   if query_string:
     sql = '''
@@ -96,9 +101,9 @@ async def link_feed_view(request: HttpRequest,
       WHERE lynx_link.creator_id = %s
       ORDER BY rank;
     '''
-    queryset = Link.objects.raw(sql, [query_string, request.user.id])
+    queryset = Link.objects.raw(sql, [query_string, user.id])
   else:
-    queryset = Link.objects.filter(creator=request.user)
+    queryset = Link.objects.filter(creator=user)
     if filter == "read":
       queryset = queryset.filter(last_viewed_at__isnull=False)
     elif filter == "unread":
