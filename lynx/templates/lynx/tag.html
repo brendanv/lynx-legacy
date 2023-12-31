@@ -1,0 +1,27 @@
+<div class="badge badge-ghost badge-outline gap-2">
+  {% if removable %}
+    <form action="{% url 'lynx:link_tags_edit' link.id %}" method="post" class="leading-4 tooltip" data-tip="Remove tag">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="remove_tags" value="{{ tag.pk }}">
+      <button class="link" type="submit">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-4 h-4 stroke-current">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </form>
+  {% endif %}
+  {% if addable %}
+    <form action="{% url 'lynx:link_tags_edit' link.id %}" method="post" class="leading-4 tooltip" data-tip="Add tag">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="add_tags" value="{{ tag.pk }}">
+      <button class="link" type="submit">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-4 h-4 stroke-current">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+    </form>
+  {% endif %}
+  <a href="{% url 'lynx:links_feed_tagged' tag.slug %}" class="no-underline">{{ tag.name }}</a>
+</div>

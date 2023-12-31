@@ -18,14 +18,18 @@ urlpatterns = [
     path("search/",
          views.link_feed_view, {'filter': 'search'},
          name="links_feed_search"),
+    path("tagged/<str:slug>/",
+         views.tagged_links_view,
+         name="links_feed_tagged"),
 
     # Link views + actions
     path("<int:pk>/details/", views.details_view, name="link_details"),
     path("<int:pk>/view", views.readable_view, name="link_viewer"),
     path("add/", views.add_link_view, name="add_link"),
-    path("<int:pk>/action/",
-         views.link_actions_view,
-         name="link_action"),
+    path("<int:pk>/action/", views.link_actions_view, name="link_action"),
+    path("<int:pk>/tags/edit/",
+         views.link_tags_edit_view,
+         name="link_tags_edit"),
 
     # Feed views
     path("feeds/", views.feeds_list_view, name="feeds"),

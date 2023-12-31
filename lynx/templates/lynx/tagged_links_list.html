@@ -1,0 +1,16 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}{{ title }} | Lynx{% endblock %}
+
+{% block nav_title %}{{ title }}{% endblock %}
+
+{% block content %}
+  {% if paginator_page and paginator_page.object_list %}
+  {% for link in paginator_page.object_list %}
+    {% include 'lynx/link_list_item.html' %}
+  {% endfor %}
+  {% include 'lynx/paginator.html' %}
+  {% else %}
+  <p>No links are saved</p>
+  {% endif %}
+{% endblock %}

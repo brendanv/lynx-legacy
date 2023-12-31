@@ -13,3 +13,11 @@ img.preview-img {
   max-width: unset;
   object-fit: cover;
 }
+
+
+.tag-toggle input[type=checkbox]+label {
+  @apply btn btn-primary btn-outline;
+}
+.tag-toggle input[type=checkbox]:checked+label {
+  @apply btn btn-primary;
+}

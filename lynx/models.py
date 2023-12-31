@@ -1,5 +1,19 @@
 from django.db import models
 from django.conf import settings
+from autoslug import AutoSlugField
+
+
+class Tag(models.Model):
+  created_at = models.DateTimeField(auto_now_add=True)
+  creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  name = models.CharField(max_length=50)
+  slug = AutoSlugField(populate_from='name', max_length=50)
+
+  def __str__(self):
+    return f'Tag({self.name})'
+    
+  class Meta:
+    ordering = ['name']
 
 
 class Link(models.Model):
@@ -7,7 +21,7 @@ class Link(models.Model):
   updated_at = models.DateTimeField(auto_now=True)
   creator = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
-  last_viewed_at = models.DateTimeField(null=True)
+  last_viewed_at = models.DateTimeField(null=True, blank=True)
 
   original_url = models.URLField(max_length=2000)
 
@@ -33,10 +47,11 @@ class Link(models.Model):
   # Other metadata
   created_from_feed = models.ForeignKey('Feed',
                                         on_delete=models.SET_NULL,
-                                        null=True)
+                                        null=True, blank=True)
+  tags = models.ManyToManyField(Tag, blank=True)
 
   def __str__(self):
-    return self.title
+    return f'Link({self.title})'
 
   class Meta:
     ordering = ['-created_at']

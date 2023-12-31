@@ -1,0 +1,33 @@
+<label for="edit_tags_modal_{{ link.pk }}" class="btn btn-sm btn-ghost">Edit tags</label>
+
+<input type="checkbox" id="edit_tags_modal_{{ link.pk }}" class="modal-toggle" />
+<div class="modal" role="dialog">
+  <div class="modal-box">
+    <h3 class="text-lg font-bold">Edit Tags</h3>
+    <form action="{% url 'lynx:link_tags_edit' link.id %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="set_tags" value="1">
+      {% if all_user_tags %}
+        <div class="flex flex-wrap content-evently place-content-center gap-2 w-full">
+          {% for tag in all_user_tags %}
+            <div class="tag-toggle">
+              <input type="checkbox" name="set_tags[{{tag.pk}}]" id="set_tags[{{tag.pk}}]" class="hidden" {% if tag in link.tags.all %}checked{% endif %}>
+              <label for="set_tags[{{tag.pk}}]">{{ tag.name }}</label>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+      <div class="divider my-2">OR</div>
+      <div class="join w-full">
+        <input type="text" placeholder="Add new tag" name="new_tag_name", id="new_tag_name" class="join-item input input-bordered w-full max-w-xs" />
+        <button type="submit" name="add_new_tag" class="btn btn-secondary join-item">Add</button>
+      </div>
+      <div class="modal-action">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <label for="edit_tags_modal_{{ link.pk }}" class="btn">Cancel</label>
+      </div>
+    </form>
+  </div>
+  <label class="modal-backdrop" for="edit_tags_modal_{{ link.pk }}">Close</label>
+</div>

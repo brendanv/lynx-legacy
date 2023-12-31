@@ -8,9 +8,9 @@ from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner
-from lynx.models import Link
+from lynx.models import Link, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
-from django.shortcuts import aget_object_or_404, redirect
+from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
 
 
 class AddLinkForm(forms.Form):
@@ -83,8 +83,13 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   context_data = {'link': link}
   cleaner = html_cleaner.HTMLCleaner(link.article_html)
   cleaner.generate_headings().replace_image_links_with_images()
+  tags_queryset = link.tags.all()
+  tags = await (sync_to_async(list)(tags_queryset))
+  all_user_tags = await (sync_to_async(list)(Tag.objects.filter(creator=user)))
   context_data = {
       'link': link,
+      'tags': tags,
+      'all_user_tags': all_user_tags,
       'html_with_sections': cleaner.prettify(),
       'table_of_contents': [h.to_dict() for h in cleaner.get_headings()]
   }
@@ -146,3 +151,51 @@ async def link_feed_view(request: HttpRequest,
       request, queryset)
   data = data | paginator_data
   return TemplateResponse(request, "lynx/links_feed.html", context=data)
+
+
+@async_login_required
+async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
+  user = await request.auser()
+  tag = await aget_object_or_404(Tag, slug=slug, creator=user)
+  queryset = Link.objects.filter(creator=user, tags=tag)
+  data = {}
+  data['title'] = f"Links tagged with '{tag.name}'"
+  paginator_data = await paginator.generate_paginator_context_data(
+      request, queryset)
+  data = data | paginator_data
+  return TemplateResponse(request, 'lynx/tagged_links_list.html', context=data)
+
+
+@async_login_required
+@lynx_post_only
+async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
+  user = await request.auser()
+  link = await aget_object_or_404(Link, pk=pk, creator=user)
+  if 'add_tags' in request.POST:
+    ids = request.POST['add_tags'].split(',')
+    tags = await aget_list_or_404(Tag, pk__in=ids, creator=user)
+    for tag in tags:
+      await (sync_to_async(lambda: link.tags.add(tag))())
+  if 'remove_tags' in request.POST:
+    ids = request.POST['remove_tags'].split(',')
+    tags = await aget_list_or_404(Tag, pk__in=ids, creator=user)
+    for tag in tags:
+      await (sync_to_async(lambda: link.tags.remove(tag))())
+  if 'clear_tags' in request.POST:
+    await (sync_to_async(lambda: link.tags.clear())())
+  if 'set_tags' in request.POST:
+    tag_ids = [
+        key[9:-1] for key, value in request.POST.items()
+        if key.startswith('set_tags[')
+    ]
+    tags = await aget_list_or_404(Tag, pk__in=tag_ids, creator=user)
+    await (sync_to_async(lambda: link.tags.set(tags))())
+  if 'add_new_tag' in request.POST:
+    new_tag_name = request.POST.get('new_tag_name', None)
+    if new_tag_name:
+      await link.tags.acreate(name=new_tag_name, creator=user)
+
+  await link.asave()
+  if 'next' in request.POST:
+    return redirect(request.POST['next'])
+  return redirect('lynx:links_feed')
