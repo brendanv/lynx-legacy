@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@700&display=swap" rel="stylesheet"> 
     <link rel="icon" href="{% static 'lynx/img/favicon.ico' %}">
     <title>{% block title %}Lynx{% endblock %}</title>
-    <link rel="preload" href="{% static 'lynx/css/output.css' %}" as="style" />
-    <link rel="stylesheet" type="text/css" href="{% static 'lynx/css/output.css' %}" />
+    <link rel="preload" href="{% static 'lynx/generated/output.css' %}" as="style" />
+    <link rel="stylesheet" type="text/css" href="{% static 'lynx/generated/output.css' %}" />
     {% block head %}{% endblock %}
   </head>
   {% block prebody %}{% endblock %}
