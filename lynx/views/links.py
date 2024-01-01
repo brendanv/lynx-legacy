@@ -10,6 +10,7 @@ from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner
 from lynx.models import Link, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
+from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
 from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
 
 
@@ -172,51 +173,51 @@ async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
   if 'add_tags' in request.POST:
     ids = request.POST['add_tags'].split(',')
     tags = await aget_list_or_404(Tag, pk__in=ids, creator=user)
-    for tag in tags:
-      await (sync_to_async(lambda: link.tags.add(tag))())
+    link = await add_tags_to_link(tags, link)
   if 'remove_tags' in request.POST:
     ids = request.POST['remove_tags'].split(',')
     tags = await aget_list_or_404(Tag, pk__in=ids, creator=user)
-    for tag in tags:
-      await (sync_to_async(lambda: link.tags.remove(tag))())
+    link = await remove_tags_from_link(tags, link)
   if 'clear_tags' in request.POST:
-    await (sync_to_async(lambda: link.tags.clear())())
+    await set_tags_on_link([], link)
   if 'set_tags' in request.POST:
     tag_ids = [
         key[9:-1] for key, value in request.POST.items()
         if key.startswith('set_tags[')
     ]
     tags = await aget_list_or_404(Tag, pk__in=tag_ids, creator=user)
-    await (sync_to_async(lambda: link.tags.set(tags))())
+    link = await set_tags_on_link(tags, link)
   if 'add_new_tag' in request.POST:
     new_tag_name = request.POST.get('new_tag_name', None)
     if new_tag_name:
-      await link.tags.acreate(name=new_tag_name, creator=user)
+      tag = await create_tag_for_user(user, new_tag_name)
+      link = await add_tags_to_link([tag], link)
 
-  await link.asave()
   if 'next' in request.POST:
     return redirect(request.POST['next'])
   return redirect('lynx:links_feed')
-  
+
+
 @async_login_required
 async def manage_tags_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
-  tags_queryset = Tag.objects.filter(creator=user)
-  tags = await (sync_to_async(list)(tags_queryset))
-  return TemplateResponse(request, 'lynx/manage_tags.html', {'all_user_tags': tags})
+  tags = await load_all_user_tags(user)
+  return TemplateResponse(request, 'lynx/manage_tags.html',
+                          {'all_user_tags': tags})
+
 
 @async_login_required
 @lynx_post_only
 async def delete_tag_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
-  tag = await aget_object_or_404(Tag, pk=pk, creator=user)
-  await tag.adelete()
+  await delete_tag_for_user(user, pk)
   return redirect('lynx:manage_tags')
-  
+
+
 @async_login_required
 @lynx_post_only
 async def add_tag_view(request: HttpRequest) -> HttpResponse:
-  user = await request.auser()
   if 'tag' in request.POST:
-    await Tag.objects.acreate(name=request.POST['tag'], creator=user)
+    user = await request.auser()
+    await create_tag_for_user(user, request.POST['tag'])
   return redirect('lynx:manage_tags')
