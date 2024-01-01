@@ -51,4 +51,7 @@ urlpatterns = [
     path('settings/', views.update_settings_view, name='user_settings'),
     path('cookies/', views.UpdateCookiesView.as_view(), name='user_cookies'),
     path('bulk_upload/', views.bulk_upload_view, name='bulk_upload'),
+    path('tags/manage/', views.manage_tags_view, name='manage_tags'),
+    path('tags/<int:pk>/delete/', views.delete_tag_view, name='delete_tag'),
+    path('tags/add/', views.add_tag_view, name='add_tag'),
 ]

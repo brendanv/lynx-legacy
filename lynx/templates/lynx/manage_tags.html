@@ -1,0 +1,33 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Manage Tags | Lynx{% endblock %}
+{% block nav_title %}Manage Tags{% endblock %}
+{% block content %}
+  <div>
+    {% if all_user_tags %}
+      <div class="flex flex-wrap content-evenly place-content-center gap-2 w-full">
+        {% for tag in all_user_tags %}
+          <div class="badge badge-ghost badge-lg badge-outline gap-2">
+            <form action="{% url 'lynx:delete_tag' tag.pk %}" method="post" class="leading-4 tooltip" data-tip="Delete tag">
+              {% csrf_token %}
+              <button class="link" type="submit">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-4 h-4 stroke-current">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </button>
+            </form>
+            <a href="{% url 'lynx:links_feed_tagged' tag.slug %}" class="no-underline">{{ tag.name }}</a>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p>You have no tags.</p>
+    {% endif %}
+    <div class="divider"></div>
+    <form action="{% url 'lynx:add_tag' %}" method="post" class="join w-full">
+      <input type="text" placeholder="Create new tag" class="join-item input input-bordered w-full max-w-xs" id="tag" name="tag" />
+      {% csrf_token %}
+      <button type="submit" class="join-item btn btn-primary">Add</button>
+    </form>
+  </div>
+{% endblock %}

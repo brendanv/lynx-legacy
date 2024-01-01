@@ -197,3 +197,26 @@ async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
   if 'next' in request.POST:
     return redirect(request.POST['next'])
   return redirect('lynx:links_feed')
+  
+@async_login_required
+async def manage_tags_view(request: HttpRequest) -> HttpResponse:
+  user = await request.auser()
+  tags_queryset = Tag.objects.filter(creator=user)
+  tags = await (sync_to_async(list)(tags_queryset))
+  return TemplateResponse(request, 'lynx/manage_tags.html', {'all_user_tags': tags})
+
+@async_login_required
+@lynx_post_only
+async def delete_tag_view(request: HttpRequest, pk: int) -> HttpResponse:
+  user = await request.auser()
+  tag = await aget_object_or_404(Tag, pk=pk, creator=user)
+  await tag.adelete()
+  return redirect('lynx:manage_tags')
+  
+@async_login_required
+@lynx_post_only
+async def add_tag_view(request: HttpRequest) -> HttpResponse:
+  user = await request.auser()
+  if 'tag' in request.POST:
+    await Tag.objects.acreate(name=request.POST['tag'], creator=user)
+  return redirect('lynx:manage_tags')

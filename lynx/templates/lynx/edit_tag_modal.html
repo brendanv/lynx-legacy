@@ -9,7 +9,7 @@
       <input type="hidden" name="next" value="{{ request.get_full_path }}">
       <input type="hidden" name="set_tags" value="1">
       {% if all_user_tags %}
-        <div class="flex flex-wrap content-evently place-content-center gap-2 w-full">
+        <div class="flex flex-wrap content-evenly place-content-center gap-2 w-full">
           {% for tag in all_user_tags %}
             <div class="tag-toggle">
               <input type="checkbox" name="set_tags[{{tag.pk}}]" id="set_tags[{{tag.pk}}]" class="hidden" {% if tag in link.tags.all %}checked{% endif %}>
