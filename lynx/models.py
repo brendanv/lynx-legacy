@@ -1,24 +1,38 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from autoslug import AutoSlugField
 
 
 class Tag(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
-  creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  creator = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE)
   name = models.CharField(max_length=50)
   slug = AutoSlugField(populate_from='name', max_length=50)
 
   def __str__(self):
     return f'Tag({self.name})'
-    
+
   class Meta:
     ordering = ['name']
 
 
-class Link(models.Model):
+class BulkUpload(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
+  creator = models.ForeignKey(settings.AUTH_USER_MODEL,
+                              on_delete=models.CASCADE)
+  tag_slug = models.CharField(max_length=50, blank=True, null=True)
+
+
+class Link(models.Model):
+  # The date this model was created
+  created_at = models.DateTimeField(auto_now_add=True)
+  # The last time this model was updated
   updated_at = models.DateTimeField(auto_now=True)
+  # When this link was added to the library. Note that this may be
+  # different from created_at in the case of bulk importing links!
+  added_at = models.DateTimeField(default=timezone.now)
   creator = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
   last_viewed_at = models.DateTimeField(null=True, blank=True)
@@ -47,14 +61,19 @@ class Link(models.Model):
   # Other metadata
   created_from_feed = models.ForeignKey('Feed',
                                         on_delete=models.SET_NULL,
-                                        null=True, blank=True)
+                                        null=True,
+                                        blank=True)
+  created_from_bulk_upload = models.ForeignKey('BulkUpload',
+                                               on_delete=models.SET_NULL,
+                                               null=True,
+                                               blank=True)
   tags = models.ManyToManyField(Tag, blank=True)
 
   def __str__(self):
     return f'Link({self.title})'
 
   class Meta:
-    ordering = ['-created_at']
+    ordering = ['-added_at']
 
 
 class UserSetting(models.Model):
@@ -109,9 +128,7 @@ class FeedItem(models.Model):
   description = models.TextField(null=True)
   url = models.URLField(max_length=2000)
 
-  saved_as_link = models.ForeignKey(Link,
-                                    on_delete=models.SET_NULL,
-                                    null=True)
+  saved_as_link = models.ForeignKey(Link, on_delete=models.SET_NULL, null=True)
 
   def __str__(self):
     return f"FeedItem({self.title})"

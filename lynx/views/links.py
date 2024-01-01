@@ -132,8 +132,6 @@ async def link_feed_view(request: HttpRequest,
     elif filter == "unread":
       queryset = queryset.filter(last_viewed_at__isnull=True)
 
-    queryset = queryset.order_by('-created_at')
-
   data = {}
   data['selected_filter'] = filter
   data['query'] = query_string

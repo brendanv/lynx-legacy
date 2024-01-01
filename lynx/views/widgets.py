@@ -25,3 +25,6 @@ class FancyPasswordWidget(forms.PasswordInput):
     self.attrs['display_name'] = display_name
     self.attrs['autocomplete'] = 'off'
 
+class DaisySelect(forms.Select):
+  template_name = "widgets/daisy_select.html"
+

@@ -342,6 +342,19 @@ files = [
 types-psycopg2 = ">=2.9.21.13"
 
 [[package]]
+name = "django4-background-tasks"
+version = "1.2.9"
+description = "Database backed asynchronous task queue"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django4-background-tasks-1.2.9.tar.gz", hash = "sha256:a27ddec8a0c850e5eedeef4767dacd067657aeb484c7e83593daf59c16433ce2"},
+]
+
+[package.dependencies]
+six = "*"
+
+[[package]]
 name = "exceptiongroup"
 version = "1.2.0"
 description = "Backport of PEP 654 (exception groups)"
@@ -1173,4 +1186,4 @@ zstd = ["zstandard (>=0.18.0)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "33cf081c47213940332983e7b6f96e1aeb77da7b799e2d2bff3f0434d4bdd7b3"
+content-hash = "a8b9911ca610315a7d04f048f2ddec9a68387240912ccd2d850e42b76ed5a9e8"

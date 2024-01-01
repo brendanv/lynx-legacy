@@ -50,4 +50,5 @@ urlpatterns = [
     # User settings
     path('settings/', views.update_settings_view, name='user_settings'),
     path('cookies/', views.UpdateCookiesView.as_view(), name='user_cookies'),
+    path('bulk_upload/', views.bulk_upload_view, name='bulk_upload'),
 ]

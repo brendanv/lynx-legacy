@@ -1,0 +1,6 @@
+{% with css_classes=widget.attrs.class|default:'' %}
+  <select class="select select-bordered w-full max-w-xs" name="{{widget.name}}" id="{{widget.attrs.id}}"}>
+    <option disabled selected>What type of file is this?</option>
+    <option value="readwise">Readwise</option>
+  </select>
+{% endwith %}

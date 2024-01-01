@@ -1,0 +1,28 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Bulk Upload | Lynx{% endblock %}
+{% block nav_title %}Bulk Upload{% endblock %}
+{% block content %}
+  <div>
+    <hgroup class="prose">
+      <h1>Bulk Upload Links</h1>
+      <h4>Content will be parsed automatically</h4>
+    </hgroup>
+    <form action="{% url 'lynx:bulk_upload' %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form }}
+      <!-- <select class="select select-bordered w-full max-w-xs">
+        <option disabled selected>What type of file is this?</option>
+        <option value="readwise">Readwise</option>
+      </select>
+      <br />
+      <label class="form-control w-full max-w-xs">
+        <div class="label">
+          <span class="label-text">CSV File</span>
+        </div>
+        <input type="file" class="file-input file-input-ghost w-full max-w-xs" id="id_file" />
+      </label> -->
+      <button class="btn btn-primary join-item">Submit</button>
+    </form>
+  </div>
+{% endblock %}
