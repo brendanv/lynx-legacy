@@ -13,7 +13,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.10]
 
     steps:
     - uses: actions/checkout@v3
@@ -28,4 +28,4 @@ jobs:
         poetry install
     - name: Run Tests
       run: |
-        python manage.py test lynx/tests/
+        python3 manage.py test lynx/tests/
