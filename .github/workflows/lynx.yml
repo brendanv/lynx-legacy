@@ -32,5 +32,5 @@ jobs:
       env:
         SECRET_KEY: ghtestkey
         DEBUG: True
-        CSRF_TRUSTED_ORIGINS: http://localhost
-        ALLOWED_HOSTS: *
+        CSRF_TRUSTED_ORIGINS: "http://localhost"
+        ALLOWED_HOSTS: "*"
