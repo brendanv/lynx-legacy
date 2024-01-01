@@ -29,3 +29,6 @@ jobs:
     - name: Run Tests
       run: |
         poetry run python manage.py test lynx/tests/
+      env:
+        SECRET_KEY: ghtestkey
+        DEBUG: True
