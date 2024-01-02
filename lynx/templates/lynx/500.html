@@ -1,0 +1,17 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Error | Lynx{% endblock %}
+{% block nav_title %}Error{% endblock %}
+{% load static %}
+{% block content %}
+<div class="hero min-h-screen" style="background-image: url({% static 'lynx/img/error.jpg' %});">
+  <div class="hero-overlay bg-opacity-80"></div>
+  <div class="hero-content text-center text-neutral-content">
+    <div class="max-w-md">
+      <h1 class="mb-5 text-5xl font-bold">Error</h1>
+      <p class="mb-5">We're having some technical difficulties and whatever you just tried to do didn't work...</p>
+      <a href="{% url 'lynx:links_feed' %}" class="btn btn-primary">Take me home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

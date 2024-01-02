@@ -1,0 +1,17 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}Not Found | Lynx{% endblock %}
+{% block nav_title %}Not Found{% endblock %}
+{% load static %}
+{% block content %}
+<div class="hero min-h-screen" style="background-image: url({% static 'lynx/img/not_found.jpg' %});">
+  <div class="hero-overlay bg-opacity-80"></div>
+  <div class="hero-content text-center text-neutral-content">
+    <div class="max-w-md">
+      <h1 class="mb-5 text-5xl font-bold">Lost?</h1>
+      <p class="mb-5">Looks like you found a broken link or a page that doesn't exist...</p>
+      <a href="{% url 'lynx:links_feed' %}" class="btn btn-primary">Take me home</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

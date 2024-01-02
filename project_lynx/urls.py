@@ -19,6 +19,8 @@ from django.urls import path, include
 from lynx import views as lynxviews
 from lynx import api as lynxapi
 
+handler500 = 'lynx.views.internal_error'
+handler404 = 'lynx.views.page_not_found'
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('links/', include('lynx.urls')),
