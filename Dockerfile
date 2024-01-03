@@ -12,6 +12,6 @@ COPY --from=cssbuild /lynx/static/lynx/generated/* ./lynx/static/lynx/generated/
 RUN pip install poetry
 RUN poetry install
 
-RUN poetry run python manage.py collectstatic --noinput
+RUN SECRET_KEY=secret poetry run python manage.py collectstatic --noinput
 EXPOSE 8000
 CMD ["gunicorn", "project_lynx.wsgi:application", "--bind", "0.0.0.0:8000"]
