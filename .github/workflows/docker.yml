@@ -2,7 +2,8 @@ name: Build Docker Image
 
 on:
   push:
-    branches: [ "docker" ]
+    branches: [ "main", "docker" ]
+    tags: ['*']
 
 env:
   REGISTRY: ghcr.io
@@ -34,6 +35,11 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule
+            type=ref,event=branch
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
 
       # - name: Build and push
       #   uses: docker/build-push-action@v5
