@@ -7,7 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "tww": "tailwindcss -i ../static/lynx/css/input.css -o ../static/lynx/generated/output.css --watch"
+    "tww": "tailwindcss -i ../static/lynx/css/input.css -o ../static/lynx/generated/output.css --watch",
+    "buildcss": "tailwindcss -i ../static/lynx/css/input.css -o ../static/lynx/generated/output.css --minify"
   },
   "keywords": [],
   "author": "",
