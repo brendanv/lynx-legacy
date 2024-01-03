@@ -14,4 +14,4 @@ RUN poetry install
 
 RUN SECRET_KEY=secret poetry run python manage.py collectstatic --noinput
 EXPOSE 8000
-CMD ["gunicorn", "project_lynx.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["poetry", "run", "gunicorn", "project_lynx.wsgi:application", "--bind", "0.0.0.0:8000"]
