@@ -1,18 +1,25 @@
 # Build stage for Tailwind CSS
 FROM node:latest as cssbuild
+WORKDIR /app
 COPY . . 
-WORKDIR /lynx/jstoolchain
-RUN npm install
-RUN npm run buildcss
+WORKDIR /app/lynx/jstoolchain
+RUN npm install && npm run buildcss
 
 # Build stage for Django. All we need from the previous stage is output.css
 FROM python:3
+WORKDIR /lynx
 COPY . .
-COPY --from=cssbuild /lynx/static/lynx/generated/* ./lynx/static/lynx/generated/
-RUN pip install poetry
-RUN poetry install
+COPY --from=cssbuild /app/lynx/static/lynx/generated/* /lynx/lynx/static/lynx/generated/
+RUN set -eux \
+  && echo "Installing dependencies" \
+    && pip install poetry \
+    && poetry install \
+  && echo "Collecting static files" \
+    && SECRET_KEY=secret poetry run python manage.py collectstatic --noinput
 
-RUN SECRET_KEY=secret poetry run python manage.py collectstatic --noinput
-RUN SECRET_KEY=secret CSRF_TRUSTED_ORIGINS=https://localhost poetry run python manage.py migrate --noinput
+# Volume where the sqlite db is stored, so the host device can put it 
+# wherever it wants
+VOLUME /lynx/data/
+
 EXPOSE 8000
-CMD ["poetry", "run", "gunicorn", "project_lynx.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["./docker_entrypoint.sh"]
