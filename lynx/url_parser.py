@@ -10,6 +10,7 @@ import trafilatura
 from trafilatura.settings import use_config
 from urllib.parse import urlparse
 from lynx.errors import UrlParseError
+from lynx.transforms import apply_all_transforms
 
 from .models import Link, UserCookie
 
@@ -38,9 +39,6 @@ def parse_url(url: str, user, headers: dict[str, str] = {}, model_fields={}) -> 
   except requests.exceptions.HTTPError as e:
     raise UrlParseError(str(e))
 
-  readable_doc = Document(response.content)
-  summary_html = readable_doc.summary()
-
   # Required to avoid signals not on main thread error
   new_config = use_config()
   new_config.set("DEFAULT", "EXTRACTION_TIMEOUT", "0")
@@ -55,13 +53,8 @@ def parse_url(url: str, user, headers: dict[str, str] = {}, model_fields={}) -> 
   article_date = datetime.strptime(json_meta['date'], '%Y-%m-%d').date(
   ) if 'date' in json_meta and json_meta['date'] else timezone.now()
 
+  summary_html = apply_all_transforms(response.text).prettify(formatter='html')
   read_time = readtime.of_html(summary_html)
-
-  full_page_content = response.content
-  try:
-    full_page_content = readable_doc.content()
-  except IndexError:
-    pass
 
   model_args = {
     'original_url':url,
@@ -70,11 +63,11 @@ def parse_url(url: str, user, headers: dict[str, str] = {}, model_fields={}) -> 
     'hostname':json_meta.get('hostname') or domain,
     'article_date':article_date,
     'author':json_meta.get('author') or 'Unknown Author',
-    'title':json_meta['title'] or readable_doc.title(),
+    'title':json_meta['title'] or Document(response.content).title(),
     'excerpt':json_meta.get('excerpt') or '',
     'article_html':summary_html,
     'raw_text_content':json_meta['raw_text'],
-    'full_page_html':full_page_content,
+    'full_page_html':response.text,
     'header_image_url':json_meta.get('image') or '',
     'read_time_seconds':read_time.seconds,
     'read_time_display':read_time.text
