@@ -1,4 +1,4 @@
-<div class="badge badge-ghost badge-outline gap-2">
+<div class="badge badge-ghost badge-outline gap-2 hover:text-primary">
   {% if removable %}
     <form action="{% url 'lynx:link_tags_edit' link.id %}" method="post" class="leading-4 tooltip" data-tip="Remove tag">
       {% csrf_token %}
