@@ -3,15 +3,52 @@
 {% block title %}{{ link.title }}{% endblock %}
 {% block nav_title %}{{ link.title }}{% endblock %}
 {% block content %}
-    <header>
-        <h1>{{ link.title }}</h1>
-    </header>
-    <p>This is the details view for my link with ID {{ link.id }}</p>
-    <a href="{% url 'lynx:link_viewer' link.id %}">Link details</a>
-    <p>Current summary: {{ link.summary }}</p>
+<!-- todo, add a way to edit etracted metadata like author. Also allow for re-parsing the raw html or redownloading from source completely. -->
+<div class="prose md:hidden">
+  <h1>{{ link.title }}</h1>
+</div>
+<div class="grid grid-cols-2 mb-4">
+  <form action="{% url 'lynx:link_action' link.id %}" method="post" class="w-full">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" name="action_reload" class="btn btn-ghost w-full h-20">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      Reload link from source
+    </button>
+  </form>
+  <form action="{% url 'lynx:link_action' link.id %}" method="post" class="w-full">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <button type="submit" name="action_reparse" class="btn btn-ghost w-full h-20">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+      </svg>
+      Re-parse stored HTML
+    </button>
+  </form>
+</div>
+
+<div class="prose max-w-none">
+  <h3>Summary</h3>
+  {% if link.summary %}
+    <blockquote>{{ link.summary }}</blockquote>
+  {% else %}
     <form action="{% url 'lynx:link_action' link.id %}" method="post">
-      {% csrf_token %}
-      <input type="hidden" name="next" value="{{ request.path }}">
-      <input class="btn btn-primary" type="submit" name="action_summarize" value="Summarize">
+      <p>
+        No summary available.
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ request.path }}">
+        <input class="btn btn-link" type="submit" name="action_summarize" value="Summarize">
+      </p>
     </form>
+  {% endif %}
+</div>
+<div class="prose mt-8"><h3>Edit Details</h3></div>
+<form action="{% url 'lynx:link_details' link.id %}" method="post">
+  {% csrf_token %}
+  {{ form }}
+  <input class="btn btn-primary" type="submit" name="action_edit" value="Save Details">
+</form>
 {% endblock %}

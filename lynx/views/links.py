@@ -1,5 +1,5 @@
 from .decorators import async_login_required, lynx_post_only
-from .widgets import FancyTextWidget
+from .widgets import FancyTextWidget, FancyDateWidget
 from . import paginator
 from asgiref.sync import sync_to_async
 from django import forms
@@ -12,6 +12,7 @@ from lynx.models import Link, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
 from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
+from django.forms.widgets import DateInput
 
 
 class AddLinkForm(forms.Form):
@@ -100,11 +101,44 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   return TemplateResponse(request, "lynx/link_viewer.html", context_data)
 
 
+class EditDetailsForm(forms.Form):
+  title = forms.CharField(label="",
+                          max_length=200,
+                          widget=FancyTextWidget('Title'))
+  author = forms.CharField(label="",
+                           max_length=200,
+                           widget=FancyTextWidget('Author'))
+  article_date = forms.DateField(label="",
+                                 widget=FancyDateWidget('Article Date',
+                                                        attrs={'type':
+                                                               'date'}))
+
+
 @async_login_required
 async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
   link = await aget_object_or_404(Link, pk=pk, creator=user)
-  return TemplateResponse(request, "lynx/link_details.html", {'link': link})
+  if request.method == 'POST':
+    form = EditDetailsForm(request.POST)
+    if form.is_valid():
+      link.title = form.cleaned_data['title']
+      link.author = form.cleaned_data['author']
+      link.article_date = form.cleaned_data['article_date']
+      await link.asave()
+      messages.success(request, 'Link details updated')
+
+  else:
+    form = EditDetailsForm(
+        initial={
+            'title': link.title,
+            'author': link.author,
+            'article_date': link.article_date
+        })
+
+  return TemplateResponse(request, "lynx/link_details.html", {
+      'link': link,
+      'form': form
+  })
 
 
 @async_login_required
