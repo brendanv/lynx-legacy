@@ -11,7 +11,7 @@
     <form action="{% url 'lynx:add_link' %}" method="post">
       {% csrf_token %}
       {{ form }}
-      <button class="btn btn-primary join-item">Add Link</button>
+      <button class="btn btn-primary btn-block">Add Link</button>
     </form>
   </div>
 {% endblock %}

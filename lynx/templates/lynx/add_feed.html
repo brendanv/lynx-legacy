@@ -11,7 +11,7 @@
     <form action="{% url 'lynx:add_feed' %}" method="post">
       {% csrf_token %}
       {{ form }}
-      <button type="submit" class="btn btn-primary join-item">Add Feed</button>
+      <button type="submit" class="btn btn-primary btn-block">Add Feed</button>
     </form>
   </div>
 {% endblock %}
