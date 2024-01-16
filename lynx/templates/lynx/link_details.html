@@ -5,7 +5,7 @@
 {% block content %}
 <!-- todo, add a way to edit etracted metadata like author. Also allow for re-parsing the raw html or redownloading from source completely. -->
 <div class="prose md:hidden">
-  <h1>{{ link.title }}</h1>
+  <h2>{{ link.title }}</h2>
 </div>
 <div class="grid grid-cols-2 mb-4">
   <form action="{% url 'lynx:link_action' link.id %}" method="post" class="w-full">

@@ -70,6 +70,37 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
           request,
           'You must have an OpenAI API key in your settings to summarize links.'
       )
+  elif 'action_reload' in request.POST:
+    stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
+    new_link = await (sync_to_async(url_parser.parse_url)(link.original_url,
+                                                          user,
+                                                          stripped_headers))
+    link.cleaned_url = new_link.cleaned_url
+    link.hostname = new_link.hostname
+    link.title = new_link.title
+    link.article_date = new_link.article_date
+    link.author = new_link.author
+    link.excerpt = new_link.excerpt
+    link.article_html = new_link.article_html
+    link.raw_text_content = new_link.raw_text_content
+    link.full_page_html = new_link.full_page_html
+    link.header_image_url = new_link.header_image_url
+    link.read_time_seconds = new_link.read_time_seconds
+    link.read_time_display = new_link.read_time_display
+    await link.asave()
+  elif 'action_reparse' in request.POST:
+    url_context = url_parser.UrlContext(link.original_url, user)
+    reparsed = url_parser.parse_content(url_context, link.full_page_html)
+    link.article_date = reparsed['article_date']
+    link.author = reparsed['author']
+    link.title = reparsed['title']
+    link.excerpt = reparsed['excerpt']
+    link.article_html = reparsed['article_html']
+    link.raw_text_content = reparsed['raw_text_content']
+    link.header_image_url = reparsed['header_image_url']
+    link.read_time_seconds = reparsed['read_time_seconds']
+    link.read_time_display = reparsed['read_time_display']
+    await link.asave()
   else:
     messages.warning(request, 'Unable to perform unknown action')
 
