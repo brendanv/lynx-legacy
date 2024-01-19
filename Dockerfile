@@ -12,8 +12,8 @@ COPY . .
 COPY --from=cssbuild /app/lynx/static/lynx/generated/* /lynx/lynx/static/lynx/generated/
 RUN set -eux \
   && echo "Installing dependencies" \
-    && pip install poetry \
-    && poetry install \
+    && pip install poetry --no-cache-dir \
+    && poetry install --no-cache \
   && echo "Collecting static files" \
     && SECRET_KEY=secret poetry run python manage.py collectstatic --noinput
 
