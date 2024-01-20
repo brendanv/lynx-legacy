@@ -4,9 +4,10 @@ from django.forms.widgets import TextInput, DateInput
 class APIKeyWidget(TextInput):
   template_name = "widgets/api_key_widget.html"
 
-  def __init__(self, **kwargs):
+  def __init__(self, display_name, **kwargs):
     super().__init__(**kwargs)
     self.attrs['readonly'] = ''
+    self.attrs['display_name'] = display_name
 
 
 class FancyTextWidget(TextInput):

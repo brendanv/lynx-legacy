@@ -22,7 +22,7 @@ class UpdateSettingsForm(forms.Form):
       label="",
       max_length=255,
       required=False,
-      widget=APIKeyWidget(),
+      widget=APIKeyWidget('Lynx API Key'),
   )
 
   def update_setting(self, user):
