@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.shortcuts import aget_object_or_404, redirect
+from django.db.models import Count
 from lynx.models import FeedItem, Feed
 from lynx import feed_utils, url_parser
 
@@ -14,7 +15,8 @@ from lynx import feed_utils, url_parser
 @async_login_required
 async def feeds_list_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
-  queryset = Feed.objects.filter(user=user, is_deleted=False)
+  queryset = Feed.objects.filter(user=user, is_deleted=False).annotate(
+      num_items=Count('item')).order_by('-created_at')
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
   return TemplateResponse(request,
@@ -69,7 +71,27 @@ async def refresh_feed_from_remote_view(request: HttpRequest,
         request,
         f"Feed (ID {loader.get_feed().pk}) refreshed and {len(loader.get_new_entries())} entries added."
     )
+  else:
+    messages.warning(request,
+                     f"Feed (ID {loader.get_feed().pk}) already up to date.")
+
+  if 'next' in request.POST:
+    return redirect(request.POST['next'])
   return redirect('lynx:feed_items', feed_id=feed.pk)
+
+
+@async_login_required
+@lynx_post_only
+async def delete_feed_view(request: HttpRequest, pk: int) -> HttpResponse:
+  user = await request.auser()
+  feed = await aget_object_or_404(Feed, pk=pk, user=user)
+  previous_id = feed.id
+  await feed.adelete()
+  messages.success(request, f"Feed (ID {previous_id}) has been deleted.")
+
+  if 'next' in request.POST:
+    return redirect(request.POST['next'])
+  return redirect('lynx:feeds')
 
 
 @async_login_required

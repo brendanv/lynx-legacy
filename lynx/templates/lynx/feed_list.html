@@ -1,9 +1,10 @@
 {% extends 'lynx/base.html' %}
+{% load tz %}
 
 {% block title %}Feeds | Lynx{% endblock %}
 {% block nav_title %}Manage Feeds{% endblock %}
 {% block content %}
-<div class="grid grid-cols-2">
+<div class="grid grid-cols-2 mb-8">
   <a href="{% url 'lynx:add_feed' %}" class="btn btn-ghost h-20">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
       <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
@@ -21,13 +22,51 @@
   </form>
 </div>
 {% for feed in paginator_page.object_list %}
-  <div class="card card-side card-compact bg-base-100 shadow-xl my-4">
-    <figure class="w-28 h-28">
-      <img class="w-28 h-28" src="{{ feed.feed_image_url }}" alt="{{ feed.feed_name }}"/>
-    </figure>
-    <div class="card-body w-5/6">
-      <h2 class="card-title"><a href="{% url 'lynx:feed_items' feed.id %}">{{ feed.feed_name }}</a></h2>
-      <p class="truncate">{{ feed.feed_description }}</p>
+  <div class="pb-6 mb-6 px-2 block w-full border-dotted border-b-2 border-primary">
+    <div class="flex">
+      <div class="flex-none">
+        {% if feed.feed_image_url %}
+          <img class="object-cover w-20 h-20 mask mask-squircle" src="{{ feed.feed_image_url }}" alt="{{ feed.feed_name }}"/>
+        {% else %}
+          {% load static %}
+          <img class="object-cover w-20 h-20 mask mask-squircle" src="{% static 'lynx/img/lynx_placeholder.png' %}" alt="{{ feed.feed_name }}"/>
+        {% endif %}
+      </div>
+      <div class="flex-auto min-w-0 indicator mx-4 md:mx-8">
+        <div class="min-w-0">
+          <h2 class="card-title line-clamp-2 md:line-clamp-1 hover:text-primary"><a href="{% url 'lynx:feed_items' feed.id %}">{{ feed.feed_name }}</a></h2>
+          <p class="line-clamp-1 opacity-60">{{ feed.feed_description }}</p>
+        <div class="opacity-60">
+          {{ feed.num_items }} item{{ feed.num_items|pluralize }} • Last fetched: {{ feed.last_fetched_at|localtime }}
+        </div>
+        </div>
+      </div>
+      <div class="flex-none">
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm m-x-1">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+            </svg>
+          </div>
+          <ul class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+            <form action="{% url 'lynx:refresh_feed' feed.id %}" method="post" class="w-full">
+              <li>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <input type="submit" value="Refresh">
+              </li>
+            </form>
+            <div class="divider"></div>
+            <form action="{% url 'lynx:delete_feed' feed.id %}" method="post" class="w-full">
+              <li>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <input type="submit" class="hover:bg-error hover:text-error-content" value="Delete">
+              </li>
+            </form>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 {% endfor %}

@@ -5,6 +5,7 @@ import feedparser
 from .models import FeedItem, Feed
 from django.db import IntegrityError
 from django.contrib import messages
+from django.utils import timezone
 from bs4 import BeautifulSoup
 
 
@@ -88,7 +89,7 @@ class RemoteFeedLoader:
     if self.feed is None or self.remote is None:
       raise ValueError("Call load_remote_feed before persist_feed!")
 
-    self.feed.last_fetched_at = datetime.now()
+    self.feed.last_fetched_at = timezone.now()
     if 'modified' in self.remote:
       self.feed.modified = self.remote['modified']
     if 'etag' in self.remote:

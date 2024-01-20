@@ -121,7 +121,10 @@ class Feed(models.Model):
 class FeedItem(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
-  feed = models.ForeignKey(Feed, on_delete=models.CASCADE)
+  feed = models.ForeignKey(Feed,
+                           on_delete=models.CASCADE,
+                           related_name="items",
+                           related_query_name="item")
   title = models.CharField(max_length=1000)
   pub_date = models.DateTimeField(null=True)
   guid = models.CharField(max_length=1000, null=True)
