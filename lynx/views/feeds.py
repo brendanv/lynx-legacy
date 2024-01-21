@@ -6,9 +6,9 @@ from django import forms
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
-from django.shortcuts import aget_object_or_404, redirect
+from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
 from django.db.models import Count
-from lynx.models import FeedItem, Feed
+from lynx.models import FeedItem, Feed, Link
 from lynx import feed_utils, url_parser
 
 
@@ -94,6 +94,19 @@ async def delete_feed_view(request: HttpRequest, pk: int) -> HttpResponse:
   return redirect('lynx:feeds')
 
 
+async def convert_feed_item_to_link(request: HttpRequest,
+                                    feed_item: FeedItem) -> FeedItem:
+  user = await request.auser()
+  stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
+  url = await (sync_to_async(
+      lambda: url_parser.parse_url(feed_item.url, user, stripped_headers))())
+  url.created_from_feed = feed_item.feed
+  await url.asave()
+  feed_item.saved_as_link = url
+  await feed_item.asave()
+  return feed_item
+
+
 @async_login_required
 @lynx_post_only
 async def add_feed_item_to_library_view(request: HttpRequest, pk):
@@ -104,16 +117,38 @@ async def add_feed_item_to_library_view(request: HttpRequest, pk):
 
   url = feed_item.saved_as_link
   if url is None:
-    stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
-    url = await (sync_to_async(
-        lambda: url_parser.parse_url(feed_item.url, user, stripped_headers))())
-    url.created_from_feed = feed
-    await url.asave()
-
-    feed_item.saved_as_link = url
-    await feed_item.asave()
+    await convert_feed_item_to_link(request, feed_item)
 
   return redirect('lynx:feed_items', feed_id=feed.pk)
+
+
+@async_login_required
+@lynx_post_only
+async def add_all_feed_items_to_library_view(request: HttpRequest, pk):
+  user = await request.auser()
+  feed = await aget_object_or_404(Feed, pk=pk, user=user)
+  count = 0
+  async for item in feed.items.filter(saved_as_link__isnull=True):
+    await convert_feed_item_to_link(request, item)
+    count += 1
+  if count > 0:
+    messages.success(request, f"Added {count} new feed items to library.")
+  else:
+    messages.warning(request, "All feed items are alreay in your library")
+  return redirect('lynx:feed_items', feed_id=feed.pk)
+
+
+@async_login_required
+@lynx_post_only
+async def remove_feed_item_from_library_view(request: HttpRequest, pk):
+  user = await request.auser()
+  link = await aget_object_or_404(Link,
+                                  creator=user,
+                                  created_from_feed_item=pk)
+  await link.adelete()
+  if 'next' in request.POST:
+    return redirect(request.POST['next'])
+  return redirect('lynx:feeds')
 
 
 class AddFeedForm(forms.Form):

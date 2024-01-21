@@ -46,9 +46,15 @@ urlpatterns = [
     path("feeds/<int:pk>/delete/",
          views.delete_feed_view,
          name="delete_feed"),
+    path("feeds/<int:pk>/add_all_items_to_library/",
+         views.add_all_feed_items_to_library_view,
+         name="add_all_items_to_library"),
     path("feed_item/<int:pk>/add_to_library/",
          views.add_feed_item_to_library_view,
          name="add_feed_item_to_library"),
+    path("feed_item/<int:pk>/remove_from_library/",
+         views.remove_feed_item_from_library_view,
+         name="remove_feed_item_from_library"),
 
     # User settings
     path('settings/', views.update_settings_view, name='user_settings'),

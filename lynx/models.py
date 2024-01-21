@@ -131,7 +131,12 @@ class FeedItem(models.Model):
   description = models.TextField(null=True)
   url = models.URLField(max_length=2000)
 
-  saved_as_link = models.ForeignKey(Link, on_delete=models.SET_NULL, null=True)
+  saved_as_link = models.OneToOneField(
+      Link,
+      on_delete=models.SET_NULL,
+      null=True,
+      related_name="created_from_feed_item",
+      related_query_name="created_from_feed_item")
 
   def __str__(self):
     return f"FeedItem({self.title})"
