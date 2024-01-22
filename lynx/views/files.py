@@ -16,6 +16,7 @@ from lynx.url_parser import parse_url
 from lynx.models import Tag, BulkUpload
 from typing import Optional
 from .widgets import DaisySelect
+from . import breadcrumbs
 
 class BulkUploadLinksForm(forms.Form):
   file = forms.FileField()
@@ -38,8 +39,11 @@ async def bulk_upload_view(request: HttpRequest) -> HttpResponse:
           messages.warning(request, 'Unsupported file source')
   else:
     form = BulkUploadLinksForm()
-    
-  return TemplateResponse(request, 'lynx/bulk_upload.html', context={'form': form})
+
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data([
+    breadcrumbs.HOME, breadcrumbs.BULK_UPLOAD
+  ])
+  return TemplateResponse(request, 'lynx/bulk_upload.html', context={'form': form} | breadcrumb_data)
 
 async def handle_readwise_upload(request: HttpRequest, file: File, bulk_tag: str) -> None:
   user = await request.auser()

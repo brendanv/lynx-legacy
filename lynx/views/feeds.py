@@ -1,7 +1,7 @@
 from asgiref.sync import sync_to_async
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget
-from . import paginator
+from . import paginator, breadcrumbs
 from django import forms
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
@@ -19,9 +19,11 @@ async def feeds_list_view(request: HttpRequest) -> HttpResponse:
       num_items=Count('item')).order_by('-created_at')
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.FEEDS])
   return TemplateResponse(request,
                           'lynx/feed_list.html',
-                          context=paginator_data)
+                          context=paginator_data | breadcrumb_data)
 
 
 @async_login_required
@@ -35,9 +37,13 @@ async def feed_items_list_view(request: HttpRequest,
   queryset = FeedItem.objects.filter(feed=feed).order_by('-pub_date')
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.FEEDS,
+       breadcrumbs.FEED_ITEMS(feed)])
   return TemplateResponse(request,
                           'lynx/feed_item_list.html',
-                          context={'feed': feed} | paginator_data)
+                          context={'feed': feed} | paginator_data
+                          | breadcrumb_data)
 
 
 @async_login_required
@@ -178,4 +184,7 @@ async def add_feed_view(request: HttpRequest) -> HttpResponse:
   else:
     form = AddFeedForm()
 
-  return TemplateResponse(request, 'lynx/add_feed.html', {'form': form})
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.FEEDS, breadcrumbs.ADD_FEED])
+  return TemplateResponse(request, 'lynx/add_feed.html',
+                          {'form': form} | breadcrumb_data)

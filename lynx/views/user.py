@@ -1,5 +1,6 @@
 from .decorators import async_login_required
 from .widgets import FancyTextWidget, FancyPasswordWidget, APIKeyWidget
+from . import breadcrumbs
 from asgiref.sync import sync_to_async
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
@@ -10,6 +11,7 @@ from extra_views import ModelFormSetView
 from lynx.models import UserSetting, UserCookie
 import secrets
 from django.shortcuts import redirect
+
 
 class UpdateSettingsForm(forms.Form):
   openai_api_key = forms.CharField(label="",
@@ -51,8 +53,10 @@ async def update_settings_view(request: HttpRequest) -> HttpResponse:
             'lynx_api_key': setting.lynx_api_key,
         })
 
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.SETTINGS])
   return TemplateResponse(request, "lynx/usersetting_form.html",
-                          {'form': form})
+                          {'form': form} | breadcrumb_data)
 
 
 class UpdateCookiesView(LoginRequiredMixin, ModelFormSetView):
@@ -95,3 +99,8 @@ class UpdateCookiesView(LoginRequiredMixin, ModelFormSetView):
   def get_queryset(self):
     return UserCookie.objects.filter(user=self.request.user)
 
+  def get_context_data(self, **kwargs) -> dict:
+    data = super().get_context_data(**kwargs)
+    breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+        [breadcrumbs.HOME, breadcrumbs.SETTINGS, breadcrumbs.COOKIES])
+    return data | breadcrumb_data

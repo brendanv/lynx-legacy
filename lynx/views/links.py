@@ -1,6 +1,6 @@
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget, FancyDateWidget
-from . import paginator
+from . import paginator, breadcrumbs
 from asgiref.sync import sync_to_async
 from django import forms
 from django.contrib import messages
@@ -44,7 +44,10 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
   else:
     form = AddLinkForm()
 
-  return TemplateResponse(request, 'lynx/add_link.html', {'form': form})
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.ADD_LINK])
+  return TemplateResponse(request, 'lynx/add_link.html',
+                          {'form': form} | breadcrumb_data)
 
 
 @async_login_required
@@ -166,10 +169,14 @@ async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
             'article_date': link.article_date
         })
 
-  return TemplateResponse(request, "lynx/link_details.html", {
-      'link': link,
-      'form': form
-  })
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.EDIT_LINK(link)])
+  return TemplateResponse(request,
+                          "lynx/link_details.html",
+                          context={
+                              'link': link,
+                              'form': form
+                          } | breadcrumb_data)
 
 
 @async_login_required
@@ -177,6 +184,7 @@ async def link_feed_view(request: HttpRequest,
                          filter: str = "all") -> HttpResponse:
   user = await request.auser()
   query_string = request.GET.get('q', '')
+  breadcrumbs_list: list[breadcrumbs.Breadcrumb] = [breadcrumbs.HOME]
   if query_string:
     sql = '''
       SELECT lynx_link.*, rank 
@@ -204,16 +212,20 @@ async def link_feed_view(request: HttpRequest,
 
   if filter == "read":
     data['title'] = "Read Links"
+    breadcrumbs_list.append(breadcrumbs.READ_LINKS)
   elif filter == "unread":
     data['title'] = "Unread Links"
+    breadcrumbs_list.append(breadcrumbs.UNREAD_LINKS)
   elif filter == "search":
     data['title'] = "Search Results"
+    breadcrumbs_list.append((request.get_full_path(), 'Search Results', []))
   else:
     data['title'] = "All Links"
 
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
-  data = data | paginator_data
+  data = data | paginator_data | breadcrumbs.generate_breadcrumb_context_data(
+      breadcrumbs_list)
   return TemplateResponse(request, "lynx/links_feed.html", context=data)
 
 
@@ -226,7 +238,11 @@ async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
   data['title'] = f"Links tagged with '{tag.name}'"
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
-  data = data | paginator_data
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data([
+      breadcrumbs.HOME, breadcrumbs.MANAGE_TAGS,
+      breadcrumbs.TAGGED_LINKS(slug)
+  ])
+  data = data | paginator_data | breadcrumb_data
   return TemplateResponse(request, 'lynx/tagged_links_list.html', context=data)
 
 
@@ -267,8 +283,10 @@ async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
 async def manage_tags_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
   tags = await load_all_user_tags(user)
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
+      [breadcrumbs.HOME, breadcrumbs.MANAGE_TAGS])
   return TemplateResponse(request, 'lynx/manage_tags.html',
-                          {'all_user_tags': tags})
+                          {'all_user_tags': tags} | breadcrumb_data)
 
 
 @async_login_required
