@@ -11,7 +11,7 @@ class APIKeyWidget(TextInput):
 
 
 class FancyTextWidget(TextInput):
-  template_name = "widgets/fancy_text_widget.html"
+  template_name = "widgets/fancy_widget.html"
 
   def __init__(self, display_name, **kwargs):
     super().__init__(**kwargs)
@@ -19,7 +19,7 @@ class FancyTextWidget(TextInput):
 
 
 class FancyPasswordWidget(forms.PasswordInput):
-  template_name = "widgets/fancy_password_widget.html"
+  template_name = "widgets/fancy_widget.html"
 
   def __init__(self, display_name, **kwargs):
     super().__init__(**kwargs)
@@ -27,7 +27,7 @@ class FancyPasswordWidget(forms.PasswordInput):
     self.attrs['autocomplete'] = 'off'
 
 class FancyDateWidget(DateInput):
-  template_name = "widgets/fancy_date_widget.html"
+  template_name = "widgets/fancy_widget.html"
 
   def __init__(self, display_name, **kwargs):
     super().__init__(**kwargs)

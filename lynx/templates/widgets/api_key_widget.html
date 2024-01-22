@@ -1,6 +1,6 @@
 {% with css_classes=widget.attrs.class|default:'' %}
   <div class="grid grid-cols-2 gap-4">
-    {% include 'widgets/fancy_text_widget.html' with widget=widget %}
+    {% include 'widgets/fancy_widget.html' with widget=widget %}
     <div class="join my-5">
       <input class="btn btn-primary join-item" type="submit" name="reset_api_key" value="Reset API Key">
       <input class="btn btn-secondary join-item" type="submit" name="clear_api_key" value="Clear API Key">
