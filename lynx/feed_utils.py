@@ -97,16 +97,18 @@ class RemoteFeedLoader:
 
     if self.remote.status == 301:
       self.feed.feed_url = self.remote.href
-      messages.warning(
-          self.request,
-          f"Feed '{self.feed.feed_name}' has been permanently relocated, updated URL to '{self.remote.href}'"
-      )
+      if self.request:
+        messages.warning(
+            self.request,
+            f"Feed '{self.feed.feed_name}' has been permanently relocated, updated URL to '{self.remote.href}'"
+        )
     if self.remote.status == 410:
       self.feed.is_deleted = True
-      messages.error(
-          self.request,
-          f"Feed '{self.feed.feed_name}' has been permanently deleted, please add a new feed."
-      )
+      if self.request:
+        messages.error(
+            self.request,
+            f"Feed '{self.feed.feed_name}' has been permanently deleted, please add a new feed."
+        )
 
     self.feed.save()
     return self
