@@ -13,6 +13,7 @@ from lynx.errors import UrlParseError
 from lynx.transforms import apply_all_transforms
 
 from .models import Link, UserCookie
+from .url_context import UrlContext
 
 
 def extract_headers_to_pass_for_parse(request: HttpRequest) -> dict[str, str]:
@@ -26,13 +27,6 @@ def extract_headers_to_pass_for_parse(request: HttpRequest) -> dict[str, str]:
       k.lower(): v
       for k, v in request.headers.items() if k.lower() in supported_headers
   }
-
-
-class UrlContext:
-
-  def __init__(self, url: str, user):
-    self.url = url
-    self.user = user
 
 
 def load_content_from_remote_url(url_context: UrlContext,
@@ -68,7 +62,8 @@ def parse_content(url_context: UrlContext, content: str) -> dict[str, str]:
   article_date = datetime.strptime(json_meta['date'], '%Y-%m-%d').date(
   ) if 'date' in json_meta and json_meta['date'] else timezone.now()
 
-  summary_html = apply_all_transforms(content).prettify(formatter='html')
+  summary_html = apply_all_transforms(content,
+                                      url_context).prettify(formatter='html')
   read_time = readtime.of_html(summary_html)
   domain = urlparse(url_context.url).netloc
   model_args = {
