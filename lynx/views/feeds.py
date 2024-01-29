@@ -1,4 +1,5 @@
 from asgiref.sync import sync_to_async
+from django.contrib.auth.models import User
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget
 from . import paginator, breadcrumbs
@@ -9,6 +10,7 @@ from django.template.response import TemplateResponse
 from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
 from django.db.models import Count
 from lynx.models import FeedItem, Feed, Link
+from lynx.utils import headers
 from lynx import feed_utils, url_parser
 
 
@@ -50,6 +52,7 @@ async def feed_items_list_view(request: HttpRequest,
 @lynx_post_only
 async def refresh_all_feeds_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   feeds = Feed.objects.filter(user=user, is_deleted=False)
   async for feed in feeds:
     loader = await (sync_to_async(
@@ -68,6 +71,7 @@ async def refresh_all_feeds_view(request: HttpRequest) -> HttpResponse:
 async def refresh_feed_from_remote_view(request: HttpRequest,
                                         pk: int) -> HttpResponse:
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   feed = await aget_object_or_404(Feed, pk=pk, user=user)
   loader = await (sync_to_async(
       lambda: feed_utils.RemoteFeedLoader(user, request, feed=feed).
@@ -90,6 +94,7 @@ async def refresh_feed_from_remote_view(request: HttpRequest,
 @lynx_post_only
 async def delete_feed_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   feed = await aget_object_or_404(Feed, pk=pk, user=user)
   previous_id = feed.id
   await feed.adelete()
@@ -103,9 +108,8 @@ async def delete_feed_view(request: HttpRequest, pk: int) -> HttpResponse:
 async def convert_feed_item_to_link(request: HttpRequest,
                                     feed_item: FeedItem) -> FeedItem:
   user = await request.auser()
-  stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
   url = await (sync_to_async(
-      lambda: url_parser.parse_url(feed_item.url, user, stripped_headers))())
+      lambda: url_parser.parse_url(feed_item.url, user))())
   url.created_from_feed = feed_item.feed
   await url.asave()
   feed_item.saved_as_link = url
@@ -117,6 +121,7 @@ async def convert_feed_item_to_link(request: HttpRequest,
 @lynx_post_only
 async def add_feed_item_to_library_view(request: HttpRequest, pk):
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   feed_item = await aget_object_or_404(
       FeedItem.objects.select_related('feed__user'), pk=pk, feed__user=user)
   feed = feed_item.feed
@@ -132,6 +137,7 @@ async def add_feed_item_to_library_view(request: HttpRequest, pk):
 @lynx_post_only
 async def add_all_feed_items_to_library_view(request: HttpRequest, pk):
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   feed = await aget_object_or_404(Feed, pk=pk, user=user)
   count = 0
   async for item in feed.items.filter(saved_as_link__isnull=True):
@@ -148,6 +154,7 @@ async def add_all_feed_items_to_library_view(request: HttpRequest, pk):
 @lynx_post_only
 async def remove_feed_item_from_library_view(request: HttpRequest, pk):
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   link = await aget_object_or_404(Link,
                                   creator=user,
                                   created_from_feed_item=pk)
@@ -162,7 +169,7 @@ class AddFeedForm(forms.Form):
                        max_length=2000,
                        widget=FancyTextWidget('Feed URL'))
 
-  def create_feed(self, request, user) -> Feed:
+  def create_feed(self, request: HttpRequest, user: User) -> Feed:
     loader = feed_utils.RemoteFeedLoader(
         user, request, feed_url=self.cleaned_data['url']).load_remote_feed(
         ).persist_new_feed_items().persist_feed()
@@ -179,6 +186,7 @@ async def add_feed_view(request: HttpRequest) -> HttpResponse:
     form = AddFeedForm(request.POST)
     if form.is_valid():
       user = await request.auser()
+      await headers.maybe_update_usersetting_headers(request, user)
       await (sync_to_async(lambda: form.create_feed(request, user))())
       return redirect('lynx:feeds')
   else:

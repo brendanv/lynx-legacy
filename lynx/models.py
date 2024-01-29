@@ -83,6 +83,9 @@ class UserSetting(models.Model):
 
   lynx_api_key = models.CharField(max_length=255, blank=True)
 
+  headers_for_scraping = models.JSONField(default=dict)
+  headers_updated_at = models.DateTimeField(null=True, blank=True, default=None)
+
   def __str__(self):
     return f"UserSetting({self.user.username})"
 

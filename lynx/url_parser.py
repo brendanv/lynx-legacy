@@ -12,32 +12,19 @@ from urllib.parse import urlparse
 from lynx.errors import UrlParseError
 from lynx.transforms import apply_all_transforms
 
-from .models import Link, UserCookie
+from .models import Link, UserCookie, UserSetting
 from .url_context import UrlContext
 
 
-def extract_headers_to_pass_for_parse(request: HttpRequest) -> dict[str, str]:
-  # Headers to make the request look less like scraping but while also
-  # not really changing the behavior at all.
-  supported_headers = [
-      'accept', 'accept-language', 'user-agent', 'dnt', 'sec-fetch-dest',
-      'sec-fetch-mode'
-  ]
-  return {
-      k.lower(): v
-      for k, v in request.headers.items() if k.lower() in supported_headers
-  }
-
-
-def load_content_from_remote_url(url_context: UrlContext,
-                                 headers: dict[str, str] = {}) -> str:
+def load_content_from_remote_url(url_context: UrlContext) -> str:
   domain = urlparse(url_context.url).netloc
   cookies = UserCookie.objects.filter(user=url_context.user,
                                       cookie_domain=domain)
   cookie_data = {cookie.cookie_name: cookie.cookie_value for cookie in cookies}
+  setting, _ = UserSetting.objects.get_or_create(user=url_context.user)
   response = requests.get(url_context.url,
                           cookies=cookie_data,
-                          headers=headers)
+                          headers=setting.headers_for_scraping)
 
   try:
     response.raise_for_status()
@@ -87,10 +74,9 @@ def parse_content(url_context: UrlContext, content: str) -> dict[str, str]:
 
 def parse_url(url: str,
               user,
-              headers: dict[str, str] = {},
               model_fields={}) -> Link:
   url_context = UrlContext(url, user)
-  content = load_content_from_remote_url(url_context, headers)
+  content = load_content_from_remote_url(url_context)
   parsed_data = parse_content(url_context, content)
 
   return Link(**{**parsed_data, **model_fields})

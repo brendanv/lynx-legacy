@@ -11,6 +11,7 @@ from lynx import url_parser, url_summarizer, html_cleaner
 from lynx.models import Link, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
+from lynx.utils import headers
 from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
 from django.forms.widgets import DateInput
 
@@ -20,8 +21,8 @@ class AddLinkForm(forms.Form):
                        max_length=2000,
                        widget=FancyTextWidget('Article URL'))
 
-  def create_link(self, user, headers={}) -> Link:
-    url = url_parser.parse_url(self.cleaned_data['url'], user, headers)
+  def create_link(self, user) -> Link:
+    url = url_parser.parse_url(self.cleaned_data['url'], user)
     url.save()
     return url
 
@@ -32,11 +33,9 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
     form = AddLinkForm(request.POST)
     if form.is_valid():
       try:
-        stripped_headers = url_parser.extract_headers_to_pass_for_parse(
-            request)
         user = await request.auser()
-        link = await (
-            sync_to_async(lambda: form.create_link(user, stripped_headers))())
+        await headers.maybe_update_usersetting_headers(request, user)
+        link = await (sync_to_async(lambda: form.create_link(user))())
         return redirect('lynx:link_viewer', pk=link.pk)
       except UrlParseError as e:
         messages.error(request,
@@ -54,6 +53,7 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
 @lynx_post_only
 async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   link = await aget_object_or_404(Link, pk=pk, creator=user)
   if 'action_delete' in request.POST:
     title = link.title
@@ -74,10 +74,8 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
           'You must have an OpenAI API key in your settings to summarize links.'
       )
   elif 'action_reload' in request.POST:
-    stripped_headers = url_parser.extract_headers_to_pass_for_parse(request)
     new_link = await (sync_to_async(url_parser.parse_url)(link.original_url,
-                                                          user,
-                                                          stripped_headers))
+                                                          user))
     link.cleaned_url = new_link.cleaned_url
     link.hostname = new_link.hostname
     link.title = new_link.title
@@ -155,6 +153,7 @@ async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
   if request.method == 'POST':
     form = EditDetailsForm(request.POST)
     if form.is_valid():
+      await headers.maybe_update_usersetting_headers(request, user)
       link.title = form.cleaned_data['title']
       link.author = form.cleaned_data['author']
       link.article_date = form.cleaned_data['article_date']
@@ -250,6 +249,7 @@ async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
 @lynx_post_only
 async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   link = await aget_object_or_404(Link, pk=pk, creator=user)
   if 'add_tags' in request.POST:
     ids = request.POST['add_tags'].split(',')
@@ -293,6 +293,7 @@ async def manage_tags_view(request: HttpRequest) -> HttpResponse:
 @lynx_post_only
 async def delete_tag_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
+  await headers.maybe_update_usersetting_headers(request, user)
   await delete_tag_for_user(user, pk)
   return redirect('lynx:manage_tags')
 
@@ -302,5 +303,6 @@ async def delete_tag_view(request: HttpRequest, pk: int) -> HttpResponse:
 async def add_tag_view(request: HttpRequest) -> HttpResponse:
   if 'tag' in request.POST:
     user = await request.auser()
+    await headers.maybe_update_usersetting_headers(request, user)
     await create_tag_for_user(user, request.POST['tag'])
   return redirect('lynx:manage_tags')

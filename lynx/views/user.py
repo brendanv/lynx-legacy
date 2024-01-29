@@ -7,11 +7,13 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django import forms
 from django.contrib import messages
+from django.utils import timezone
 from extra_views import ModelFormSetView
 from lynx.models import UserSetting, UserCookie
 import secrets
 from django.shortcuts import redirect
-
+from lynx import url_parser
+from lynx.utils import headers
 
 class UpdateSettingsForm(forms.Form):
   openai_api_key = forms.CharField(label="",
@@ -27,12 +29,14 @@ class UpdateSettingsForm(forms.Form):
       widget=APIKeyWidget('Lynx API Key'),
   )
 
-  def update_setting(self, user):
+  def update_setting(self, user, request: HttpRequest):
     setting, _ = UserSetting.objects.get_or_create(user=user)
     if 'reset_api_key' in self.data:
       setting.lynx_api_key = secrets.token_hex(16)
     elif 'clear_api_key' in self.data:
       setting.lynx_api_key = ""
+    setting.headers_for_scraping = headers.extract_headers_to_pass_for_parse(request)
+    setting.headers_updated_at = timezone.now()
     setting.save()
 
 
@@ -43,7 +47,7 @@ async def update_settings_view(request: HttpRequest) -> HttpResponse:
   if request.method == 'POST':
     form = UpdateSettingsForm(request.POST)
     if form.is_valid():
-      await (sync_to_async(lambda: form.update_setting(user))())
+      await (sync_to_async(lambda: form.update_setting(user, request))())
       messages.success(request, "Settings updated.")
       return redirect('lynx:user_settings')
   else:
