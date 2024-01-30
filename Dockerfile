@@ -6,7 +6,9 @@ WORKDIR /app/lynx/jstoolchain
 RUN npm install && npm run buildcss
 
 # Build stage for Django. All we need from the previous stage is output.css
-FROM python:3
+
+# 3.10 because background tasks uses `import imp` which isn't supported in 3.12+
+FROM python:3.10
 WORKDIR /lynx
 COPY . .
 COPY --from=cssbuild /app/lynx/static/lynx/generated/* /lynx/lynx/static/lynx/generated/
