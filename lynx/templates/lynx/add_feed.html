@@ -10,8 +10,8 @@
     </hgroup>
     <form action="{% url 'lynx:add_feed' %}" method="post">
       {% csrf_token %}
-      {{ form }}
-      <button type="submit" class="btn btn-primary btn-block">Add Feed</button>
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary btn-block mt-8">Add Feed</button>
     </form>
   </div>
 {% endblock %}

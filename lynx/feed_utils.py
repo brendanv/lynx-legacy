@@ -15,7 +15,8 @@ class RemoteFeedLoader:
                user: User,
                request,
                feed: Optional[Feed] = None,
-               feed_url: Optional[str] = None) -> None:
+               feed_url: Optional[str] = None,
+               auto_add: Optional[bool] = None) -> None:
     if feed is None and feed_url is None:
       raise ValueError("Either feed or feed_url must be provided")
     if feed is not None and feed_url is not None:
@@ -28,6 +29,7 @@ class RemoteFeedLoader:
     self.created_feed_items = []
     self.skipped_count = 0
     self.request = request
+    self.auto_add = auto_add
 
   def load_remote_feed(self):
     if self.feed:
@@ -47,7 +49,9 @@ class RemoteFeedLoader:
                                       feed_url=self.feed_url,
                                       feed_name=feed_title,
                                       feed_image_url=feed_image_url,
-                                      feed_description=feed_description)
+                                      feed_description=feed_description,
+                                      auto_add_feed_items_to_library=bool(
+                                          self.auto_add))
     return self
 
   def persist_new_feed_items(self):

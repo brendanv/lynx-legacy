@@ -7,11 +7,11 @@ from django import forms
 from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
-from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
+from django.shortcuts import aget_object_or_404, redirect
 from django.db.models import Count
 from lynx.models import FeedItem, Feed, Link
 from lynx.utils import headers
-from lynx import feed_utils, url_parser
+from lynx import feed_utils, tasks
 
 
 @async_login_required
@@ -105,18 +105,6 @@ async def delete_feed_view(request: HttpRequest, pk: int) -> HttpResponse:
   return redirect('lynx:feeds')
 
 
-async def convert_feed_item_to_link(request: HttpRequest,
-                                    feed_item: FeedItem) -> FeedItem:
-  user = await request.auser()
-  url = await (sync_to_async(
-      lambda: url_parser.parse_url(feed_item.url, user))())
-  url.created_from_feed = feed_item.feed
-  await url.asave()
-  feed_item.saved_as_link = url
-  await feed_item.asave()
-  return feed_item
-
-
 @async_login_required
 @lynx_post_only
 async def add_feed_item_to_library_view(request: HttpRequest, pk):
@@ -128,7 +116,8 @@ async def add_feed_item_to_library_view(request: HttpRequest, pk):
 
   url = feed_item.saved_as_link
   if url is None:
-    await convert_feed_item_to_link(request, feed_item)
+    await (sync_to_async(lambda: tasks.add_feed_item_to_library.now(
+        feed.user.pk, feed_item.pk))())
 
   return redirect('lynx:feed_items', feed_id=feed.pk)
 
@@ -141,7 +130,8 @@ async def add_all_feed_items_to_library_view(request: HttpRequest, pk):
   feed = await aget_object_or_404(Feed, pk=pk, user=user)
   count = 0
   async for item in feed.items.filter(saved_as_link__isnull=True):
-    await convert_feed_item_to_link(request, item)
+    await (sync_to_async(
+        lambda: tasks.add_feed_item_to_library(feed.user.pk, item.pk))())
     count += 1
   if count > 0:
     messages.success(request, f"Added {count} new feed items to library.")
@@ -168,10 +158,16 @@ class AddFeedForm(forms.Form):
   url = forms.URLField(label="",
                        max_length=2000,
                        widget=FancyTextWidget('Feed URL'))
+  auto_add = forms.BooleanField(
+      label="Auto-add new articles to library",
+      widget=forms.CheckboxInput(attrs={'class': 'checkbox checkbox-primary'}))
 
   def create_feed(self, request: HttpRequest, user: User) -> Feed:
     loader = feed_utils.RemoteFeedLoader(
-        user, request, feed_url=self.cleaned_data['url']).load_remote_feed(
+        user,
+        request,
+        feed_url=self.cleaned_data['url'],
+        auto_add=self.cleaned_data['auto_add']).load_remote_feed(
         ).persist_new_feed_items().persist_feed()
     messages.success(
         request,

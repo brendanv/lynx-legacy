@@ -116,6 +116,7 @@ class Feed(models.Model):
   feed_description = models.TextField(blank=True)
   feed_image_url = models.URLField(max_length=2000, blank=True)
   is_deleted = models.BooleanField(default=False)
+  auto_add_feed_items_to_library = models.BooleanField(default=False)
 
   def __str__(self):
     return f"Feed({self.feed_name})"
