@@ -1,0 +1,19 @@
+{
+  "short_name": "Lynx",
+  "name": "Lynx",
+  "description": "For all your Links",
+  "icons": [
+    {
+      "src": "/static/lynx/icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/lynx/icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone"
+}
