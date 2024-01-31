@@ -1,0 +1,12 @@
+{% extends 'lynx/base.html' %}
+
+{% block title %}{{ feed.feed_name }}{% endblock %}
+{% block nav_title %}{{ feed.feed_name }}{% endblock %}
+{% block content %}
+  <form action="{% url 'lynx:edit_feed' feed.pk %}" method="post" class="form-control">
+    {% csrf_token %}
+    {{ form }}
+    <div class="divider"></div>
+    <input class="btn btn-primary" type="submit" value="Update">
+  </form>
+{% endblock %}

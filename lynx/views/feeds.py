@@ -192,3 +192,52 @@ async def add_feed_view(request: HttpRequest) -> HttpResponse:
       [breadcrumbs.HOME, breadcrumbs.FEEDS, breadcrumbs.ADD_FEED])
   return TemplateResponse(request, 'lynx/add_feed.html',
                           {'form': form} | breadcrumb_data)
+
+
+class EditFeedForm(forms.Form):
+  feed_name = forms.CharField(label="",
+                              max_length=1000,
+                              widget=FancyTextWidget('Feed Name'))
+  feed_description = forms.CharField(
+      label="", max_length=1000, widget=FancyTextWidget('Feed Description'))
+  auto_add = forms.BooleanField(
+      label="Auto-add new articles to library",
+      required=False,
+      widget=forms.CheckboxInput(attrs={
+          'class': 'checkbox checkbox-primary',
+      }))
+
+
+@async_login_required
+async def edit_feed_view(request: HttpRequest, feed_id: int) -> HttpResponse:
+  user = await request.auser()
+  feed = await aget_object_or_404(Feed, pk=feed_id, user=user)
+  if request.method == 'POST':
+    form = EditFeedForm(request.POST)
+    if form.is_valid():
+      feed.feed_name = form.cleaned_data['feed_name']
+      feed.feed_description = form.cleaned_data['feed_description']
+      feed.auto_add_feed_items_to_library = form.cleaned_data['auto_add']
+      await feed.asave()
+      messages.success(request, 'Feed details updated')
+
+  else:
+    form = EditFeedForm(
+        initial={
+            'feed_name': feed.feed_name,
+            'feed_description': feed.feed_description,
+            'auto_add': feed.auto_add_feed_items_to_library
+        })
+
+  breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data([
+      breadcrumbs.HOME,
+      breadcrumbs.FEEDS,
+      breadcrumbs.FEED_ITEMS(feed),
+      breadcrumbs.EDIT_FEED(feed)
+  ])
+  return TemplateResponse(request,
+                          "lynx/edit_feed.html",
+                          context={
+                              'feed': feed,
+                              'form': form
+                          } | breadcrumb_data)

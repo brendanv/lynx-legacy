@@ -35,12 +35,19 @@ def EDIT_LINK(link: Link) -> Breadcrumb:
   return ('lynx:link_details', 'Edit Link', [link.pk])
 
 
+def EDIT_FEED(feed: Feed) -> Breadcrumb:
+  return ('lynx:edit_feed', 'Edit Feed', [feed.pk])
+
+
 # List of 3-ples.
-def generate_breadcrumb_context_data(path_items: list[Breadcrumb],) -> dict:
+def generate_breadcrumb_context_data(path_items: list[Breadcrumb], ) -> dict:
   breadcrumb_data = []
   for url_name, name, args in path_items:
     try:
-      breadcrumb_data.append({'name': name, 'url': reverse(url_name, args=args)})
+      breadcrumb_data.append({
+          'name': name,
+          'url': reverse(url_name, args=args)
+      })
     except NoReverseMatch:
       # Janky, but for search results we just want to provide
       # the full URL
