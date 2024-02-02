@@ -12,7 +12,6 @@ async def add_note_view(request: HttpRequest, link_pk: int) -> HttpResponse:
   await headers.maybe_update_usersetting_headers(request, user)
   link = await aget_object_or_404(Link, pk=link_pk, creator=user)
   if 'note' in request.POST:
-    print(request.POST)
     await Note.objects.acreate(
         user=user,
         content=request.POST['note'],

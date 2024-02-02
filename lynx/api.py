@@ -2,8 +2,8 @@ from asgiref.sync import sync_to_async
 from django.http import HttpRequest
 from ninja import NinjaAPI, Schema
 from ninja.security import HttpBearer, APIKeyHeader
-from lynx.models import UserSetting, Link
-from lynx import commands
+from lynx.models import Note, UserSetting, Link
+from lynx import commands, url_parser
 from typing import Any, Optional
 
 api = NinjaAPI()
@@ -43,6 +43,17 @@ class LinkOverview(Schema):
   read_time_seconds: int = None
   read_time_display: str = None
 
+class NoteCreate(Schema):
+  url: str
+  content: str
+
+class NoteOverview(Schema):
+  id: int
+  content: str
+  url: str
+  hostname: str
+  link: LinkOverview = None
+
 @api.post("/links/add", auth=lynx_auth_methods, response=LinkOverview)
 async def create_link(request, link_create: LinkCreate):
   assert isinstance(request.auth, UserSetting)
@@ -50,3 +61,18 @@ async def create_link(request, link_create: LinkCreate):
   url, _ = await commands.get_or_create_link(link_create.url, user)
   await url.asave()
   return url
+
+@api.post("/notes/add", auth=lynx_auth_methods, response=NoteOverview)
+async def create_note(request, note_create: NoteCreate):
+  assert isinstance(request.auth, UserSetting)
+  user = await (sync_to_async(lambda: request.auth.user)())
+  link, _ = await commands.get_or_create_link(note_create.url, user)
+  await link.asave()
+  note = await Note.objects.acreate(
+      user=user,
+      content=note_create.content,
+      link=link,
+      hostname=link.hostname,
+      url=link.cleaned_url,
+  )
+  return note
