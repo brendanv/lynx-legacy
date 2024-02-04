@@ -24,7 +24,7 @@ startup() {
 
   create_admin_user
 
-  poetry run gunicorn project_lynx.wsgi:application --bind 0.0.0.0:8000 
+  poetry run gunicorn project_lynx.asgi:application --bind 0.0.0.0:8000 -k uvicorn.workers.UvicornWorker
 }
 
 startup
