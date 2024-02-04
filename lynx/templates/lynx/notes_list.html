@@ -1,0 +1,41 @@
+{% extends 'lynx/base.html' %}
+{% load tz %}
+
+{% block title %}{{ Notes }} | Lynx{% endblock %}
+{% block content %}
+{% for item in paginator_page.object_list %}
+<div class="pb-6 mb-6 px-2 block w-full border-dotted border-b-2 border-primary">
+  <div class="flex">
+    <div class="flex-auto min-w-0 indicator mx-4 md:mx-8">
+      <div class="min-w-0">
+        <p class="">{{ item.content }}</p>
+        <br />
+        <div class="opacity-60">
+          {{ item.saved_at|localtime }} - {{ item.hostname }}
+        </div>
+      </div>
+    </div>
+    <div class="flex-none">
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm m-x-1">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+          </svg>
+
+        </div>
+        <form method="post" action="{% url 'lynx:delete_note' item.id %}" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+          <ul tabindex="0">
+            <li>
+              <input class="hover:bg-error hover:text-error-content" type="submit" value="Delete">
+            </li>
+          </ul>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% include 'lynx/paginator.html' %}
+{% endblock %}

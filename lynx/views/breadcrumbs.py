@@ -20,6 +20,7 @@ MANAGE_TAGS: Breadcrumb = ('lynx:manage_tags', 'Tags', [])
 ADD_TAG: Breadcrumb = ('lynx:add_tag', 'Add Tag', [])
 READ_LINKS: Breadcrumb = ('lynx:links_feed_read', 'Read Links', [])
 UNREAD_LINKS: Breadcrumb = ('lynx:links_feed_unread', 'Unread Links', [])
+NOTES: Breadcrumb = ('lynx:all_notes', 'Notes', [])
 
 
 # Convencience functions for consistency

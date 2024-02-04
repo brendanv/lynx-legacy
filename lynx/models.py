@@ -84,7 +84,9 @@ class UserSetting(models.Model):
   lynx_api_key = models.CharField(max_length=255, blank=True)
 
   headers_for_scraping = models.JSONField(default=dict)
-  headers_updated_at = models.DateTimeField(null=True, blank=True, default=None)
+  headers_updated_at = models.DateTimeField(null=True,
+                                            blank=True,
+                                            default=None)
 
   def __str__(self):
     return f"UserSetting({self.user.username})"
@@ -148,3 +150,22 @@ class FeedItem(models.Model):
   class Meta:
     ordering = ['-created_at']
     unique_together = ['feed', 'guid']
+
+
+class Note(models.Model):
+  user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+  saved_at = models.DateTimeField(auto_now_add=True)
+  content = models.TextField()
+  link = models.ForeignKey('Link',
+                           on_delete=models.SET_NULL,
+                           null=True,
+                           blank=True)
+  hostname = models.CharField(max_length=500)
+  url = models.URLField(max_length=2000)
+  tags = models.ManyToManyField(Tag, blank=True)
+
+  def __str__(self):
+    return f"Note({self.user.username}, {self.content[:20]})"
+
+  class Meta:
+    ordering = ['-saved_at']
