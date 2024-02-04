@@ -32,6 +32,10 @@ urlpatterns = [
          name="link_tags_edit"),
     path("<int:link_pk>/add_note/", views.add_note_view, name="add_note"),
 
+    path("<int:link_pk>/notes/", views.link_notes_view, name="link_notes"),
+    path("notes/", views.all_notes_view, name="all_notes"),
+    path("note/<int:pk>/delete/", views.delete_note_view, name="delete_note"),
+
     # Feed views
     path("feeds/", views.feeds_list_view, name="feeds"),
     path("feeds/refresh_all/",
