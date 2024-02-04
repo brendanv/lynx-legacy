@@ -1,4 +1,4 @@
-from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync, sync_to_async
 from background_task import background
 import csv
 import codecs
@@ -12,7 +12,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils import timezone
-from lynx.url_parser import parse_url
+from lynx import commands
 from lynx.models import Tag, BulkUpload
 from typing import Optional
 from .widgets import DaisySelect
@@ -82,8 +82,8 @@ def add_new_link_in_background(user_pk: int, url: str, tags: list[str],  last_vi
   last_viewed_at = None
   if last_viewed_at_str:
     last_viewed_at = parser.parse(last_viewed_at_str)
-    
-  link = parse_url(url, user, model_fields={
+
+  link, _ = async_to_sync(commands.get_or_create_link)(url, user, model_fields={
     'added_at': added_at,
     'last_viewed_at': last_viewed_at,
   })

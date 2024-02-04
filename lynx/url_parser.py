@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from typing import Optional
 from django.http.request import HttpRequest
 
 import requests
@@ -74,9 +75,11 @@ def parse_content(url_context: UrlContext, content: str) -> dict[str, str]:
 
 def parse_url(url: str,
               user,
-              model_fields={}) -> Link:
+              model_fields: Optional[dict]=None) -> Link:
   url_context = UrlContext(url, user)
   content = load_content_from_remote_url(url_context)
   parsed_data = parse_content(url_context, content)
+  if model_fields is None:
+    model_fields = {}
 
   return Link(**{**parsed_data, **model_fields})

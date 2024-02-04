@@ -1,7 +1,8 @@
+from asgiref.sync import async_to_sync
 from background_task import background
 from django.contrib.auth import get_user_model
 from lynx.models import FeedItem
-from lynx import url_parser
+from lynx import commands
 
 @background
 def add_feed_item_to_library(user_pk: int, feed_item_pk: int):
@@ -11,8 +12,11 @@ def add_feed_item_to_library(user_pk: int, feed_item_pk: int):
   url = feed_item.saved_as_link
   if url is not None:
     return
-  link = url_parser.parse_url(feed_item.url, user)
-  link.created_from_feed = feed_item.feed
+
+  link, is_new = async_to_sync(commands.get_or_create_link)(feed_item.url, user)
+  if is_new:
+    link.created_from_feed = feed_item.feed
   link.save()
-  feed_item.saved_as_link = link
-  feed_item.save()
+  if is_new:
+    feed_item.saved_as_link = link
+    feed_item.save()

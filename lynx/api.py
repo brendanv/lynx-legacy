@@ -1,8 +1,9 @@
+from asgiref.sync import sync_to_async
 from django.http import HttpRequest
 from ninja import NinjaAPI, Schema
 from ninja.security import HttpBearer, APIKeyHeader
 from lynx.models import UserSetting, Link
-from lynx import url_parser
+from lynx import commands
 from typing import Any, Optional
 
 api = NinjaAPI()
@@ -10,12 +11,12 @@ api = NinjaAPI()
 
 class LynxKeyAuthenticator:
 
-  def authenticate(self, request: HttpRequest,
+  async def authenticate(self, request: HttpRequest,
                    key: Optional[str]) -> Optional[UserSetting]:
     if key is None or key == "":
       return None
     try:
-      return UserSetting.objects.get(lynx_api_key=key)
+      return await UserSetting.objects.aget(lynx_api_key=key)
     except UserSetting.DoesNotExist:
       return None
 
@@ -43,8 +44,9 @@ class LinkOverview(Schema):
   read_time_display: str = None
 
 @api.post("/links/add", auth=lynx_auth_methods, response=LinkOverview)
-def create_link(request, link_create: LinkCreate):
+async def create_link(request, link_create: LinkCreate):
   assert isinstance(request.auth, UserSetting)
-  url = url_parser.parse_url(link_create.url, request.auth.user)
-  url.save()
+  user = await (sync_to_async(lambda: request.auth.user)())
+  url, _ = await commands.get_or_create_link(link_create.url, user)
+  await url.asave()
   return url

@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
-from lynx import url_parser, url_summarizer, html_cleaner
+from lynx import url_parser, url_summarizer, html_cleaner, commands
 from lynx.models import Link, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
@@ -21,9 +21,9 @@ class AddLinkForm(forms.Form):
                        max_length=2000,
                        widget=FancyTextWidget('Article URL'))
 
-  def create_link(self, user) -> Link:
-    url = url_parser.parse_url(self.cleaned_data['url'], user)
-    url.save()
+  async def create_link(self, user) -> Link:
+    url, _ = await commands.get_or_create_link(self.cleaned_data['url'], user)
+    await url.asave()
     return url
 
 
@@ -35,7 +35,7 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
       try:
         user = await request.auser()
         await headers.maybe_update_usersetting_headers(request, user)
-        link = await (sync_to_async(lambda: form.create_link(user))())
+        link = await form.create_link(user)
         return redirect('lynx:link_viewer', pk=link.pk)
       except UrlParseError as e:
         messages.error(request,
@@ -74,6 +74,8 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
           'You must have an OpenAI API key in your settings to summarize links.'
       )
   elif 'action_reload' in request.POST:
+    # Don't use the command here because we want to directly fetch 
+    # the content rather than returning early because the link exists.
     new_link = await (sync_to_async(url_parser.parse_url)(link.original_url,
                                                           user))
     link.cleaned_url = new_link.cleaned_url

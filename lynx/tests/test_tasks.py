@@ -34,7 +34,7 @@ class TestTasks(TestCase):
     with patch('lynx.url_parser.parse_url') as mock_parse_url:
       mock_parse_url.return_value = link
       add_feed_item_to_library.now(user.pk, feed_item.pk)
-      mock_parse_url.assert_called_once_with(feed_item.url, user)
+      mock_parse_url.assert_called_once_with(feed_item.url, user, None)
       feed_item.refresh_from_db()
       self.assertEqual(feed_item.saved_as_link, link)
       link.refresh_from_db()
