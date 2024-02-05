@@ -1,7 +1,7 @@
 from asgiref.sync import sync_to_async
 from typing import Tuple, Optional
 from lynx import url_parser
-from lynx.models import Link
+from lynx.models import Link, Note
 from django.db.models import Q
 
 
@@ -22,3 +22,19 @@ async def get_or_create_link(url: str,
       sync_to_async(lambda: url_parser.parse_url(url, user, model_fields))())
   await link.asave()
   return (link, True)
+
+
+async def create_note_for_link(user, link: Link, note_content: str) -> Note:
+  return await Note.objects.acreate(
+      user=user,
+      content=note_content,
+      link=link,
+      hostname=link.hostname,
+      url=link.cleaned_url,
+      link_title=link.title,
+  )
+
+
+async def create_note(user, url: str, note_content: str) -> Note:
+  link, _ = await get_or_create_link(url, user)
+  return await create_note_for_link(user, link, note_content)

@@ -1,7 +1,7 @@
 {% extends 'lynx/base.html' %}
 {% load tz %}
 
-{% block title %}{{ Notes }} | Lynx{% endblock %}
+{% block title %}Notes | Lynx{% endblock %}
 {% block content %}
 {% for item in paginator_page.object_list %}
 <div class="pb-6 mb-6 px-2 block w-full border-dotted border-b-2 border-primary">
@@ -11,7 +11,7 @@
         <p class="">{{ item.content }}</p>
         <br />
         <div class="opacity-60">
-          {{ item.saved_at|localtime }} - {{ item.hostname }}
+          {{ item.saved_at|localtime }} - {{ item.hostname }}{% if item.link %} - <a href="{% url 'lynx:link_viewer' item.link_id %}{{item.fragment}}">view in lynx</a>{% endif %} - <a href="{{item.url}}{{item.fragment}}" target="_blank">view original</a>
         </div>
       </div>
     </div>

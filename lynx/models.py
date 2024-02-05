@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from autoslug import AutoSlugField
+import urllib.parse
 
 
 class Tag(models.Model):
@@ -160,9 +161,22 @@ class Note(models.Model):
                            on_delete=models.SET_NULL,
                            null=True,
                            blank=True)
+  # Store some fields here in case the link is deleted. This way we can
+  # reasonably render the note even if the link no longer exists.
   hostname = models.CharField(max_length=500)
   url = models.URLField(max_length=2000)
   tags = models.ManyToManyField(Tag, blank=True)
+  link_title = models.TextField(blank=True)
+
+  def fragment(self, exclude_directive=False):
+    words = self.content.split()
+    directive = '' if exclude_directive else '#:~:'
+    # This seems to be what Chrome does with it's "Copy link to text"
+    # feature, so it's probably good enough...
+    if len(words) > 8:
+      return f'{directive}text={urllib.parse.quote(" ".join(words[:4]))},{urllib.parse.quote(" ".join(words[-4:]))}'
+    else:
+      return f'{directive}text={urllib.parse.quote(self.content)}'
 
   def __str__(self):
     return f"Note({self.user.username}, {self.content[:20]})"

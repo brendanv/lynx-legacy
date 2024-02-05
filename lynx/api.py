@@ -52,6 +52,7 @@ class NoteOverview(Schema):
   content: str
   url: str
   hostname: str
+  link_title: str
   link: LinkOverview = None
 
 @api.post("/links/add", auth=lynx_auth_methods, response=LinkOverview)
@@ -59,20 +60,10 @@ async def create_link(request, link_create: LinkCreate):
   assert isinstance(request.auth, UserSetting)
   user = await (sync_to_async(lambda: request.auth.user)())
   url, _ = await commands.get_or_create_link(link_create.url, user)
-  await url.asave()
   return url
 
 @api.post("/notes/add", auth=lynx_auth_methods, response=NoteOverview)
 async def create_note(request, note_create: NoteCreate):
   assert isinstance(request.auth, UserSetting)
   user = await (sync_to_async(lambda: request.auth.user)())
-  link, _ = await commands.get_or_create_link(note_create.url, user)
-  await link.asave()
-  note = await Note.objects.acreate(
-      user=user,
-      content=note_create.content,
-      link=link,
-      hostname=link.hostname,
-      url=link.cleaned_url,
-  )
-  return note
+  return await commands.create_note(user, note_create.url, note_create.content)

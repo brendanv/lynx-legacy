@@ -8,7 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner, commands
-from lynx.models import Link, Tag
+from lynx.models import Link, Note, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
 from lynx.utils import headers
@@ -116,7 +116,6 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
 async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
   link = await aget_object_or_404(Link, pk=pk, creator=user)
-  context_data = {'link': link}
   cleaner = html_cleaner.HTMLCleaner(link.article_html)
   cleaner.generate_headings().replace_image_links_with_images()
   tags_queryset = link.tags.all()
