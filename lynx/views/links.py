@@ -1,9 +1,11 @@
+from django.db.models import F
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget, FancyDateWidget
 from . import paginator, breadcrumbs
 from asgiref.sync import sync_to_async
 from django import forms
 from django.contrib import messages
+from django.contrib.postgres.search import SearchRank, SearchVector, SearchQuery
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -74,7 +76,7 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
           'You must have an OpenAI API key in your settings to summarize links.'
       )
   elif 'action_reload' in request.POST:
-    # Don't use the command here because we want to directly fetch 
+    # Don't use the command here because we want to directly fetch
     # the content rather than returning early because the link exists.
     new_link = await (sync_to_async(url_parser.parse_url)(link.original_url,
                                                           user))
@@ -186,19 +188,13 @@ async def link_feed_view(request: HttpRequest,
   query_string = request.GET.get('q', '')
   breadcrumbs_list: list[breadcrumbs.Breadcrumb] = [breadcrumbs.HOME]
   if query_string:
-    sql = '''
-      SELECT lynx_link.*, rank 
-      FROM lynx_link 
-      INNER JOIN (
-        SELECT rowid, rank 
-        FROM lynx_link_fts 
-        WHERE lynx_link_fts MATCH %s
-      ) 
-      ON lynx_link.id = rowid 
-      WHERE lynx_link.creator_id = %s
-      ORDER BY rank;
-    '''
-    queryset = Link.objects.raw(sql, [query_string, user.id])
+    search_query = SearchQuery(query_string,
+                               search_type="websearch",
+                               config='english')
+    queryset = Link.objects.annotate(
+        rank=SearchRank(F('content_search'), search_query)).filter(
+            creator=user, content_search=search_query,
+            rank__gte=0.3).order_by('-rank')
   else:
     queryset = Link.objects.filter(creator=user)
     if filter == "read":

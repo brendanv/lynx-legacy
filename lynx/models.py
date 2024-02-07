@@ -1,5 +1,7 @@
 from django.db import models
 from django.conf import settings
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchVectorField
 from django.utils import timezone
 from autoslug import AutoSlugField
 import urllib.parse
@@ -26,6 +28,12 @@ class BulkUpload(models.Model):
   tag_slug = models.CharField(max_length=50, blank=True, null=True)
 
 
+def get_link_search_vector():
+  return SearchVector('title', 'excerpt', weight='A',
+                      config='english') + SearchVector(
+                          'raw_text_content', weight='B', config='english')
+
+
 class Link(models.Model):
   # The date this model was created
   created_at = models.DateTimeField(auto_now_add=True)
@@ -41,18 +49,24 @@ class Link(models.Model):
   original_url = models.URLField(max_length=2000)
 
   # Extracted metadata
-  cleaned_url = models.URLField(max_length=1000)
+  cleaned_url = models.URLField(max_length=2000)
   hostname = models.CharField(max_length=500, blank=True)
-  article_date = models.DateField(null=False)  # Published date of the article
+  article_date = models.DateField(blank=True,
+                                  null=False)  # Published date of the article
   author = models.CharField(max_length=255, blank=True)
   title = models.CharField(max_length=500, blank=True)
   excerpt = models.TextField(blank=True)
-  header_image_url = models.URLField(blank=True)
+  header_image_url = models.URLField(max_length=2000, blank=True)
 
   # Variations of the content
   article_html = models.TextField(blank=True)
   raw_text_content = models.TextField(blank=True)
   full_page_html = models.TextField(blank=True)
+  content_search = models.GeneratedField(
+      db_persist=True,
+      expression=SearchVector('title', 'excerpt', weight='A', config='english')
+      + SearchVector('raw_text_content', weight='B', config='english'),
+      output_field=SearchVectorField(blank=True))
 
   # Extras
   summary = models.TextField(blank=True)  # AI summary if generated
@@ -72,6 +86,10 @@ class Link(models.Model):
 
   def __str__(self):
     return f'Link({self.title})'
+
+  @classmethod
+  def get_search_vector(cls):
+    return get_link_search_vector()
 
   class Meta:
     ordering = ['-added_at']
@@ -106,7 +124,7 @@ class UserCookie(models.Model):
 class Feed(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
-  last_fetched_at = models.DateTimeField(null=True)
+  last_fetched_at = models.DateTimeField(null=True, blank=True)
 
   # Server-side params to prevent re-downloads
   etag = models.CharField(max_length=1000, blank=True)
@@ -133,15 +151,16 @@ class FeedItem(models.Model):
                            related_name="items",
                            related_query_name="item")
   title = models.CharField(max_length=1000)
-  pub_date = models.DateTimeField(null=True)
-  guid = models.CharField(max_length=1000, null=True)
-  description = models.TextField(null=True)
+  pub_date = models.DateTimeField(null=True, blank=True)
+  guid = models.CharField(max_length=1000, blank=True)
+  description = models.TextField(blank=True)
   url = models.URLField(max_length=2000)
 
   saved_as_link = models.OneToOneField(
       Link,
       on_delete=models.SET_NULL,
       null=True,
+      blank=True,
       related_name="created_from_feed_item",
       related_query_name="created_from_feed_item")
 
@@ -163,8 +182,8 @@ class Note(models.Model):
                            blank=True)
   # Store some fields here in case the link is deleted. This way we can
   # reasonably render the note even if the link no longer exists.
-  hostname = models.CharField(max_length=500)
-  url = models.URLField(max_length=2000)
+  hostname = models.CharField(max_length=500, blank=True)
+  url = models.URLField(max_length=2000, blank=True)
   tags = models.ManyToManyField(Tag, blank=True)
   link_title = models.TextField(blank=True)
 
