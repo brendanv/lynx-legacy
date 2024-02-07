@@ -159,8 +159,9 @@ class AddFeedForm(forms.Form):
                        max_length=2000,
                        widget=FancyTextWidget('Feed URL'))
   auto_add = forms.BooleanField(
+      required=False,
       label="Auto-add new articles to library",
-      widget=forms.CheckboxInput(attrs={'class': 'checkbox checkbox-primary'}))
+      widget=forms.CheckboxInput(attrs={'class': 'checkbox checkbox-primary', 'required': False}))
 
   def create_feed(self, request: HttpRequest, user: User) -> Feed:
     loader = feed_utils.RemoteFeedLoader(
