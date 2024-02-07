@@ -28,12 +28,6 @@ class BulkUpload(models.Model):
   tag_slug = models.CharField(max_length=50, blank=True, null=True)
 
 
-def get_link_search_vector():
-  return SearchVector('title', 'excerpt', weight='A',
-                      config='english') + SearchVector(
-                          'raw_text_content', weight='B', config='english')
-
-
 class Link(models.Model):
   # The date this model was created
   created_at = models.DateTimeField(auto_now_add=True)
@@ -86,10 +80,6 @@ class Link(models.Model):
 
   def __str__(self):
     return f'Link({self.title})'
-
-  @classmethod
-  def get_search_vector(cls):
-    return get_link_search_vector()
 
   class Meta:
     ordering = ['-added_at']
