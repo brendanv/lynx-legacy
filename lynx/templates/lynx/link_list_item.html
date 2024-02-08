@@ -1,17 +1,13 @@
+{% load static %}
 <div class="pb-6 mb-6 px-2 block w-full border-dotted border-b-2 border-primary">
   <div class="flex">
     <div class="indicator flex-none">
       {% if not link.last_viewed_at %}
       <span class="indicator-item indicator-start badge badge-primary badge-sm"></span>
       {% endif %}
-        {% if link.header_image_url %}
-          <img class="object-cover w-20 h-20 mask mask-squircle" src="{{ link.header_image_url }}" alt="{{ link.title }}"/>
-        {% else %}
-          {% load static %}
-          <img class="object-cover w-20 h-20 mask mask-squircle" src="{% static 'lynx/img/lynx_placeholder.png' %}" alt="{{ link.title }}"/>
-        {% endif %}
+      <img class="object-cover w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mask mask-squircle" src="{% if link.header_image_url %}{{ link.header_image_url }}{% else %}{% static 'lynx/img/lynx_placeholder.png' %}{% endif %}" alt="{{ link.title }}"/>
     </div>
-    <div class="flex-auto min-w-0 indicator mx-4 md:mx-8">
+    <div class="flex-auto min-w-0 indicator mx-2 md:mx-6">
       <div class="min-w-0">
         <h2 class="card-title line-clamp-2 md:line-clamp-1 hover:text-primary"><a href="{% url 'lynx:link_viewer' link.id %}">{{ link.title }}</a></h2>
         <p class="line-clamp-1 opacity-60">{{ link.excerpt }}</p>
@@ -22,7 +18,7 @@
     </div>
     <div class="flex-none">
       <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm m-x-1">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-circle btn-sm">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM12.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0ZM18.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
           </svg>
