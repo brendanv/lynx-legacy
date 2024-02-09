@@ -128,7 +128,8 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
       'tags': tags,
       'all_user_tags': all_user_tags,
       'html_with_sections': cleaner.prettify(),
-      'table_of_contents': [h.to_dict() for h in cleaner.get_headings()]
+      'table_of_contents': [h.to_dict() for h in cleaner.get_headings()],
+      'back_button_link': headers.get_lynx_referrer_or_default(request)
   }
 
   link.last_viewed_at = timezone.now()

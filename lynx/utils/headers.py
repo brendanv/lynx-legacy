@@ -1,8 +1,10 @@
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.utils import timezone
+from django.urls import resolve, Resolver404
 from datetime import timedelta
 from lynx.models import UserSetting
+from urllib.parse import urlparse
 
 DAYS_TO_KEEP_HEADERS = 3
 
@@ -31,3 +33,18 @@ async def maybe_update_usersetting_headers(request: HttpRequest, user: User):
         request)
     user_settings.headers_updated_at = timezone.now()
     await user_settings.asave()
+
+
+
+def get_lynx_referrer_or_default(request: HttpRequest) -> str:
+  referrer = request.META.get('HTTP_REFERER', None)
+  if referrer:
+    parsed_url = urlparse(referrer)
+    path = parsed_url.path
+    query = parsed_url.query
+    try:
+      resolve(path)
+      return f'{path}?{query}' if query else path
+    except Resolver404:
+      return '/'
+  return '/'

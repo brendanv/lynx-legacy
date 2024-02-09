@@ -6,10 +6,6 @@
 <div class="reading-indicator"></div>
 {% endblock %}
 
-{% block container_class %}
-  {% if table_of_contents %}with_table_of_contents{% endif %}
-{% endblock %}
-
 {% block content_base %}
 <div class="drawer lg:drawer-open">
   <input id="table-of-contents-drawer" type="checkbox" class="drawer-toggle" />
@@ -24,11 +20,7 @@
     </div>
     <div class="toast p-8">
       <div class="join">
-        {% if table_of_contents %}
-          <label for="table-of-contents-drawer" class="btn btn-square join-item drawer-button tooltip" data-tip="Table of Contents">
-        {% else %}
-          <label for="table-of-contents-drawer" class="btn btn-square btn-disabled join-item drawer-button tooltip" data-tip="Table of Contents">
-        {% endif %}
+        <label for="table-of-contents-drawer" class="btn btn-square join-item drawer-button tooltip" data-tip="Table of Contents">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 m-2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
           </svg>
@@ -56,12 +48,6 @@
             <span>{{ link.article_date }}</span>
           </div>
         </h4>
-        {% if tags %}
-        {% for tag in tags %}
-          {% include 'lynx/tag.html' with removable=True %}
-        {% endfor %}
-        {% endif %}
-        {% include 'lynx/edit_tag_modal.html' %}
       </hgroup>
       <div class="divider"></div>
       <div>
@@ -69,18 +55,70 @@
       </div>
     </article>
   </div> 
-  {% if table_of_contents %}
     <div class="drawer-side">
       <label for="table-of-contents-drawer" aria-label="close sidebar" class="drawer-overlay"></label> 
-      <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-        {% for heading in table_of_contents %}
-        <li>
-          <a href="#{{ heading.id }}">{{ heading.display }}</a>
-        </li>
-        {% endfor %}
-      </ul>
+      <div class="p-4 w-80 min-h-full bg-base-200 text-base-content">
+        <a href="{{back_button_link}}" class="btn btn-ghost w-full">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          Back
+        </a>
+        <details class="collapse collapse-arrow">
+          <summary class="collapse-title font-medium text-lg">Summary</summary>
+          {% if link.summary %}
+            <span class="p-4 text-sm">
+              {{link.summary}}
+            </span>
+          {% else %}
+            <form action="{% url 'lynx:link_action' link.id %}" method="post" class="p-4 w-full">
+              <p>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                <button type="submit" class="btn btn-ghost w-full">
+                  <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18.5A2.5 2.5 0 0 1 7.5 20h0a2.5 2.5 0 0 1-2.4-3.2 3 3 0 0 1-.8-5.2 2.5 2.5 0 0 1 .9-3.2A2.5 2.5 0 0 1 7 5a2.5 2.5 0 0 1 5 .5m0 13v-13m0 13a2.5 2.5 0 0 0 4.5 1.5h0a2.5 2.5 0 0 0 2.4-3.2 3 3 0 0 0 .9-5.2 2.5 2.5 0 0 0-1-3.2A2.5 2.5 0 0 0 17 5a2.5 2.5 0 0 0-5 .5m-8 5a2.5 2.5 0 0 1 3.5-2.3m-.3 8.6a3 3 0 0 1-3-5.2M20 10.5a2.5 2.5 0 0 0-3.5-2.3m.3 8.6a3 3 0 0 0 3-5.2"/></svg> Generate Summary
+                </button>
+              </p>
+            </form>
+          {% endif %}
+        </details>
+        {% if table_of_contents %}
+          <details class="collapse" open>
+            <summary class="collapse-title font-medium text-lg">Contents</summary>
+            <ul class="menu min-h-full">
+              {% for heading in table_of_contents %}
+              <li>
+                <a href="#{{ heading.id }}">{{ heading.display }}</a>
+              </li>
+              {% endfor %}
+            </ul>
+          </details>
+        {% endif %}
+        <details class="collapse" open>
+          <summary class="collapse-title font-medium text-lg">Metadata</summary>
+          <div class="grid grid-cols-2 gap-4 text-sm p-4">
+            {% if link.created_from_feed %}
+            <div>Feed</div>
+            <div><a class="link" href="{% url 'lynx:feed_items' link.created_from_feed.pk %}">{{ link.created_from_feed.feed_name }}</a></div>
+            {% endif %}
+            <div>Domain</div>
+            <div>{{ link.hostname }}</div>
+            <div>Published</div>
+            <div>{{ link.article_date|date:"M j, Y" }}</div>
+            <div>Saved</div>
+            <div>{{ link.added_at|date:"M j, Y" }}</div>
+            <div>Length</div>
+            <div>{{ link.read_time_display }}</div>
+            <div>Tags</div>
+            <div>
+              {% for tag in tags %}
+                {% include 'lynx/tag.html' with removable=True %}
+              {% endfor %}
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
-  {% endif %}
 </div>
 <script>
   // This is all the JS on the site, can't do highlighting without it :(
