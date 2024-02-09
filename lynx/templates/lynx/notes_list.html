@@ -11,7 +11,7 @@
         <p class="">{{ item.content }}</p>
         <br />
         <div class="opacity-60">
-          {{ item.saved_at|localtime }} - {{ item.hostname }}{% if item.link %} - <a href="{% url 'lynx:link_viewer' item.link_id %}{{item.fragment}}">view in lynx</a>{% endif %} - <a href="{{item.url}}{{item.fragment}}" target="_blank">view original</a>
+          {{ item.saved_at|localtime }} - {{ item.hostname }}{% if item.link %} - <a href="{% url 'lynx:link_viewer' item.link_id %}{{item.fragment|safe}}">view in lynx</a>{% endif %} - <a href="{{item.url}}{{item.fragment|safe}}" target="_blank">view original</a>
         </div>
       </div>
     </div>
