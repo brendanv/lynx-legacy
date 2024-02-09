@@ -21,7 +21,7 @@ async def generate_and_persist_summary(link: Link) -> Link:
   prompt_message = f"Summarize the following article:\n\n{link.raw_text_content}"
 
   response = await client.chat.completions.create(
-      model="gpt-3.5-turbo-1106",
+      model=user_settings.summarization_model,
       messages=[{
           "role": "system",
           "content": "You are a helpful assistant."

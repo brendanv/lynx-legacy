@@ -1,12 +1,13 @@
 {% extends 'lynx/base.html' %}
 
 {% block title %}Settings{% endblock %}
-{% block nav_title %}Settings{% endblock %}
 
 {% block content %}
     <form action="{% url 'lynx:user_settings' %}" method="post" class="form-control">
       {% csrf_token %}
-      {{ form }}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {{ form }}
+      </div>
       <div class="divider"></div>
       <input class="btn btn-primary" type="submit" value="Update">
     </form>

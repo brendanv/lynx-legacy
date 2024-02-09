@@ -89,6 +89,7 @@ class UserSetting(models.Model):
   user = models.OneToOneField(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
   openai_api_key = models.CharField(max_length=255, blank=True)
+  automatically_summarize_new_links = models.BooleanField(default=False)
 
   lynx_api_key = models.CharField(max_length=255, blank=True)
 
@@ -96,6 +97,16 @@ class UserSetting(models.Model):
   headers_updated_at = models.DateTimeField(null=True,
                                             blank=True,
                                             default=None)
+
+  class SummarizationModel(models.TextChoices):
+    GPT35TURBO = 'gpt-3.5-turbo', 'gpt-3.5-turbo'
+    GPT35TURBO0125 = 'gpt-3.5-turbo-0125', 'gpt-3.5-turbo-0125'
+    GPT4 = 'gpt-4', 'gpt-4'
+    GPT4TURBO = 'gpt-4-turbo-preview', 'gpt-4-turbo-preview'
+
+  summarization_model = models.CharField(max_length=255,
+                                         choices=SummarizationModel,
+                                         default=SummarizationModel.GPT35TURBO)
 
   def __str__(self):
     return f"UserSetting({self.user.username})"

@@ -15,6 +15,7 @@ from django.shortcuts import redirect
 from lynx import url_parser
 from lynx.utils import headers
 
+
 class UpdateSettingsForm(forms.Form):
   openai_api_key = forms.CharField(label="",
                                    max_length=255,
@@ -29,14 +30,34 @@ class UpdateSettingsForm(forms.Form):
       widget=APIKeyWidget('Lynx API Key'),
   )
 
+  summarization_model = forms.ChoiceField(
+      label="Summarization Model",
+      choices=UserSetting.SummarizationModel.choices,
+      widget=forms.Select(attrs={'class': 'select select-bordered'}))
+
+  auto_summarize_new_links = forms.BooleanField(
+      label="Automatically summarize new links?",
+      required=False,
+      widget=forms.CheckboxInput(attrs={
+          'class': 'checkbox checkbox-primary',
+          'required': False
+      }))
+
   def update_setting(self, user, request: HttpRequest):
     setting, _ = UserSetting.objects.get_or_create(user=user)
     if 'reset_api_key' in self.data:
       setting.lynx_api_key = secrets.token_hex(16)
     elif 'clear_api_key' in self.data:
       setting.lynx_api_key = ""
-    setting.headers_for_scraping = headers.extract_headers_to_pass_for_parse(request)
+    setting.headers_for_scraping = headers.extract_headers_to_pass_for_parse(
+        request)
     setting.headers_updated_at = timezone.now()
+    setting.openai_api_key = self.cleaned_data.get('openai_api_key', "")
+    setting.summarization_model = self.cleaned_data.get(
+        'summarization_model', UserSetting.SummarizationModel.choices[0][0])
+    print(self.cleaned_data)
+    setting.automatically_summarize_new_links = self.cleaned_data.get(
+        'auto_summarize_new_links', False)
     setting.save()
 
 
@@ -55,6 +76,8 @@ async def update_settings_view(request: HttpRequest) -> HttpResponse:
         initial={
             'openai_api_key': setting.openai_api_key,
             'lynx_api_key': setting.lynx_api_key,
+            'summarization_model': setting.summarization_model,
+            'auto_summarize_new_links': setting.automatically_summarize_new_links
         })
 
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
