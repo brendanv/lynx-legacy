@@ -9,6 +9,14 @@ from django.utils import timezone
 from bs4 import BeautifulSoup
 
 
+def get_usable_timestamp_from_entry(entry, default: datetime) -> datetime:
+  if 'published_parsed' in entry:
+    return datetime(*entry.published_parsed[:6])
+  if 'updated_parsed' in entry:
+    return datetime(*entry.updated_parsed[:6])
+  return default
+
+
 class RemoteFeedLoader:
 
   def __init__(self,
@@ -63,14 +71,15 @@ class RemoteFeedLoader:
       ) if self.feed.last_fetched_at else (datetime.now() -
                                            timedelta(days=2)).timestamp()
       latest_entries = [
-          entry for entry in self.remote.entries if datetime(
-              *entry.published_parsed[:6]).timestamp() > last_fetched_timestamp
+          entry
+          for entry in self.remote.entries if get_usable_timestamp_from_entry(
+              entry, datetime.now()).timestamp() > last_fetched_timestamp
       ]
     else:
       sorted_entries = sorted(
           self.remote.entries,
-          key=lambda entry: datetime(*entry.published_parsed[:6])
-          if 'published_parsed' in entry else datetime.min)
+          key=lambda entry: get_usable_timestamp_from_entry(
+              entry, datetime.min))
       latest_entries = sorted_entries[-3:]
 
     for entry in latest_entries:
@@ -80,8 +89,7 @@ class RemoteFeedLoader:
             title=entry.title,
             url=entry.link,
             description=BeautifulSoup(entry.summary).get_text(),
-            pub_date=datetime(*entry.published_parsed[:6])
-            if 'published_parsed' in entry else None,
+            pub_date=get_usable_timestamp_from_entry(entry, datetime.now()),
             guid=entry.id)
         self.created_feed_items.append(feed_item)
       except IntegrityError:
