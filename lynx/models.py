@@ -28,6 +28,12 @@ class BulkUpload(models.Model):
   tag_slug = models.CharField(max_length=50, blank=True, null=True)
 
 
+class LinkSansContentManager(models.Manager):
+  def get_queryset(self):
+    return super().get_queryset().defer('article_html', 'raw_text_content',
+                                        'full_page_html', 'content_search')
+
+
 class Link(models.Model):
   # The date this model was created
   created_at = models.DateTimeField(auto_now_add=True)
@@ -77,6 +83,12 @@ class Link(models.Model):
                                                null=True,
                                                blank=True)
   tags = models.ManyToManyField(Tag, blank=True)
+
+  # We only need the full text content of the link
+  # in the readable view. Basically everywhere else it's
+  # just a waste of data.
+  objects_with_full_content = models.Manager()
+  objects = LinkSansContentManager()
 
   def __str__(self):
     return f'Link({self.title})'
