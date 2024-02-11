@@ -1,0 +1,35 @@
+version: "3.4"
+services:
+  web:
+    image: ghcr.io/brendanv/lynx:latest
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file: docker-compose.env
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.refresh-feeds.schedule: "@every 12h"
+      ofelia.job-exec.refresh-feeds.command: "poetry run python manage.py refreshlynxfeeds <<LYNX_USERNAME>>"
+      ofelia.job-exec.background-tasks.schedule: "@every 10m"
+      ofelia.job-exec.background-tasks.command: "poetry run python manage.py process_tasks --duration=595 --sleep=30"
+  ofelia:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - web
+    command: daemon --docker
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:r
+  postgres:
+    image: postgres
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: <<POSTGRES_USER_FROM_ENV_FILE>> 
+      POSTGRES_PASSWORD: <<POSTGRES_PW_FROM_ENV_FILE>>
+      POSTGRES_DB: lynx
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    
