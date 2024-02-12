@@ -7,7 +7,6 @@
     <form action="{% url 'lynx:link_tags_edit' link.id %}" method="post">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.get_full_path }}">
-      <input type="hidden" name="set_tags" value="1">
       {% if all_user_tags %}
         <div class="flex flex-wrap content-evenly place-content-center gap-2 w-full">
           {% for tag in all_user_tags %}
@@ -24,7 +23,7 @@
         <button type="submit" name="add_new_tag" class="btn btn-secondary join-item">Add</button>
       </div>
       <div class="modal-action">
-        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="submit" name="set_tags" class="btn btn-primary">Save</button>
         <label for="edit_tags_modal_{{ link.pk }}" class="btn">Cancel</label>
       </div>
     </form>

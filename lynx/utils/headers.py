@@ -1,3 +1,4 @@
+from typing import Optional
 from django.contrib.auth.models import User
 from django.http import HttpRequest
 from django.utils import timezone
@@ -35,15 +36,17 @@ async def maybe_update_usersetting_headers(request: HttpRequest, user: User):
     await user_settings.asave()
 
 
-
-def get_lynx_referrer_or_default(request: HttpRequest) -> str:
+def get_lynx_referrer_or_default(request: HttpRequest,
+                                 exclude_route: Optional[str] = None) -> str:
   referrer = request.META.get('HTTP_REFERER', None)
   if referrer:
     parsed_url = urlparse(referrer)
     path = parsed_url.path
     query = parsed_url.query
     try:
-      resolve(path)
+      match = resolve(path)
+      if match.route == exclude_route:
+        return '/'
       return f'{path}?{query}' if query else path
     except Resolver404:
       return '/'

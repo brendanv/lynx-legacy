@@ -114,6 +114,7 @@
               {% for tag in tags %}
                 {% include 'lynx/tag.html' with removable=True %}
               {% endfor %}
+              {% include 'lynx/edit_tag_modal.html' %}
             </div>
           </div>
         </details>

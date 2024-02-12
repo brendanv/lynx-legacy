@@ -117,7 +117,9 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
 @async_login_required
 async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
-  link = await aget_object_or_404(Link.objects_with_full_content, pk=pk, creator=user)
+  link = await aget_object_or_404(Link.objects_with_full_content,
+                                  pk=pk,
+                                  creator=user)
   cleaner = html_cleaner.HTMLCleaner(link.article_html)
   cleaner.generate_headings().replace_image_links_with_images()
   tags_queryset = link.tags.all()
@@ -129,7 +131,8 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
       'all_user_tags': all_user_tags,
       'html_with_sections': cleaner.prettify(),
       'table_of_contents': [h.to_dict() for h in cleaner.get_headings()],
-      'back_button_link': headers.get_lynx_referrer_or_default(request)
+      'back_button_link': headers.get_lynx_referrer_or_default(request,
+                                           exclude_route='links/<int:pk>/view')
   }
 
   link.last_viewed_at = timezone.now()
