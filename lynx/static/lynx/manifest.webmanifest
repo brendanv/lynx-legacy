@@ -4,14 +4,14 @@
   "description": "For all your Links",
   "icons": [
     {
-      "src": "/static/lynx/icons/icon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+        "src": "/static/lynx/icons/android-chrome-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
     },
     {
-      "src": "/static/lynx/icons/icon-512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+        "src": "/static/lynx/icons/android-chrome-512x512.png",
+        "sizes": "512x512",
+        "type": "image/png"
     }
   ],
   "start_url": "/",
