@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import Optional
 from django.http.request import HttpRequest
 
-import requests
+import httpx
 import readtime
 from django.utils import timezone
 from readability import Document
@@ -17,22 +17,25 @@ from .models import Link, UserCookie, UserSetting
 from .url_context import UrlContext
 
 
-def load_content_from_remote_url(url_context: UrlContext) -> str:
+async def load_content_from_remote_url(url_context: UrlContext) -> str:
   domain = urlparse(url_context.url).netloc
   cookies = UserCookie.objects.filter(user=url_context.user,
                                       cookie_domain=domain)
-  cookie_data = {cookie.cookie_name: cookie.cookie_value for cookie in cookies}
-  setting, _ = UserSetting.objects.get_or_create(user=url_context.user)
-  response = requests.get(url_context.url,
-                          cookies=cookie_data,
-                          headers=setting.headers_for_scraping)
+  cookie_data = {
+      cookie.cookie_name: cookie.cookie_value
+      async for cookie in cookies
+  }
+  setting, _ = await UserSetting.objects.aget_or_create(user=url_context.user)
 
   try:
-    response.raise_for_status()
-  except requests.exceptions.HTTPError as e:
+    async with httpx.AsyncClient(follow_redirects=True) as client:
+      response = await client.get(url_context.url,
+                                  cookies=cookie_data,
+                                  headers=setting.headers_for_scraping)
+      response.raise_for_status()
+      return response.text
+  except httpx.HTTPError as e:
     raise UrlParseError(str(e))
-
-  return response.text
 
 
 def parse_content(url_context: UrlContext, content: str) -> dict[str, str]:
@@ -73,11 +76,11 @@ def parse_content(url_context: UrlContext, content: str) -> dict[str, str]:
   return model_args
 
 
-def parse_url(url: str,
-              user,
-              model_fields: Optional[dict]=None) -> Link:
+async def parse_url(url: str,
+                    user,
+                    model_fields: Optional[dict] = None) -> Link:
   url_context = UrlContext(url, user)
-  content = load_content_from_remote_url(url_context)
+  content = await load_content_from_remote_url(url_context)
   parsed_data = parse_content(url_context, content)
   if model_fields is None:
     model_fields = {}

@@ -1,4 +1,3 @@
-from asgiref.sync import sync_to_async
 from typing import Tuple, Optional
 from lynx import url_parser
 from lynx.models import Link, Note
@@ -18,8 +17,7 @@ async def get_or_create_link(url: str,
   if existing_link is not None:
     return (existing_link, False)
 
-  link = await (
-      sync_to_async(lambda: url_parser.parse_url(url, user, model_fields))())
+  link = await url_parser.parse_url(url, user, model_fields)
   await link.asave()
   return (link, True)
 
