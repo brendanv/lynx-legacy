@@ -13,7 +13,7 @@ from lynx import url_parser, url_summarizer, html_cleaner, commands
 from lynx.models import Link, Note, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
-from lynx.utils import headers
+from lynx.utils import headers, search
 from django.shortcuts import aget_object_or_404, aget_list_or_404, redirect
 from django.forms.widgets import DateInput
 
@@ -126,12 +126,17 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   tags = await (sync_to_async(list)(tags_queryset))
   all_user_tags = await (sync_to_async(list)(Tag.objects.filter(creator=user)))
   context_data = {
-      'link': link,
-      'tags': tags,
-      'all_user_tags': all_user_tags,
-      'html_with_sections': cleaner.prettify(),
+      'link':
+      link,
+      'tags':
+      tags,
+      'all_user_tags':
+      all_user_tags,
+      'html_with_sections':
+      cleaner.prettify(),
       'table_of_contents': [h.to_dict() for h in cleaner.get_headings()],
-      'back_button_link': headers.get_lynx_referrer_or_default(request,
+      'back_button_link':
+      headers.get_lynx_referrer_or_default(request,
                                            exclude_route='links/<int:pk>/view')
   }
 
@@ -189,41 +194,22 @@ async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
 async def link_feed_view(request: HttpRequest,
                          filter: str = "all") -> HttpResponse:
   user = await request.auser()
-  query_string = request.GET.get('q', '')
-  breadcrumbs_list: list[breadcrumbs.Breadcrumb] = [breadcrumbs.HOME]
-  if query_string:
-    search_query = SearchQuery(query_string,
-                               search_type="websearch",
-                               config='english')
-    queryset = Link.objects.annotate(
-        rank=SearchRank(F('content_search'), search_query)).filter(
-            creator=user, content_search=search_query,
-            rank__gte=0.3).order_by('-rank')
-  else:
-    queryset = Link.objects.filter(creator=user)
-    if filter == "read":
-      queryset = queryset.filter(last_viewed_at__isnull=False)
-    elif filter == "unread":
-      queryset = queryset.filter(last_viewed_at__isnull=True)
+  breadcrumbs_list: list[breadcrumbs.Breadcrumb] = [
+      x for x in [breadcrumbs.HOME,
+                  search.breadcrumb_for_links(request)] if x is not None
+  ]
+  # Filter to just links owned by this user, then the search
+  # helper will do the rest.
+  queryset, search_config = search.query_models(
+      Link.objects.filter(creator=user), request)
 
   data = {}
-  data['selected_filter'] = filter
-  data['query'] = query_string
-
-  if filter == "read":
-    data['title'] = "Read Links"
-    breadcrumbs_list.append(breadcrumbs.READ_LINKS)
-  elif filter == "unread":
-    data['title'] = "Unread Links"
-    breadcrumbs_list.append(breadcrumbs.UNREAD_LINKS)
-  elif filter == "search":
-    data['title'] = "Search Results"
-    breadcrumbs_list.append((request.get_full_path(), 'Search Results', []))
-  else:
-    data['title'] = "All Links"
+  data['search_config'] = search_config
 
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
+  tags = await load_all_user_tags(user)
+  data['tags'] = tags
   data = data | paginator_data | breadcrumbs.generate_breadcrumb_context_data(
       breadcrumbs_list)
   return TemplateResponse(request, "lynx/links_feed.html", context=data)

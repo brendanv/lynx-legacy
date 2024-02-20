@@ -21,7 +21,7 @@ async def add_note_view(request: HttpRequest, link_pk: int) -> HttpResponse:
     fragment = note.fragment()
   if 'next' in request.POST:
     return redirect(request.POST['next'] + fragment)
-  return redirect('lynx:links_feed_all')
+  return redirect('lynx:links_feed')
 
 
 @async_login_required
