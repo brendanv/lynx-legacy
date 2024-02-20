@@ -200,6 +200,12 @@ class Note(models.Model):
   tags = models.ManyToManyField(Tag, blank=True)
   link_title = models.TextField(blank=True)
 
+  content_search = models.GeneratedField(
+      db_persist=True,
+      expression=SearchVector('content', weight='A', config='english')
+      + SearchVector('link_title', weight='B', config='english'),
+      output_field=SearchVectorField())
+
   def fragment(self, exclude_directive=False):
     words = self.content.split()
     directive = '' if exclude_directive else '#:~:'

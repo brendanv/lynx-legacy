@@ -4,7 +4,8 @@ from django.template.response import TemplateResponse
 from django.contrib import messages
 from lynx import commands
 from lynx.models import Link, Note
-from lynx.utils import headers
+from lynx.tag_manager import load_all_user_tags
+from lynx.utils import headers, search
 from .decorators import async_login_required, lynx_post_only
 from . import paginator, breadcrumbs
 
@@ -17,7 +18,8 @@ async def add_note_view(request: HttpRequest, link_pk: int) -> HttpResponse:
   link = await aget_object_or_404(Link, pk=link_pk, creator=user)
   fragment = ''
   if 'note' in request.POST:
-    note = await commands.create_note_for_link(user, link, request.POST['note'])
+    note = await commands.create_note_for_link(user, link,
+                                               request.POST['note'])
     fragment = note.fragment()
   if 'next' in request.POST:
     return redirect(request.POST['next'] + fragment)
@@ -29,8 +31,9 @@ async def link_notes_view(request: HttpRequest, link_pk: int) -> HttpResponse:
   user = await request.auser()
   link = await aget_object_or_404(Link, pk=link_pk, creator=user)
   paginator_data = await paginator.generate_paginator_context_data(
-      request, Note.objects.filter(link=link, user=user).order_by('-saved_at'))
-  
+      request,
+      Note.objects.filter(link=link, user=user).order_by('-saved_at'))
+
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
       [breadcrumbs.HOME, breadcrumbs.NOTES])
   return TemplateResponse(request,
@@ -42,14 +45,20 @@ async def link_notes_view(request: HttpRequest, link_pk: int) -> HttpResponse:
 @async_login_required
 async def all_notes_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
+  tags = await load_all_user_tags(user)
+  queryset, search_config = search.query_models(
+      Note.objects.filter(user=user).order_by('-saved_at'), request)
   paginator_data = await paginator.generate_paginator_context_data(
-      request, Note.objects.filter(user=user).order_by('-saved_at'))
-  
+      request, queryset)
+
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
       [breadcrumbs.HOME, breadcrumbs.NOTES])
   return TemplateResponse(request,
                           'lynx/notes_list.html',
-                          context=paginator_data | breadcrumb_data)
+                          context=paginator_data | breadcrumb_data | {
+                              'search_config': search_config,
+                              'tags': tags
+                          })
 
 
 @async_login_required
