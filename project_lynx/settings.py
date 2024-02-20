@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'extra_views',
     'background_task',
+    'query_parameters'
 ]
 
 MIDDLEWARE = [

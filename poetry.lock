@@ -434,6 +434,19 @@ doc = ["markdown-include", "mkdocs", "mkdocs-material", "mkdocstrings"]
 test = ["black", "django-stubs", "mypy (==0.931)", "psycopg2-binary", "pytest", "pytest-asyncio", "pytest-cov", "pytest-django", "ruff (==0.0.275)"]
 
 [[package]]
+name = "django-query-parameters"
+version = "0.2.3"
+description = "Django templatetags to simplify creating, updating, and removing query parameters from querystring"
+optional = false
+python-versions = "*"
+files = [
+    {file = "django-query-parameters-0.2.3.tar.gz", hash = "sha256:cc79a406bb55747d183ac647a99846555c987942b7adb073da99323b6a8f24df"},
+]
+
+[package.dependencies]
+Django = ">=1.4"
+
+[[package]]
 name = "django-types"
 version = "0.19.1"
 description = "Type stubs for Django"
@@ -1299,4 +1312,4 @@ brotli = ["Brotli"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "4a12d3ba805cb66cea1a1dd61a4a82f84c9e5c029033a57d33e80f6e4f126217"
+content-hash = "7346f91a2df177840ae4595e27953fe231c9340c7254569198ed322eab3adb32"
