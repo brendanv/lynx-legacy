@@ -5,30 +5,33 @@
 {% block nav_title %}{{ title }}{% endblock %}
 
 {% block content %}
-  <details class="collapse bg-base-200 collapse-arrow border border-base-300 mb-8" {% if selected_filter != 'all' %}open{% endif %}>
+  <details class="collapse bg-base-200 collapse-arrow border border-base-300 mb-8" {% if search_config.should_expand %}open{% endif %}>
     <summary class="collapse-title text-xl font-medium">
       Search & Filters
     </summary>
     <div class="collapse-content"> 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <div class="join w-full">
-            <a href="{% url 'lynx:links_feed_read' %}" class="w-1/3 join-item btn btn-primary {% if selected_filter != 'read'%}btn-outline{% endif %}">Read</a>
-            <a href="{% url 'lynx:links_feed_unread' %}" class="w-1/3 join-item btn btn-primary {% if selected_filter != 'unread'%}btn-outline{% endif %}">Unread</a>
-            <a href="{% url 'lynx:links_feed_all' %}" class="w-1/3 btn join-item btn-primary {% if selected_filter != 'all'%}btn-outline{% endif %}">All</a>
-          </div>
+      <form role="search" action="{{ request.path }}" method="get" class="w-full">
+        <div class="join join-vertical sm:join-horizontal w-full">
+          <input class="input input-bordered join-item w-full" placeholder="Search" name="q" value="{{ search_config.query_string }}" />
+          <select name="r" class="select select-bordered join-item">
+            {% firstof search_config.unread "all" as unread_param %}
+            <option {% if unread_param == "all" %}selected{% endif %} value="a">All</option>
+            <option {% if unread_param == "unread" %}selected{% endif %} value="u">Unread</option>
+            <option {% if unread_param == "read" %}selected{% endif %} value="r">Read</option>
+          </select>
+          <select name="t" class="select select-bordered join-item">
+            <option disabled {%if "tag" in search_config%}{% else %}selected{%endif%}>Tagged</option>
+            {% for tag in tags %}
+              <option {% if search_config.tag == tag.slug %}selected{% endif %} value="{{ tag.slug }}">{{ tag.name }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-primary join-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
+          </button>
         </div>
-        <form role="search" action="{% url 'lynx:links_feed_search' %}" method="get" class="w-full">
-          <div class="join w-full">
-            <input type="text" name="q" class="join-item input input-bordered w-full" placeholder="Search" value="{{ query }}" autocomplete="off"/>
-            <button class="btn btn-primary join-item">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg>
-            </button>
-          </div>
-        </form>
-      </div>
+      </form>
     </div>
   </details>
   {% if paginator_page and paginator_page.object_list %}

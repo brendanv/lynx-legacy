@@ -3,6 +3,29 @@
 
 {% block title %}Notes | Lynx{% endblock %}
 {% block content %}
+<details class="collapse bg-base-200 collapse-arrow border border-base-300 mb-8" {% if search_config.should_expand %}open{% endif %}>
+  <summary class="collapse-title text-xl font-medium">
+    Search & Filters
+  </summary>
+  <div class="collapse-content"> 
+    <form role="search" action="{{ request.path }}" method="get" class="w-full">
+      <div class="join join-vertical sm:join-horizontal w-full">
+        <input class="input input-bordered join-item w-full" placeholder="Search" name="q" value="{{ search_config.query_string }}" />
+        <select name="t" class="select select-bordered join-item">
+          <option disabled {%if "tag" in search_config%}{% else %}selected{%endif%}>Tagged</option>
+          {% for tag in tags %}
+            <option {% if search_config.tag == tag.slug %}selected{% endif %} value="{{ tag.slug }}">{{ tag.name }}</option>
+          {% endfor %}
+        </select>
+        <button class="btn btn-primary join-item">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+</details>
 {% for item in paginator_page.object_list %}
 <div class="pb-6 mb-6 px-2 block w-full border-dotted border-b-2 border-primary">
   <div class="flex">

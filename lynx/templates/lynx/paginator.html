@@ -1,16 +1,17 @@
+{% load query_parameters %}
 {% if paginator_page and paginator %}
 <div class="flex w-full justify-center py-8">
   <div class="join flex-item">
     {% if paginator_page.has_previous %}
       <div class="tooltip" data-tip="First">
-        <a href="?page=1" class="join-item btn">
+        <a href="?{% set_query_parameters page=1 %}" class="join-item btn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="m18.75 4.5-7.5 7.5 7.5 7.5m-6-15L5.25 12l7.5 7.5" />
           </svg>
         </a>
       </div>
       <div class="tooltip" data-tip="Previous">
-        <a href="?page={{ paginator_page.previous_page_number }}" class="join-item btn">
+        <a href="?{% set_query_parameters page=paginator_page.previous_page_number %}" class="join-item btn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
           </svg>
@@ -31,14 +32,14 @@
     <div class="join-item btn">Page {{ paginator_page.number }} of {{ paginator.num_pages }}</div>
     {% if paginator_page.has_next %}
       <div class="tooltip" data-tip="Next">
-        <a href="?page={{ paginator_page.next_page_number }}" class="join-item btn">
+        <a href="?{% set_query_parameters page=paginator_page.next_page_number %}" class="join-item btn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
           </svg>
         </a>
       </div>
       <div class="tooltip" data-tip="Last">
-        <a href="?page={{ paginator.num_pages }}" class="join-item btn">
+        <a href="?{% set_query_parameters page=paginator.num_pages %}" class="join-item btn">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="m5.25 4.5 7.5 7.5-7.5 7.5m6-15 7.5 7.5-7.5 7.5" />
           </svg>

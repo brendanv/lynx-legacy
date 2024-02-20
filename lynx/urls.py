@@ -5,19 +5,7 @@ from . import views
 app_name = 'lynx'
 urlpatterns = [
     # Feed
-    path("", views.link_feed_view, {'filter': 'all'}, name="links_feed"),
-    path("all/",
-         views.link_feed_view, {'filter': 'all'},
-         name="links_feed_all"),
-    path("unread/",
-         views.link_feed_view, {'filter': 'unread'},
-         name="links_feed_unread"),
-    path("read/",
-         views.link_feed_view, {'filter': 'read'},
-         name="links_feed_read"),
-    path("search/",
-         views.link_feed_view, {'filter': 'search'},
-         name="links_feed_search"),
+    path("", views.link_feed_view, name="links_feed"),
     path("tagged/<str:slug>/",
          views.tagged_links_view,
          name="links_feed_tagged"),
