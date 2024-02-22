@@ -117,7 +117,8 @@ async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
 @async_login_required
 async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
-  link = await aget_object_or_404(Link.objects_with_full_content,
+  link = await aget_object_or_404(Link.objects_with_full_content.defer(
+      'raw_text_content', 'full_page_html', 'content_search'),
                                   pk=pk,
                                   creator=user)
   cleaner = html_cleaner.HTMLCleaner(link.article_html)

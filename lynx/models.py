@@ -95,6 +95,7 @@ class Link(models.Model):
 
   class Meta:
     ordering = ['-added_at']
+    base_manager_name = 'objects'
 
 
 class UserSetting(models.Model):
