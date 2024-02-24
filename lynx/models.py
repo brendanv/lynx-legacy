@@ -1,7 +1,9 @@
+from typing import Optional
 from django.db import models
 from django.conf import settings
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector, SearchVectorField
+from django.urls import reverse
 from django.utils import timezone
 from autoslug import AutoSlugField
 import urllib.parse
@@ -29,6 +31,7 @@ class BulkUpload(models.Model):
 
 
 class LinkSansContentManager(models.Manager):
+
   def get_queryset(self):
     return super().get_queryset().defer('article_html', 'raw_text_content',
                                         'full_page_html', 'content_search')
@@ -203,19 +206,33 @@ class Note(models.Model):
 
   content_search = models.GeneratedField(
       db_persist=True,
-      expression=SearchVector('content', weight='A', config='english')
-      + SearchVector('link_title', weight='B', config='english'),
+      expression=SearchVector('content', weight='A', config='english') +
+      SearchVector('link_title', weight='B', config='english'),
       output_field=SearchVectorField())
 
-  def fragment(self, exclude_directive=False):
+  def quoted_fragment(self):
     words = self.content.split()
-    directive = '' if exclude_directive else '#:~:'
+    directive = ':~:'
     # This seems to be what Chrome does with it's "Copy link to text"
     # feature, so it's probably good enough...
     if len(words) > 8:
       return f'{directive}text={urllib.parse.quote(" ".join(words[:4]))},{urllib.parse.quote(" ".join(words[-4:]))}'
     else:
       return f'{directive}text={urllib.parse.quote(self.content)}'
+
+  def remote_url_with_fragment(self) -> str:
+    parsed = urllib.parse.urlparse(
+        self.url)._replace(fragment=self.quoted_fragment())
+    return urllib.parse.urlunparse(parsed)
+
+  def lynx_url_with_fragment(self) -> Optional[str]:
+    link = self.link
+    if link is None:
+      return None
+    parsed = urllib.parse.urlparse(
+        reverse('lynx:link_viewer',
+                args=[link.pk]))._replace(fragment=self.quoted_fragment())
+    return urllib.parse.urlunparse(parsed)
 
   def __str__(self):
     return f"Note({self.user.username}, {self.content[:20]})"
