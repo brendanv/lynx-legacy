@@ -28,9 +28,8 @@ async def load_content_from_remote_url(url_context: UrlContext) -> str:
   setting, _ = await UserSetting.objects.aget_or_create(user=url_context.user)
 
   try:
-    async with httpx.AsyncClient(follow_redirects=True) as client:
+    async with httpx.AsyncClient(cookies=cookie_data, follow_redirects=True) as client:
       response = await client.get(url_context.url,
-                                  cookies=cookie_data,
                                   headers=setting.headers_for_scraping)
       response.raise_for_status()
       return response.text
