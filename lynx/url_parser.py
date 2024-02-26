@@ -58,7 +58,7 @@ def parse_content(url_context: UrlContext, content: str) -> dict[str, str]:
   domain = urlparse(url_context.url).netloc
   model_args = {
       'original_url': url_context.url,
-      'creator': url_context.user,
+      'user': url_context.user,
       'cleaned_url': json_meta.get('source') or url_context.url,
       'hostname': json_meta.get('hostname') or domain,
       'article_date': article_date,

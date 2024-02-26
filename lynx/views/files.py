@@ -29,8 +29,8 @@ async def bulk_upload_view(request: HttpRequest) -> HttpResponse:
     if form.is_valid():
       match form.cleaned_data['file_source']:
         case 'readwise':
-          bulk_upload = await BulkUpload.objects.acreate(creator = user)
-          bulk_tag, _ = await Tag.objects.aget_or_create(name=f'readwise_upload_{bulk_upload.pk}', creator=user)
+          bulk_upload = await BulkUpload.objects.acreate(user = user)
+          bulk_tag, _ = await Tag.objects.aget_or_create(name=f'readwise_upload_{bulk_upload.pk}', user=user)
           bulk_upload.tag_slug = bulk_tag.slug
           await bulk_upload.asave()
           await handle_readwise_upload(request, request.FILES['file'], bulk_tag.name)
@@ -73,7 +73,7 @@ async def handle_readwise_upload(request: HttpRequest, file: File, bulk_tag: str
 @background
 def add_new_link_in_background(user_pk: int, url: str, tags: list[str],  last_viewed_at_str: Optional[str], added_at_str: Optional[str]):
   user = User.objects.get(pk=user_pk)
-  tag_models = [Tag.objects.get_or_create(name=tag, creator=user)[0] for tag in tags]
+  tag_models = [Tag.objects.get_or_create(name=tag, user=user)[0] for tag in tags]
   
   added_at = timezone.now()
   if added_at_str:

@@ -18,7 +18,7 @@ class SearchTestCase(TestCase):
         'raw_text_content': 'Some content',
         'article_date': timezone.now(),
         'read_time_seconds': 12,
-        'creator': default_user,
+        'user': default_user,
     }
     defaults.update(kwargs)
     link = Link(**defaults)
@@ -28,7 +28,7 @@ class SearchTestCase(TestCase):
   def test_search_requires_all_fields_match(self):
     default_user, _ = User.objects.get_or_create(username='default_user')
     other_user, _ = User.objects.get_or_create(username='other_user')
-    tag = Tag.objects.create(name="test tag", creator=default_user)
+    tag = Tag.objects.create(name="test tag", user=default_user)
     # Create a link with content, tags, and unread status
     link = self.create_test_link(title='Test Title with complicated words',
                                  raw_text_content='Confusing syntax',
@@ -82,6 +82,6 @@ class SearchTestCase(TestCase):
 
     # It should also respect the passed in manager
     request = HttpRequest()
-    queryset, _ = query_models(Link.objects.filter(creator=other_user),
+    queryset, _ = query_models(Link.objects.filter(user=other_user),
                                request)
     self.assertEqual(queryset.count(), 0)

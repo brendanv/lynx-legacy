@@ -13,7 +13,7 @@ async def get_or_create_link(url: str,
   # where the link already exists.
   existing_link = await Link.objects.filter(Q(cleaned_url__iexact=url)
                                             | Q(original_url__iexact=url),
-                                            creator=user).afirst()
+                                            user=user).afirst()
   if existing_link is not None:
     return (existing_link, False)
 

@@ -24,7 +24,7 @@ def save_feed_item_to_library(sender, instance: FeedItem, created, **kwargs):
 def summarize_link(sender, instance: Link, created, **kwargs):
   if not created:
     return
-  setting, _ = UserSetting.objects.get_or_create(user=instance.creator)
+  setting, _ = UserSetting.objects.get_or_create(user=instance.user)
   if not setting.automatically_summarize_new_links:
     return
-  summarize_link_in_background(instance.creator.pk, instance.pk)
+  summarize_link_in_background(instance.user.pk, instance.pk)

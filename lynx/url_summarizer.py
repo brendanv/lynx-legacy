@@ -9,7 +9,7 @@ async def generate_and_persist_summary(link: Link) -> Link:
   if link.summary:
     return link
 
-  link_owner = await (sync_to_async(lambda: link.creator)())
+  link_owner = await (sync_to_async(lambda: link.user)())
   user_settings, _ = await UserSetting.objects.aget_or_create(user=link_owner)
   api_key = user_settings.openai_api_key
 

@@ -146,7 +146,7 @@ async def remove_feed_item_from_library_view(request: HttpRequest, pk):
   user = await request.auser()
   await headers.maybe_update_usersetting_headers(request, user)
   link = await aget_object_or_404(Link,
-                                  creator=user,
+                                  user=user,
                                   created_from_feed_item=pk)
   await link.adelete()
   if 'next' in request.POST:

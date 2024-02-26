@@ -16,7 +16,7 @@ class TestGetOrCreateLink(TestCase):
         'raw_text_content': 'Some content',
         'article_date': timezone.now(),
         'read_time_seconds': 12,
-        'creator': default_user,
+        'user': default_user,
     }
     defaults.update(kwargs)
     link = Link(**defaults)
@@ -30,7 +30,7 @@ class TestGetOrCreateLink(TestCase):
     url = 'http://example.com'
 
     mock_parse_url.return_value = Link(
-      creator=user,
+      user=user,
       original_url=url,
       cleaned_url=url,
       article_date=timezone.now(),

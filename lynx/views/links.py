@@ -56,7 +56,7 @@ async def add_link_view(request: HttpRequest) -> HttpResponse:
 async def link_actions_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
   await headers.maybe_update_usersetting_headers(request, user)
-  link = await aget_object_or_404(Link, pk=pk, creator=user)
+  link = await aget_object_or_404(Link, pk=pk, user=user)
   if 'action_delete' in request.POST:
     title = link.title
     await link.adelete()
@@ -120,12 +120,12 @@ async def readable_view(request: HttpRequest, pk: int) -> HttpResponse:
   link = await aget_object_or_404(Link.objects_with_full_content.defer(
       'raw_text_content', 'full_page_html', 'content_search'),
                                   pk=pk,
-                                  creator=user)
+                                  user=user)
   cleaner = html_cleaner.HTMLCleaner(link.article_html)
   cleaner.generate_headings().replace_image_links_with_images()
   tags_queryset = link.tags.all()
   tags = await (sync_to_async(list)(tags_queryset))
-  all_user_tags = await (sync_to_async(list)(Tag.objects.filter(creator=user)))
+  all_user_tags = await (sync_to_async(list)(Tag.objects.filter(user=user)))
   context_data = {
       'link':
       link,
@@ -162,7 +162,7 @@ class EditDetailsForm(forms.Form):
 @async_login_required
 async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
-  link = await aget_object_or_404(Link, pk=pk, creator=user)
+  link = await aget_object_or_404(Link, pk=pk, user=user)
   if request.method == 'POST':
     form = EditDetailsForm(request.POST)
     if form.is_valid():
@@ -202,7 +202,7 @@ async def link_feed_view(request: HttpRequest,
   # Filter to just links owned by this user, then the search
   # helper will do the rest.
   queryset, search_config = search.query_models(
-      Link.objects.filter(creator=user), request)
+      Link.objects.filter(user=user), request)
 
   data = {}
   data['search_config'] = search_config
@@ -219,8 +219,8 @@ async def link_feed_view(request: HttpRequest,
 @async_login_required
 async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
   user = await request.auser()
-  tag = await aget_object_or_404(Tag, slug=slug, creator=user)
-  queryset = Link.objects.filter(creator=user, tags=tag)
+  tag = await aget_object_or_404(Tag, slug=slug, user=user)
+  queryset = Link.objects.filter(user=user, tags=tag)
   data = {}
   data['title'] = f"Links tagged with '{tag.name}'"
   paginator_data = await paginator.generate_paginator_context_data(
@@ -238,14 +238,14 @@ async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
 async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
   user = await request.auser()
   await headers.maybe_update_usersetting_headers(request, user)
-  link = await aget_object_or_404(Link, pk=pk, creator=user)
+  link = await aget_object_or_404(Link, pk=pk, user=user)
   if 'add_tags' in request.POST:
     ids = request.POST['add_tags'].split(',')
-    tags = await aget_list_or_404(Tag, pk__in=ids, creator=user)
+    tags = await aget_list_or_404(Tag, pk__in=ids, user=user)
     link = await add_tags_to_link(tags, link)
   if 'remove_tags' in request.POST:
     ids = request.POST['remove_tags'].split(',')
-    tags = await aget_list_or_404(Tag, pk__in=ids, creator=user)
+    tags = await aget_list_or_404(Tag, pk__in=ids, user=user)
     link = await remove_tags_from_link(tags, link)
   if 'clear_tags' in request.POST:
     await set_tags_on_link([], link)
@@ -254,7 +254,7 @@ async def link_tags_edit_view(request: HttpRequest, pk: int) -> HttpResponse:
         key[9:-1] for key, value in request.POST.items()
         if key.startswith('set_tags[')
     ]
-    tags = await aget_list_or_404(Tag, pk__in=tag_ids, creator=user)
+    tags = await aget_list_or_404(Tag, pk__in=tag_ids, user=user)
     link = await set_tags_on_link(tags, link)
   if 'add_new_tag' in request.POST:
     new_tag_name = request.POST.get('new_tag_name', None)

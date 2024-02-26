@@ -25,7 +25,7 @@ def add_feed_item_to_library(user_pk: int, feed_item_pk: int):
 def summarize_link_in_background(user_pk: int, link_pk: int):
   User = get_user_model()
   user = User.objects.get(pk=user_pk)
-  link = Link.objects_with_full_content.get(pk=link_pk, creator=user)
+  link = Link.objects_with_full_content.get(pk=link_pk, user=user)
   if link.summary:
     return
   async_to_sync(url_summarizer.generate_and_persist_summary)(link)

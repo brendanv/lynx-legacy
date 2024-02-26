@@ -31,7 +31,7 @@ class UrlSummarizerTest(TestCase):
         'raw_text_content': 'Some content',
         'article_date': timezone.now(),
         'read_time_seconds': 12,
-        'creator': default_user,
+        'user': default_user,
     }
     defaults.update(kwargs)
     link = Link(**defaults)
@@ -56,7 +56,7 @@ class UrlSummarizerTest(TestCase):
     user = await self.get_default_test_user()
     await self.set_usersettings_value(user, openai_api_key='foo')
 
-    link = await self.create_test_link(summary='', creator=user)
+    link = await self.create_test_link(summary='', user=user)
 
     # Configure the mock OpenAI client to return a sample summary
     mock_openai.return_value.chat.completions.create = AsyncMock(
@@ -73,7 +73,7 @@ class UrlSummarizerTest(TestCase):
   async def test_raise_if_no_api_key_in_settings(self, mock_openai):
     user = await self.get_default_test_user()
     await self.set_usersettings_value(user, openai_api_key='')
-    link = await self.create_test_link(summary='', creator=user)
+    link = await self.create_test_link(summary='', user=user)
 
     with self.assertRaises(NoAPIKeyInSettings):
       await generate_and_persist_summary(link)
@@ -86,7 +86,7 @@ class UrlSummarizerTest(TestCase):
                                       openai_api_key='foo',
                                       summarization_model=summarization_model)
 
-    link = await self.create_test_link(summary='', creator=user)
+    link = await self.create_test_link(summary='', user=user)
 
     mock_openai.return_value.chat.completions.create = AsyncMock(
         return_value=AsyncMock(choices=[

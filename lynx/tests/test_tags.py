@@ -27,7 +27,7 @@ class TagsTestCase(TestCase):
         'raw_text_content': 'Some content',
         'article_date': timezone.now(),
         'read_time_seconds': 12,
-        'creator': default_user,
+        'user': default_user,
     }
     defaults.update(kwargs)
     link = Link(**defaults)
@@ -39,7 +39,7 @@ class TagsTestCase(TestCase):
     user2, _= await User.objects.aget_or_create(username='user2')
     self.assertNotEqual(user.pk, user2.pk)
 
-    tag, _ = await Tag.objects.aget_or_create(name='tag1', creator=user)
+    tag, _ = await Tag.objects.aget_or_create(name='tag1', user=user)
     with self.assertRaises(Http404):
       await delete_tag_for_user(user2, tag.pk)
 
@@ -56,7 +56,7 @@ class TagsTestCase(TestCase):
     tag = await create_tag_for_user(user, 'tag1')
     retry = await create_tag_for_user(user, 'tag1')
     self.assertEqual(tag, retry)
-    self.assertEqual(tag.creator, user)
+    self.assertEqual(tag.user, user)
     self.assertEqual(tag.name, 'tag1')
     self.assertIsNotNone(tag.slug)
 
@@ -65,7 +65,7 @@ class TagsTestCase(TestCase):
     self.assertNotEqual(user.pk, user2.pk)
     user2_tag = await create_tag_for_user(user2, 'tag1')
     self.assertNotEqual(tag, user2_tag)
-    self.assertEqual(user2_tag.creator, user2)
+    self.assertEqual(user2_tag.user, user2)
     self.assertEqual(user2_tag.name, 'tag1')
     self.assertIsNotNone(user2_tag.slug)
 
@@ -73,10 +73,10 @@ class TagsTestCase(TestCase):
     user, _= await User.objects.aget_or_create(username='user1')
     tag1 = await create_tag_for_user(user, 'tag1')
     tag2 = await create_tag_for_user(user, 'tag2')
-    link = await self.create_test_link(creator=user)
-    self.assertEqual(tag1.creator, link.creator)
-    self.assertEqual(tag2.creator, link.creator)
-    self.assertEqual(link.creator, user)
+    link = await self.create_test_link(user=user)
+    self.assertEqual(tag1.user, link.user)
+    self.assertEqual(tag2.user, link.user)
+    self.assertEqual(link.user, user)
 
     link = await add_tags_to_link([tag1, tag2], link)
     link_tags = await (sync_to_async(list)(link.tags.all()))
@@ -89,10 +89,10 @@ class TagsTestCase(TestCase):
     user2, _= await User.objects.aget_or_create(username='user2')
     tag1 = await create_tag_for_user(user, 'tag1')
     tag2 = await create_tag_for_user(user, 'tag2')
-    link = await self.create_test_link(creator=user2)
-    self.assertEqual(tag1.creator, user)
-    self.assertEqual(tag2.creator, user)
-    self.assertEqual(link.creator, user2)
+    link = await self.create_test_link(user=user2)
+    self.assertEqual(tag1.user, user)
+    self.assertEqual(tag2.user, user)
+    self.assertEqual(link.user, user2)
 
     with self.assertRaises(TagError):
       await add_tags_to_link([tag1, tag2], link)
@@ -102,11 +102,11 @@ class TagsTestCase(TestCase):
     tag1 = await create_tag_for_user(user, 'tag1')
     tag2 = await create_tag_for_user(user, 'tag2')
     tag3 = await create_tag_for_user(user, 'tag3')
-    link = await self.create_test_link(creator=user)
-    self.assertEqual(tag1.creator, link.creator)
-    self.assertEqual(tag2.creator, link.creator)
-    self.assertEqual(tag3.creator, link.creator)
-    self.assertEqual(link.creator, user)
+    link = await self.create_test_link(user=user)
+    self.assertEqual(tag1.user, link.user)
+    self.assertEqual(tag2.user, link.user)
+    self.assertEqual(tag3.user, link.user)
+    self.assertEqual(link.user, user)
     link = await add_tags_to_link([tag1, tag2, tag3], link)
 
     link = await remove_tags_from_link([tag1, tag2], link)
@@ -120,11 +120,11 @@ class TagsTestCase(TestCase):
     tag1 = await create_tag_for_user(user, 'tag1')
     tag2 = await create_tag_for_user(user, 'tag2')
     tag3 = await create_tag_for_user(user2, 'tag3')
-    link = await self.create_test_link(creator=user)
-    self.assertEqual(tag1.creator, link.creator)
-    self.assertEqual(tag2.creator, link.creator)
-    self.assertEqual(tag3.creator, user2)
-    self.assertEqual(link.creator, user)
+    link = await self.create_test_link(user=user)
+    self.assertEqual(tag1.user, link.user)
+    self.assertEqual(tag2.user, link.user)
+    self.assertEqual(tag3.user, user2)
+    self.assertEqual(link.user, user)
     link = await add_tags_to_link([tag1, tag2], link)
 
     with self.assertRaises(TagError):
@@ -135,11 +135,11 @@ class TagsTestCase(TestCase):
     tag1 = await create_tag_for_user(user, 'tag1')
     tag2 = await create_tag_for_user(user, 'tag2')
     tag3 = await create_tag_for_user(user, 'tag3')
-    link = await self.create_test_link(creator=user)
-    self.assertEqual(tag1.creator, link.creator)
-    self.assertEqual(tag2.creator, link.creator)
-    self.assertEqual(tag3.creator, link.creator)
-    self.assertEqual(link.creator, user)
+    link = await self.create_test_link(user=user)
+    self.assertEqual(tag1.user, link.user)
+    self.assertEqual(tag2.user, link.user)
+    self.assertEqual(tag3.user, link.user)
+    self.assertEqual(link.user, user)
     
     link = await set_tags_on_link([tag1, tag2], link)
     link_tags = await (sync_to_async(list)(link.tags.all()))
@@ -162,11 +162,11 @@ class TagsTestCase(TestCase):
     tag1 = await create_tag_for_user(user, 'tag1')
     tag2 = await create_tag_for_user(user, 'tag2')
     tag3 = await create_tag_for_user(user2, 'tag3')
-    link = await self.create_test_link(creator=user)
-    self.assertEqual(tag1.creator, link.creator)
-    self.assertEqual(tag2.creator, link.creator)
-    self.assertEqual(tag3.creator, user2)
-    self.assertEqual(link.creator, user)
+    link = await self.create_test_link(user=user)
+    self.assertEqual(tag1.user, link.user)
+    self.assertEqual(tag2.user, link.user)
+    self.assertEqual(tag3.user, user2)
+    self.assertEqual(link.user, user)
 
     with self.assertRaises(TagError):
       await set_tags_on_link([tag1, tag2, tag3], link)

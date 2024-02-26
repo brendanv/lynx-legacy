@@ -11,7 +11,7 @@ import urllib.parse
 
 class Tag(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
-  creator = models.ForeignKey(settings.AUTH_USER_MODEL,
+  user = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
   name = models.CharField(max_length=50)
   slug = AutoSlugField(populate_from='name', max_length=50)
@@ -25,7 +25,7 @@ class Tag(models.Model):
 
 class BulkUpload(models.Model):
   created_at = models.DateTimeField(auto_now_add=True)
-  creator = models.ForeignKey(settings.AUTH_USER_MODEL,
+  user = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
   tag_slug = models.CharField(max_length=50, blank=True, null=True)
 
@@ -45,7 +45,7 @@ class Link(models.Model):
   # When this link was added to the library. Note that this may be
   # different from created_at in the case of bulk importing links!
   added_at = models.DateTimeField(default=timezone.now)
-  creator = models.ForeignKey(settings.AUTH_USER_MODEL,
+  user = models.ForeignKey(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
   last_viewed_at = models.DateTimeField(null=True, blank=True)
 

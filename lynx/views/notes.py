@@ -15,7 +15,7 @@ from . import paginator, breadcrumbs
 async def add_note_view(request: HttpRequest, link_pk: int) -> HttpResponse:
   user = await request.auser()
   await headers.maybe_update_usersetting_headers(request, user)
-  link = await aget_object_or_404(Link, pk=link_pk, creator=user)
+  link = await aget_object_or_404(Link, pk=link_pk, user=user)
   fragment = ''
   if 'note' in request.POST:
     note = await commands.create_note_for_link(user, link,
@@ -29,7 +29,7 @@ async def add_note_view(request: HttpRequest, link_pk: int) -> HttpResponse:
 @async_login_required
 async def link_notes_view(request: HttpRequest, link_pk: int) -> HttpResponse:
   user = await request.auser()
-  link = await aget_object_or_404(Link, pk=link_pk, creator=user)
+  link = await aget_object_or_404(Link, pk=link_pk, user=user)
   paginator_data = await paginator.generate_paginator_context_data(
       request,
       Note.objects.filter(link=link, user=user).order_by('-saved_at'))

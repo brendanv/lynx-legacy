@@ -16,7 +16,7 @@ class TestTasks(TestCase):
         'raw_text_content': 'Some content',
         'article_date': timezone.now(),
         'read_time_seconds': 12,
-        'creator': default_user,
+        'user': default_user,
     }
     defaults.update(kwargs)
     link = Link(**defaults)
@@ -26,7 +26,7 @@ class TestTasks(TestCase):
   def test_add_feed_item_to_library_creates_link_only_if_not_added(self):
     user = User.objects.create(username='testuser')
     feed = Feed.objects.create(user=user, feed_name='Test Feed')
-    link = self.create_test_link(creator=user)
+    link = self.create_test_link(user=user)
     feed_item = FeedItem.objects.create(feed=feed,
                                         title='Test Feed Item',
                                         url='http://example.com')

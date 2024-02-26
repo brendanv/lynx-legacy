@@ -26,7 +26,7 @@ class CreateLinkEndpointTest(TestCase):
   @patch('lynx.url_parser.parse_url')
   async def test_test_endpoint_with_valid_key_header(self, mock_parse_url):
     mock_parse_url.return_value = Link(
-        creator=self.user,
+        user=self.user,
         original_url=add_link_dict['url'],
         cleaned_url=add_link_dict['cleaned_url'],
         title=add_link_dict['title'],
@@ -55,7 +55,7 @@ class CreateLinkEndpointTest(TestCase):
   @patch('lynx.url_parser.parse_url')
   async def test_test_endpoint_with_valid_key_bearer(self, mock_parse_url):
     mock_parse_url.return_value = Link(
-        creator=self.user,
+        user=self.user,
         original_url=add_link_dict['url'],
         cleaned_url=add_link_dict['cleaned_url'],
         title=add_link_dict['title'],
@@ -112,7 +112,7 @@ class CreateNoteEndpointTest(TestCase):
   @patch('lynx.url_parser.parse_url')
   async def test_create_note_for_unsaved_link(self, mock_parse_url):
     mock_parse_url.return_value = Link(
-        creator=self.user,
+        user=self.user,
         original_url=add_link_dict['url'],
         cleaned_url=add_link_dict['cleaned_url'],
         title=add_link_dict['title'],
@@ -144,7 +144,7 @@ class CreateNoteEndpointTest(TestCase):
     
   async def test_create_note_for_previously_saved_link(self):
     existing_link = await Link.objects.acreate(
-        creator=self.user,
+        user=self.user,
         original_url=add_link_dict['url'],
         cleaned_url=add_link_dict['cleaned_url'],
         title=add_link_dict['title'],
