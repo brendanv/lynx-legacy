@@ -1,4 +1,6 @@
 from django.db.models import F
+
+from lynx.utils.singlefile import is_singlefile_enabled
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget, FancyDateWidget
 from . import paginator, breadcrumbs
@@ -10,7 +12,7 @@ from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner, commands
-from lynx.models import Link, Note, Tag
+from lynx.models import Link, LinkArchive, Note, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
 from lynx.utils import headers, search
@@ -193,13 +195,17 @@ async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
             'article_date': link.article_date
         })
 
+  has_existing_archive = await LinkArchive.objects.filter(link=link).aexists()
+
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
       [breadcrumbs.HOME, breadcrumbs.EDIT_LINK(link)])
   return TemplateResponse(request,
                           "lynx/link_details.html",
                           context={
                               'link': link,
-                              'form': form
+                              'form': form,
+                              'singlefile_enabled': is_singlefile_enabled(),
+                              'has_existing_archive': has_existing_archive
                           } | breadcrumb_data)
 
 

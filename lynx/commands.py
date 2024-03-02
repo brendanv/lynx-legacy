@@ -1,7 +1,9 @@
 from typing import Tuple, Optional
 from lynx import url_parser
-from lynx.models import Link, Note
+from lynx.models import Link, LinkArchive, Note
 from django.db.models import Q
+
+from lynx.utils.singlefile import get_singlefile_content
 
 
 async def get_or_create_link(url: str,
@@ -51,3 +53,18 @@ async def create_note_for_link(user, link: Link, note_content: str) -> Note:
 async def create_note(user, url: str, note_content: str) -> Note:
   link, _ = await get_or_create_link(url, user)
   return await create_note_for_link(user, link, note_content)
+
+
+async def create_archive_for_link(user, link: Link) -> Optional[LinkArchive]:
+  existing_archive = await LinkArchive.objects.filter(link=link).afirst()
+  if existing_archive is not None:
+    return existing_archive
+
+  archive_content = await get_singlefile_content(link.cleaned_url)
+  if archive_content is None:
+    return None
+  return await LinkArchive.objects.acreate(
+      user=user,
+      link=link,
+      archive_content=archive_content,
+  )

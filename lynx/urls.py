@@ -20,6 +20,9 @@ urlpatterns = [
          name="link_tags_edit"),
     path("<int:link_pk>/add_note/", views.add_note_view, name="add_note"),
 
+    path("<int:link_pk>/archive/", views.link_archive_view, name="link_archive"),
+    path("<int:link_pk>/archive/create/", views.create_archive_view, name="create_link_archive"),
+
     path("<int:link_pk>/notes/", views.link_notes_view, name="link_notes"),
     path("notes/", views.all_notes_view, name="all_notes"),
     path("note/<int:pk>/delete/", views.delete_note_view, name="delete_note"),
