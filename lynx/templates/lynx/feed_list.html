@@ -1,5 +1,6 @@
 {% extends 'lynx/base.html' %}
 {% load tz %}
+{% load humanize %}
 
 {% block title %}Feeds | Lynx{% endblock %}
 {% block nav_title %}Manage Feeds{% endblock %}
@@ -37,7 +38,7 @@
           <h2 class="card-title line-clamp-2 md:line-clamp-1 hover:text-primary"><a href="{% url 'lynx:feed_items' feed.id %}">{{ feed.feed_name }}</a></h2>
           <p class="line-clamp-1 opacity-60">{{ feed.feed_description }}</p>
         <div class="opacity-60">
-          {{ feed.num_items }} item{{ feed.num_items|pluralize }} • Last fetched: {{ feed.last_fetched_at|localtime }}
+          {{ feed.num_items }} item{{ feed.num_items|pluralize }} • Last fetched: {{ feed.last_fetched_at|localtime|naturaltime }} • Last article: {{feed.last_feed_item_created_at|localtime|naturaltime }}
         </div>
         </div>
       </div>

@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.shortcuts import aget_object_or_404, redirect
-from django.db.models import Count
+from django.db.models import Count, OuterRef, Subquery
 from lynx.models import FeedItem, Feed, Link
 from lynx.utils import headers
 from lynx import feed_utils, tasks
@@ -18,7 +18,9 @@ from lynx import feed_utils, tasks
 async def feeds_list_view(request: HttpRequest) -> HttpResponse:
   user = await request.auser()
   queryset = Feed.objects.filter(user=user, is_deleted=False).annotate(
-      num_items=Count('item')).order_by('-created_at')
+      num_items=Count('item')).annotate(last_feed_item_created_at=Subquery(
+          FeedItem.objects.filter(feed=OuterRef('pk')).values('created_at').
+          order_by('-created_at')[:1])).order_by('-last_feed_item_created_at')
   paginator_data = await paginator.generate_paginator_context_data(
       request, queryset)
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
@@ -145,9 +147,7 @@ async def add_all_feed_items_to_library_view(request: HttpRequest, pk):
 async def remove_feed_item_from_library_view(request: HttpRequest, pk):
   user = await request.auser()
   await headers.maybe_update_usersetting_headers(request, user)
-  link = await aget_object_or_404(Link,
-                                  user=user,
-                                  created_from_feed_item=pk)
+  link = await aget_object_or_404(Link, user=user, created_from_feed_item=pk)
   await link.adelete()
   if 'next' in request.POST:
     return redirect(request.POST['next'])
@@ -161,7 +161,10 @@ class AddFeedForm(forms.Form):
   auto_add = forms.BooleanField(
       required=False,
       label="Auto-add new articles to library",
-      widget=forms.CheckboxInput(attrs={'class': 'checkbox checkbox-primary', 'required': False}))
+      widget=forms.CheckboxInput(attrs={
+          'class': 'checkbox checkbox-primary',
+          'required': False
+      }))
 
   def create_feed(self, request: HttpRequest, user: User) -> Feed:
     loader = feed_utils.RemoteFeedLoader(
@@ -231,8 +234,7 @@ async def edit_feed_view(request: HttpRequest, feed_id: int) -> HttpResponse:
         })
 
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data([
-      breadcrumbs.HOME,
-      breadcrumbs.FEEDS,
+      breadcrumbs.HOME, breadcrumbs.FEEDS,
       breadcrumbs.FEED_ITEMS(feed),
       breadcrumbs.EDIT_FEED(feed)
   ])
