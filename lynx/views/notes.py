@@ -20,7 +20,7 @@ async def add_note_view(request: HttpRequest, link_pk: int) -> HttpResponse:
   if 'note' in request.POST:
     note = await commands.create_note_for_link(user, link,
                                                request.POST['note'])
-    fragment = note.fragment()
+    fragment = '#' + note.quoted_fragment()
   if 'next' in request.POST:
     return redirect(request.POST['next'] + fragment)
   return redirect('lynx:links_feed')
