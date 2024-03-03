@@ -22,11 +22,23 @@ class AddLinkForm(forms.Form):
   url = forms.URLField(label="",
                        max_length=2000,
                        widget=FancyTextWidget('Article URL'))
+  pasted_content = forms.CharField(
+      required=False,
+      widget=forms.Textarea(
+          attrs={
+              'class':
+              'block p-2.5 mb-4 w-full text-m bg-transparent border-0 border-2 border-base-300 appearance-none focus:outline-none focus:ring-0 focus:border-primary max-h-20 focus:max-h-max'
+          }))
 
   async def create_link(self, user) -> Link:
-    url, _ = await commands.get_or_create_link(self.cleaned_data['url'], user)
-    await url.asave()
-    return url
+    if self.cleaned_data['pasted_content']:
+      url, _ = await commands.get_or_create_link_with_content(
+          self.cleaned_data['url'], self.cleaned_data['pasted_content'], user)
+      return url
+    else:
+      url, _ = await commands.get_or_create_link(self.cleaned_data['url'],
+                                                 user)
+      return url
 
 
 @async_login_required
@@ -201,8 +213,8 @@ async def link_feed_view(request: HttpRequest,
   ]
   # Filter to just links owned by this user, then the search
   # helper will do the rest.
-  queryset, search_config = search.query_models(
-      Link.objects.filter(user=user), request)
+  queryset, search_config = search.query_models(Link.objects.filter(user=user),
+                                                request)
 
   data = {}
   data['search_config'] = search_config

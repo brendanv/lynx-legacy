@@ -12,7 +12,7 @@ Lynx is a self-hostable read-it-later service that let's you save articles or pa
 
 Better yet, Lynx contains _zero JavaScript_* so it can run on just about anything!
 
-(* Well, there are [5 lines](https://github.com/brendanv/lynx/blob/c35c61517a5bd225805740837ee2fc4b7910842a/lynx/templates/lynx/link_viewer.html#L124-L132) that are required to allow you to save highlights in your notes.. but Lynx also works great with JavaScript completely disabled.)
+(* Well, there are small snippets [here](https://github.com/brendanv/lynx/blob/c35c61517a5bd225805740837ee2fc4b7910842a/lynx/templates/lynx/link_viewer.html#L124-L132) and [here](lynx/templates/lynx/add_link.html#L18-L24) that are required to allow you to save highlights in your notes.. but Lynx also works great with JavaScript completely disabled.)
 
 <picture>
   <img src="resources/dark-light-list-view.png">

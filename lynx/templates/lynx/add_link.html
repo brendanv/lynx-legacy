@@ -14,4 +14,13 @@
       <button class="btn btn-primary btn-block">Add Link</button>
     </form>
   </div>
+  <script>
+    document.querySelector("textarea#id_pasted_content").addEventListener('paste', (event) => {
+      const htmlContent = (event.clipboardData || window.clipboardData).getData('text/html');
+      if (htmlContent) {
+        event.preventDefault();
+        document.querySelector("textarea#id_pasted_content").value = htmlContent;
+      }
+    });
+  </script>
 {% endblock %}

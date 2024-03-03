@@ -22,6 +22,21 @@ async def get_or_create_link(url: str,
   return (link, True)
 
 
+async def get_or_create_link_with_content(
+    url: str,
+    content: str,
+    user,
+    model_fields: Optional[dict] = None) -> Tuple[Link, bool]:
+  existing_link = await Link.objects.filter(Q(cleaned_url__iexact=url)
+                                            | Q(original_url__iexact=url),
+                                            user=user).afirst()
+  if existing_link is not None:
+    return (existing_link, False)
+  link = url_parser.parse_url_with_content(url, content, user, model_fields)
+  await link.asave()
+  return (link, True)
+
+
 async def create_note_for_link(user, link: Link, note_content: str) -> Note:
   return await Note.objects.acreate(
       user=user,
