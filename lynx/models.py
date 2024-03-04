@@ -247,3 +247,6 @@ class LinkArchive(models.Model):
   user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
   link = models.OneToOneField(Link, on_delete=models.CASCADE)
   archive_content = models.TextField()
+  
+  def __str__(self):
+    return f"Archive(Link {self.link.pk})"

@@ -60,7 +60,7 @@ async def create_archive_for_link(user, link: Link) -> Optional[LinkArchive]:
   if existing_archive is not None:
     return existing_archive
 
-  archive_content = await get_singlefile_content(link.cleaned_url)
+  archive_content = await get_singlefile_content(link.original_url)
   if archive_content is None:
     return None
   return await LinkArchive.objects.acreate(
