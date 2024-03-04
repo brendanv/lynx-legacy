@@ -16,7 +16,7 @@ async def get_singlefile_content(url) -> Optional[str]:
   if not is_singlefile_enabled():
     return None
 
-  async with httpx.AsyncClient() as client:
+  async with httpx.AsyncClient(timeout=30) as client:
     response = await client.post(get_singlefile_url(), data={'url': url})
     response.raise_for_status()
     return response.text
