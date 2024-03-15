@@ -55,6 +55,8 @@ async def create_note(user, url: str, note_content: str) -> Note:
   return await create_note_for_link(user, link, note_content)
 
 
+# Potentially raises a ReadTimeout if the archive service has 
+# an error!
 async def create_archive_for_link(user, link: Link) -> Optional[LinkArchive]:
   existing_archive = await LinkArchive.objects.filter(link=link).afirst()
   if existing_archive is not None:

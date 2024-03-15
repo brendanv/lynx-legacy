@@ -1,3 +1,4 @@
+from httpx import ReadTimeout
 from lynx.commands import create_archive_for_link
 from lynx.models import Link, LinkArchive
 from lynx.utils.singlefile import is_singlefile_enabled
@@ -15,7 +16,12 @@ async def create_archive_view(request: HttpRequest, link_pk: int) -> HttpRespons
     
   user = await request.auser()
   link = await aget_object_or_404(Link, pk=link_pk, user=user)
-  archive = await create_archive_for_link(user, link)
+  try: 
+    archive = await create_archive_for_link(user, link)
+  except ReadTimeout:
+    messages.error(request, 'Archive creation timed out')
+    return redirect('lynx:link_details', link_pk)
+    
   if archive is None:
     messages.error(request, 'Failed to create archive')
     return redirect('lynx:link_details', link_pk)
