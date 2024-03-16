@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import Exists, OuterRef
 
 from lynx.utils.singlefile import is_singlefile_enabled
 from .decorators import async_login_required, lynx_post_only
@@ -7,7 +7,6 @@ from . import paginator, breadcrumbs
 from asgiref.sync import sync_to_async
 from django import forms
 from django.contrib import messages
-from django.contrib.postgres.search import SearchRank, SearchVector, SearchQuery
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
@@ -219,8 +218,10 @@ async def link_feed_view(request: HttpRequest,
   ]
   # Filter to just links owned by this user, then the search
   # helper will do the rest.
-  queryset, search_config = search.query_models(Link.objects.filter(user=user),
-                                                request)
+  queryset, search_config = search.query_models(
+      Link.objects.filter(user=user).annotate(
+          has_archive=Exists(LinkArchive.objects.filter(link=OuterRef('pk')))),
+      request)
 
   data = {}
   data['search_config'] = search_config
@@ -238,7 +239,8 @@ async def link_feed_view(request: HttpRequest,
 async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
   user = await request.auser()
   tag = await aget_object_or_404(Tag, slug=slug, user=user)
-  queryset = Link.objects.filter(user=user, tags=tag)
+  queryset = Link.objects.filter(user=user, tags=tag).annotate(
+      has_archive=Exists(LinkArchive.objects.filter(link=OuterRef('pk'))))
   data = {}
   data['title'] = f"Links tagged with '{tag.name}'"
   paginator_data = await paginator.generate_paginator_context_data(
