@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 from django.utils import timezone
 from lynx.commands import create_archive_for_link, get_or_create_link, get_or_create_link_with_content
-from lynx.models import Link
+from lynx.models import Link, UserCookie
 
 
 class TestGetOrCreateLink(TestCase):
@@ -147,3 +147,36 @@ class TestCreateArchiveForLink(TestCase):
 
     archive = await create_archive_for_link(user, link)
     self.assertIsNone(archive)
+
+  @patch.dict(os.environ, {"SINGLEFILE_URL": "https://localhost:8000"},
+              clear=True)
+  @patch('lynx.commands.get_singlefile_content')
+  async def test_passes_along_user_cookies(self, mock_get_singlefile_content):
+    user, _ = await User.objects.aget_or_create(username='user')
+    await UserCookie.objects.acreate(user=user,
+                                              cookie_name='my_cookie',
+                                              cookie_value='my_value',
+                                              cookie_domain='example.com')
+    await UserCookie.objects.acreate(user=user,
+                                              cookie_name='othercookie',
+                                              cookie_value='othervalue',
+                                              cookie_domain='example.com')
+    # This cookie should be ignored!
+    await UserCookie.objects.acreate(user=user,
+                                              cookie_name='thirdcookie',
+                                              cookie_value='thirdvalue',
+                                              cookie_domain='anothersite.com')
+    link = await self.create_test_link(user=user,
+                                       original_url='https://example.com',
+                                       cleaned_url='https://example.com',
+                                       hostname='example.com')
+    mock_get_singlefile_content.return_value = None
+
+    archive = await create_archive_for_link(user, link)
+    self.assertIsNone(archive)
+    mock_get_singlefile_content.assert_called_with(
+        'https://example.com',
+        cookies=[
+            'my_cookie,my_value,example.com',
+            'othercookie,othervalue,example.com',
+        ])
