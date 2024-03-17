@@ -32,4 +32,14 @@ services:
       POSTGRES_DB: lynx
     volumes:
       - ./pgdata:/var/lib/postgresql/data
-    
+
+  # OPTIONAL - uncomment to enable the integration with 
+  # SingleFile to save archives of your links.
+  #
+  # singlefile:
+  #   container_name: singlefile
+  #   image: ghcr.io/brendanv/lynx-singlefile:latest
+  #   entrypoint: python3
+  #   command: webserver.py
+  #   expose:
+  #     - 80
