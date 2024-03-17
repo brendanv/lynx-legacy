@@ -1,3 +1,4 @@
+from .archives import *
 from .feeds import *
 from .links import *
 from .user import *

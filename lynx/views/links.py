@@ -1,16 +1,17 @@
-from django.db.models import F
+from django.db.models import Exists, OuterRef
+
+from lynx.utils.singlefile import is_singlefile_enabled
 from .decorators import async_login_required, lynx_post_only
 from .widgets import FancyTextWidget, FancyDateWidget
 from . import paginator, breadcrumbs
 from asgiref.sync import sync_to_async
 from django import forms
 from django.contrib import messages
-from django.contrib.postgres.search import SearchRank, SearchVector, SearchQuery
 from django.http import HttpRequest, HttpResponse
 from django.template.response import TemplateResponse
 from django.utils import timezone
 from lynx import url_parser, url_summarizer, html_cleaner, commands
-from lynx.models import Link, Note, Tag
+from lynx.models import Link, LinkArchive, Note, Tag
 from lynx.errors import NoAPIKeyInSettings, UrlParseError
 from lynx.tag_manager import delete_tag_for_user, create_tag_for_user, add_tags_to_link, load_all_user_tags, remove_tags_from_link, set_tags_on_link
 from lynx.utils import headers, search
@@ -193,13 +194,17 @@ async def details_view(request: HttpRequest, pk: int) -> HttpResponse:
             'article_date': link.article_date
         })
 
+  has_existing_archive = await LinkArchive.objects.filter(link=link).aexists()
+
   breadcrumb_data = breadcrumbs.generate_breadcrumb_context_data(
       [breadcrumbs.HOME, breadcrumbs.EDIT_LINK(link)])
   return TemplateResponse(request,
                           "lynx/link_details.html",
                           context={
                               'link': link,
-                              'form': form
+                              'form': form,
+                              'singlefile_enabled': is_singlefile_enabled(),
+                              'has_existing_archive': has_existing_archive
                           } | breadcrumb_data)
 
 
@@ -213,8 +218,10 @@ async def link_feed_view(request: HttpRequest,
   ]
   # Filter to just links owned by this user, then the search
   # helper will do the rest.
-  queryset, search_config = search.query_models(Link.objects.filter(user=user),
-                                                request)
+  queryset, search_config = search.query_models(
+      Link.objects.filter(user=user).annotate(
+          has_archive=Exists(LinkArchive.objects.filter(link=OuterRef('pk')))),
+      request)
 
   data = {}
   data['search_config'] = search_config
@@ -232,7 +239,8 @@ async def link_feed_view(request: HttpRequest,
 async def tagged_links_view(request: HttpRequest, slug: str) -> HttpResponse:
   user = await request.auser()
   tag = await aget_object_or_404(Tag, slug=slug, user=user)
-  queryset = Link.objects.filter(user=user, tags=tag)
+  queryset = Link.objects.filter(user=user, tags=tag).annotate(
+      has_archive=Exists(LinkArchive.objects.filter(link=OuterRef('pk'))))
   data = {}
   data['title'] = f"Links tagged with '{tag.name}'"
   paginator_data = await paginator.generate_paginator_context_data(

@@ -22,6 +22,7 @@ Better yet, Lynx contains _zero JavaScript_* so it can run on just about anythin
 
 - Save links quickly and easily, using the web UI or via a single API call.
 - View saved articles in a clean, easily-readable format.
+  - Plus, an optional integration with [SingleFile](https://github.com/gildas-lormeau/SingleFile) to save faithful standalone archives of the complete webpage. Build your own internet archive!
 - Save highlighted passages from any articles in your collection or from around the web.
 - Subscribe to RSS feeds to automatically download and save new articles as they're posted.
 - Full text search and tagging support let's you quickly find anything in your saved articles.
@@ -67,6 +68,12 @@ In general, there are two API endpoints:
 - `your-server.com:8000/api/notes/add`
 
 They both require a `url` parameter and the notes endpoint also requires the note `content` to be provided. That's it! 
+
+## SingleFile integration
+If you enabled the singlefile container and environment variable in your docker-compose and env files, then Lynx will attempt to create a standalone archive of all the pages you save. Any cookies that you have saved within Lynx will also be passed along when archiving, so if you're able to load the page in Lynx then it should also archive correctly.
+
+This process is not perfect and depending on your setup can be slow (it sends an HTTP request to the [lynx-singlefile container](https://github.com/brendanv/lynx-singlefile), which runs headless Chrome to load the page and process everything into a single file) but it works pretty well. 
+
 
 ## Contributing
 

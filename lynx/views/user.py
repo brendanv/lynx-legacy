@@ -55,7 +55,6 @@ class UpdateSettingsForm(forms.Form):
     setting.openai_api_key = self.cleaned_data.get('openai_api_key', "")
     setting.summarization_model = self.cleaned_data.get(
         'summarization_model', UserSetting.SummarizationModel.choices[0][0])
-    print(self.cleaned_data)
     setting.automatically_summarize_new_links = self.cleaned_data.get(
         'auto_summarize_new_links', False)
     setting.save()

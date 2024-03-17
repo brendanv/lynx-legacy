@@ -68,7 +68,6 @@ async def handle_readwise_upload(request: HttpRequest, file: File, bulk_tag: str
       added_at = str(parser.parse(row['Saved date']))
     
     await (sync_to_async(add_new_link_in_background)(user.pk, url, tags, last_viewed_at, added_at))
-    print(row)
 
 @background
 def add_new_link_in_background(user_pk: int, url: str, tags: list[str],  last_viewed_at_str: Optional[str], added_at_str: Optional[str]):

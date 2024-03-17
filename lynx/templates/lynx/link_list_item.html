@@ -37,6 +37,11 @@
             <li>
               <input type="submit" name="action_summarize" value="Summarize">
             </li>
+            {% if link.has_archive %}
+              <li>
+                <a href="{% url 'lynx:link_archive' link.pk %}">View archive</a>
+              </li>
+            {% endif %}
             <div class="divider"></div>
             <li>
               <input class="hover:bg-error hover:text-error-content" type="submit" name="action_delete" value="Delete">
