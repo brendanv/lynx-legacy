@@ -70,8 +70,7 @@ async def create_archive_for_link(user, link: Link) -> Optional[LinkArchive]:
       # See https://github.com/gildas-lormeau/single-file-cli/blob/5b9d11bc0b1a9dfe08d92207045c9d6d09c24fbf/options.js#L59
       # (name,value,domain,path,expires,httpOnly,secure,sameSite,url)
       ','.join([
-          cookie.cookie_name, cookie.cookie_value, cookie.cookie_domain, '',
-          '', '', '', '', url
+          cookie.cookie_name, cookie.cookie_value, cookie.cookie_domain
       ]) async for cookie in cookies
   ]
   print(cookie_data)
