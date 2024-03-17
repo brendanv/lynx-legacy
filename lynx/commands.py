@@ -1,7 +1,8 @@
 from typing import Tuple, Optional
 from lynx import url_parser
-from lynx.models import Link, LinkArchive, Note
+from lynx.models import Link, LinkArchive, Note, UserCookie
 from django.db.models import Q
+from urllib.parse import urlparse
 
 from lynx.utils.singlefile import get_singlefile_content
 
@@ -55,14 +56,27 @@ async def create_note(user, url: str, note_content: str) -> Note:
   return await create_note_for_link(user, link, note_content)
 
 
-# Potentially raises a ReadTimeout if the archive service has 
+# Potentially raises a ReadTimeout if the archive service has
 # an error!
 async def create_archive_for_link(user, link: Link) -> Optional[LinkArchive]:
   existing_archive = await LinkArchive.objects.filter(link=link).afirst()
   if existing_archive is not None:
     return existing_archive
 
-  archive_content = await get_singlefile_content(link.original_url)
+  url = link.original_url
+  domain = urlparse(url).netloc
+  cookies = UserCookie.objects.filter(user=user, cookie_domain=domain)
+  cookie_data = [
+      # See https://github.com/gildas-lormeau/single-file-cli/blob/5b9d11bc0b1a9dfe08d92207045c9d6d09c24fbf/options.js#L59
+      # (name,value,domain,path,expires,httpOnly,secure,sameSite,url)
+      ','.join([
+          cookie.cookie_name, cookie.cookie_value, cookie.cookie_domain, '',
+          '', '', '', '', url
+      ]) async for cookie in cookies
+  ]
+  print(cookie_data)
+
+  archive_content = await get_singlefile_content(url, cookies=cookie_data)
   if archive_content is None:
     return None
   return await LinkArchive.objects.acreate(
