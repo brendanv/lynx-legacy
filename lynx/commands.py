@@ -73,7 +73,6 @@ async def create_archive_for_link(user, link: Link) -> Optional[LinkArchive]:
           cookie.cookie_name, cookie.cookie_value, cookie.cookie_domain
       ]) async for cookie in cookies
   ]
-  print(cookie_data)
 
   archive_content = await get_singlefile_content(url, cookies=cookie_data)
   if archive_content is None:
