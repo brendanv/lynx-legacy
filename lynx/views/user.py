@@ -22,6 +22,11 @@ class UpdateSettingsForm(forms.Form):
                                    widget=FancyPasswordWidget(
                                        'OpenAI API Key', render_value=True),
                                    required=False)
+  anthropic_api_key = forms.CharField(label="",
+   max_length=255,
+   widget=FancyPasswordWidget(
+       'Anthropic API Key', render_value=True),
+   required=False)
 
   lynx_api_key = forms.CharField(
       label="",
@@ -53,6 +58,7 @@ class UpdateSettingsForm(forms.Form):
         request)
     setting.headers_updated_at = timezone.now()
     setting.openai_api_key = self.cleaned_data.get('openai_api_key', "")
+    setting.anthropic_api_key = self.cleaned_data.get('anthropic_api_key', "")
     setting.summarization_model = self.cleaned_data.get(
         'summarization_model', UserSetting.SummarizationModel.choices[0][0])
     setting.automatically_summarize_new_links = self.cleaned_data.get(
@@ -74,6 +80,7 @@ async def update_settings_view(request: HttpRequest) -> HttpResponse:
     form = UpdateSettingsForm(
         initial={
             'openai_api_key': setting.openai_api_key,
+            'anthropic_api_key': setting.anthropic_api_key,
             'lynx_api_key': setting.lynx_api_key,
             'summarization_model': setting.summarization_model,
             'auto_summarize_new_links': setting.automatically_summarize_new_links

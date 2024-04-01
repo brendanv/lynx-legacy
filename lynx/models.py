@@ -105,6 +105,7 @@ class UserSetting(models.Model):
   user = models.OneToOneField(settings.AUTH_USER_MODEL,
                               on_delete=models.CASCADE)
   openai_api_key = models.CharField(max_length=255, blank=True)
+  anthropic_api_key = models.CharField(max_length=255, blank=True)
   automatically_summarize_new_links = models.BooleanField(default=False)
 
   lynx_api_key = models.CharField(max_length=255, blank=True)
@@ -119,6 +120,9 @@ class UserSetting(models.Model):
     GPT35TURBO0125 = 'gpt-3.5-turbo-0125', 'gpt-3.5-turbo-0125'
     GPT4 = 'gpt-4', 'gpt-4'
     GPT4TURBO = 'gpt-4-turbo-preview', 'gpt-4-turbo-preview'
+    CLAUDE3HAIKU = 'claude-3-haiku-20240307', 'claude-3-haiku-20240307'
+    CLAUDE3SONNET = 'claude-3-sonnet-20240229', 'claude-3-sonnet-20240229'
+    CLAUDE3OPUS = 'claude-3-opus-20240229', 'claude-3-opus-20240229'
 
   summarization_model = models.CharField(max_length=255,
                                          choices=SummarizationModel,
